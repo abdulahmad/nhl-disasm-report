@@ -32,10 +32,10 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 #catbox .num{text-align:right;font-variant-numeric:tabular-nums}
 #catbox .pill{display:inline-block;padding:1px 6px;border-radius:10px;color:#fff;font-size:11px}
 #catbox .conf-high{color:#6c6}#catbox .conf-med{color:#cc6}#catbox .conf-low{color:#c66;font-weight:600}
-#catTintLab{display:none}
+#catTintLab,#nestLab{display:none}#rom .nb{position:absolute;width:2px;pointer-events:none;z-index:1}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label>
-<label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label>
+<label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
 <span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div>
@@ -49,9 +49,9 @@ const $=id=>document.getElementById(id);
 const tname=t=>{const [g,v]=t.split(':');return v?`${g} (${v==='groups'?'routine groups':'banks'})`:g};
 const CAT=M.categories||null;
 const catColor=c=>((CAT&&CAT.colors)||{})[c]||'#555';
-let st={s:'94G',v:'',c:'',f:0,tint:false},D=null;
-function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1'}
-function writeHash(){history.replaceState(null,'',`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}${st.v.startsWith('rom:')&&st.tint?'&tint=1':''}`)}
+let st={s:'94G',v:'',c:'',f:0,tint:false,nest:false},D=null;
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')==='1'}
+function writeHash(){history.replaceState(null,'',`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&st.nest?'&nest=1':''))}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
 function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);$('msg').textContent='loading '+id+'...';NDR.cb=cb;const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function hasCat(){return !!(D&&D.cat&&D.cat.u)}
@@ -70,7 +70,8 @@ function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s)
   if(F.length)opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);
   else opts($('fsel'),[['0','(n/a)']],0);
   $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
-  $('catTint').checked=!!st.tint;render()})}
+  $('nestLab').style.display=st.v.startsWith('rom:')?'inline':'none';
+  $('catTint').checked=!!st.tint;$('nest').checked=!!st.nest;render()})}
 const hx=a=>'$'+a.toString(16).toUpperCase().padStart(6,'0');
 const rng=f=>f.a!=null?hx(f.a)+'-'+(f.e!=null?hx(f.e):'?'):(f.bk&&f.bk.length?'banks '+f.bk.map(b=>'$'+b.toString(16).toUpperCase()).join(','):'$??????-?');
 const ind=f=>'\u00a0\u00a0'.repeat(f.d||0)+(f.d?'\u2514 ':'');
@@ -86,17 +87,27 @@ document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='non
  const w=tt.offsetWidth,h=tt.offsetHeight;tt.style.left=Math.max(0,Math.min(e.clientX+14,innerWidth-w-4))+'px';tt.style.top=Math.max(0,(e.clientY+14+h>innerHeight?e.clientY-h-10:e.clientY+14))+'px'});
 function unitCat(ui){return D.cat&&D.cat.u?D.cat.u[ui]:null}
 function renderRom(){const F=D.views[bv()],T=D.targets[st.c],cm={};let k=0,tot=0,w={},nb=0;
- const useCat=st.tint&&hasCat();
+ const useCat=st.tint&&hasCat(),nest=!!st.nest,NEST=15,BAR=220,FBw=240,LBL=248;
  const col=o=>{if(o==null)return NA;if(!o.length)return NEW;const key=o.map(i=>T.files[i]).join(' / ');if(!(key in cm))cm[key]=pal[k++%pal.length];return cm[key]};
  const colU=(ui,o)=>{const cu=unitCat(ui);if(useCat&&cu)return catColor(cu[0]);return col(o)};
+ const fileCol=fi=>{const f=F[fi];for(const ui of f.u){const o=T.o[ui];if(o!=null&&o.length)return col(o);if(o!=null&&!o.length)return NEW}return '#888'};
  const nl=ui=>D.units[ui].t.split('\n').length;F.forEach(f=>f.u.forEach(ui=>tot+=nl(ui)));
  const H=Math.max(innerHeight*3,Math.min(12000,F.length*40)),sc=H/(tot||1);let y=0,h='',lastL=-99;
- F.forEach((f,fi)=>{const y0=y;f.u.forEach((ui,j)=>{const n=nl(ui),o=T.o[ui],cu=unitCat(ui);if(useCat){if(cu){w[cu[0]]=(w[cu[0]]||0)+n;nb+=n}}else if(o!=null){const kk=keyOf(T,o);w[kk]=(w[kk]||0)+n;nb+=n}
-   h+=`<div class=u data-fi=${fi} data-j=${j} style="top:${(y*sc).toFixed(2)}px;height:${Math.max(n*sc,0.5).toFixed(2)}px;background:${colU(ui,o)}"></div>`;y+=n});
-  h+=`<div class=fb style="top:${(y0*sc).toFixed(2)}px"></div>`;const ly=y0*sc;
-  if(ly-lastL>=12){h+=`<div class=fl style="top:${ly.toFixed(1)}px;padding-left:${16*(f.d||0)}px">${esc(rng(f))} ${f.d?'\u2514 ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
+ const y0s=[],y1s=[];
+ F.forEach((f,fi)=>{const y0=y,dep=f.d||0,off=nest?dep*NEST:0,bw=nest?Math.max(40,BAR-off):BAR;
+  f.u.forEach((ui,j)=>{const n=nl(ui),o=T.o[ui];if(useCat){const cu=unitCat(ui);if(cu){w[cu[0]]=(w[cu[0]]||0)+n;nb+=n}}else if(o!=null){const kk=keyOf(T,o);w[kk]=(w[kk]||0)+n;nb+=n}
+   h+=`<div class=u data-fi=${fi} data-j=${j} style="top:${(y*sc).toFixed(2)}px;height:${Math.max(n*sc,0.5).toFixed(2)}px;left:${off}px;width:${bw}px;background:${colU(ui,o)}"></div>`;y+=n});
+  y0s[fi]=y0;y1s[fi]=y;
+  const fbw=nest?Math.max(48,FBw-off):FBw;
+  h+=`<div class=fb style="top:${(y0*sc).toFixed(2)}px;left:${off}px;width:${fbw}px"></div>`;const ly=y0*sc;
+  const labPad=nest?off:16*dep;
+  if(ly-lastL>=12){h+=`<div class=fl style="top:${ly.toFixed(1)}px;left:${LBL}px;padding-left:${labPad}px">${esc(rng(f))} ${dep?'\u2514 ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
+ if(nest){for(let fi=0;fi<F.length;fi++){const d=F[fi].d||0;let end=fi;
+  for(let j=fi+1;j<F.length;j++){if((F[j].d||0)<=d)break;end=j}
+  if(end>fi){const top=y0s[fi]*sc,bot=y1s[end]*sc,left=d*NEST+1;
+   h+=`<div class=nb style="top:${top.toFixed(2)}px;height:${Math.max(bot-top,1).toFixed(2)}px;left:${left}px;background:${fileCol(fi)}"></div>`}}}
  const r=$('rom');r.style.height=H+'px';r.innerHTML=h;$('bar').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';$('msg').textContent='';
- $('info').textContent=`whole ROM: ${F.length} files, ${tot} lines (height by line count)${useCat?' · tinted by category':''}`;
+ $('info').textContent=`whole ROM: ${F.length} files, ${tot} lines (height by line count)${useCat?' · tinted by category':''}${nest?' · nesting shown':''}`;
  if(useCat)legendCat(w,nb);else legend(w,cm,nb);
  const tp=st.tip;st.tip=null;if(tp)setTimeout(()=>{const [fi,j]=tp.split(','),el=r.querySelector(`[data-fi="${fi}"][data-j="${j}"]`);
   if(el){const b=el.getBoundingClientRect();el.dispatchEvent(new MouseEvent('mousemove',{bubbles:true,clientX:b.left+100,clientY:b.top+b.height/2}))}},50)}
@@ -107,7 +118,7 @@ function jumpToUnit(ui){const F=D.views.files||D.views[Object.keys(D.views)[0]];
  for(let i=0;i<F.length;i++){const ix=F[i].u.indexOf(ui);if(ix>=0){fi=i;j=ix;break}}
  if(fi<0)return;st.v=D.views.files?'files':Object.keys(D.views)[0];st.f=fi;pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)}
 function renderCat(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
- $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('catTintLab').style.display='none';
+ $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('catTintLab').style.display='none';$('nestLab').style.display='none';
  writeHash();
  if(!hasCat()){$('catbox').style.display='block';$('catbox').innerHTML=`<p class=note><b>${esc(st.s)}</b> is not categorised yet. Categories are currently produced for 93G and 94G only.</p>`;$('info').textContent='categories: not categorised yet';$('msg').textContent='';return}
  const S=D.cat.summary,colors=(CAT&&CAT.colors)||{},order=(CAT&&CAT.order)||Object.keys(S.categories||{});
@@ -165,6 +176,7 @@ function render(){const isCat=st.v==='cat';$('csel').disabled=isCat;writeHash();
  if(isCat)return renderCat();
  $('catbox').style.display='none';$('catbox').innerHTML='';$('fsel').value=st.f;$('rom').innerHTML='';$('rom').style.height='0';tt.style.display='none';
  $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
+ $('nestLab').style.display=st.v.startsWith('rom:')?'inline':'none';
  const F=D.views[bv()];
  if(F.length&&st.v.startsWith('rom:')){$('fsel').disabled=$('prev').disabled=$('next').disabled=true;return renderRom()}$('fsel').disabled=$('prev').disabled=$('next').disabled=false;
  if(!F.length){$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML=$('info').textContent='';$('msg').textContent=`${st.s}: nothing in this view yet (not yet disassembled).`;return}
@@ -184,6 +196,7 @@ $('ssel').onchange=()=>{st.s=$('ssel').value;st.f=0;pick()};$('vsel').onchange=(
 $('csel').onchange=()=>{st.c=$('csel').value;const y=scrollY;render();scrollTo(0,y)};
 $('fsel').onchange=()=>{st.f=+$('fsel').value;render()};
 $('catTint').onchange=()=>{st.tint=$('catTint').checked;render()};
+$('nest').onchange=()=>{st.nest=$('nest').checked;render()};
 $('prev').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+1)%n;render()};
 $('foot').innerHTML='Sources (origin/main): '+M.games.map(g=>`${g.id} <a href="https://github.com/abdulahmad/${g.repo}/tree/${g.sha}">${g.repo}@${g.sha.slice(0,10)}</a> <span title="${g.sha}">${g.sha}</span>`).join(' &middot; ')+'<br>Name maps used: '+M.maps.map(([g,n])=>`${g} (${n} renames)`).join(', ')+'. Matching is by label name plus name_map lineage, weighted by line count. Grey = no match (new code, or a rename no map records).'+(CAT?' Categories (93G/94G) are heuristic.':'');
 readHash();pick();addEventListener("hashchange",()=>{readHash();pick()});
