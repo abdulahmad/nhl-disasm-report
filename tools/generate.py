@@ -80,12 +80,53 @@ def resolve(base, rel):
 def unit(name, names, lines, kind):
     return {'n': name, 'm': sorted(set(x.lower() for x in names)), 't': '\n'.join(lines), 'k': kind}
 
-INC = re.compile(r'^\s*include\s+"?([^\s";]+)"?\s*(?:;\s*(\$[0-9A-Fa-f]+))?', re.I)
+INC = re.compile(r'^\s*include\s+"?([^\s";]+)"?\s*(?:;\s*(\$[0-9A-Fa-f]+)(?:\s*-\s*(\$[0-9A-Fa-f]+))?)?', re.I)
 
-def genesis(src, top):
+def doc_ranges(repo_dir):
+    """file -> (min addr, max end) from docs/function_origins.csv (file,address,size), when a repo has one."""
+    p = os.path.join(repo_dir, 'docs', 'function_origins.csv')
+    out = {}
+    if os.path.isfile(p):
+        with open(p, encoding='utf-8', errors='replace', newline='') as fh:
+            for r in csv.DictReader(fh):
+                try:
+                    a = int((r.get('address') or '').strip().lstrip('$'), 16); n = int((r.get('size') or '0').strip() or 0)
+                except ValueError:
+                    continue
+                f = (r.get('file') or '').strip().replace('\\', '/').lower()
+                lo, hi = out.get(f, (a, a + max(n, 1) - 1))
+                out[f] = (min(lo, a), max(hi, a + max(n, 1) - 1))
+    return out
+
+def fill_ranges(files, docr):
+    """a = start, e = end, r = how it was derived. Explicit include comment > docs CSV > next file's start - 1.
+    A file that includes others is widened to cover them."""
+    for f in files:
+        f['r'] = 'include comment' if f['a'] is not None else None
+        if f['a'] is None and f['f'].lower() in docr:
+            f['a'], f['e'] = docr[f['f'].lower()]; f['r'] = 'docs/function_origins.csv'
+    for i, f in enumerate(files):
+        if f['a'] is not None and f.get('e') is None:
+            nxt = [g['a'] for g in files[i + 1:] if g['a'] is not None and g['a'] > f['a']]
+            if nxt:
+                f['e'] = nxt[0] - 1; f['r'] += '; end = next file start - 1'
+    for i in range(len(files) - 1, -1, -1):
+        f, d = files[i], files[i]['d']
+        for g in files[i + 1:]:
+            if g['d'] <= d:
+                break
+            if g['a'] is not None and g.get('e') is not None:
+                if f['a'] is None or g['a'] < f['a']:
+                    f['a'] = g['a']; f['r'] = 'covers its includes'
+                if f.get('e') is None or g['e'] > f['e']:
+                    f['e'] = g['e']
+    for f in files:
+        f.setdefault('e', None)
+
+def genesis(src, top, docr):
     """Files in include order (pre-order walk from the top-level file). Units = label segments."""
     files, seen = [], set()
-    def walk(p, addr):
+    def walk(p, addr, end, depth):
         rp = os.path.relpath(p, src).replace('\\', '/')
         if rp.lower() in seen:
             return
@@ -93,6 +134,11 @@ def genesis(src, top):
         L = read(p)
         st = label_starts(L)
         entry = None
+        incs = [m for m in map(INC.match, L) if m and m.group(1).lower().replace('\\', '/').endswith('.asm')
+                and not m.group(1).lower().replace('\\', '/').startswith(('macros/', 'stubinc/'))]
+        if not st and incs and depth >= 0 and p != os.path.join(src, top):
+            entry = {'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': []}  # include list only, kept so nesting shows
+            files.append(entry)
         if st:
             us = []
             if st[0][0] > 0:
@@ -100,7 +146,7 @@ def genesis(src, top):
             for j, (i, n) in enumerate(st):
                 e = st[j + 1][0] if j + 1 < len(st) else len(L)
                 us.append(unit(n, [n], L[i:e], 'code'))
-            entry = {'f': rp, 'a': addr, 'u': us}
+            entry = {'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': us}
             files.append(entry)
         for l in L:
             m = INC.match(l)
@@ -112,8 +158,9 @@ def genesis(src, top):
                 continue
             q = resolve(src, inc)
             if q:
-                walk(q, int(m.group(2)[1:], 16) if m.group(2) else None)
-    walk(os.path.join(src, top), None)
+                walk(q, int(m.group(2)[1:], 16) if m.group(2) else None, int(m.group(3)[1:], 16) if m.group(3) else None, depth + (1 if entry else 0))
+    walk(os.path.join(src, top), None, None, 0)
+    fill_ranges(files, docr)
     return {'files': files}
 
 INCSRC = re.compile(r'^\s*incsrc\s+"([^"]+)"', re.I)
@@ -137,7 +184,7 @@ def snes(src, top):
             bp = resolve(src, m.group(1))
             if not bp:
                 continue
-            ids, pend = [], []
+            ids, pend, orgs = [], [], []
             def flush():
                 body = [x for x in pend if x.strip() and not x.strip().startswith(';')]
                 if body:
@@ -147,6 +194,9 @@ def snes(src, top):
                     ids.append(len(units) - 1)
                 pend.clear()
             for bl in read(bp):
+                mo = re.match(r'\s*org\s+\$([0-9A-Fa-f]+)', bl, re.I)
+                if mo:
+                    orgs.append(int(mo.group(1), 16))
                 mm = INCSRC.match(bl)
                 q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
                 if q:
@@ -154,7 +204,8 @@ def snes(src, top):
                 else:
                     pend.append(bl)
             flush()
-            banks.append({'f': os.path.relpath(bp, src).replace('\\', '/'), 'a': None, 'u': ids})
+            banks.append({'f': os.path.relpath(bp, src).replace('\\', '/'), 'a': min(orgs) if orgs else None,
+                          'e': (max(orgs) | 0x7FFF) if orgs else None, 'd': 0, 'r': 'org line, LoROM bank end' if orgs else None, 'u': ids})
     # routine groups, ordered by first appearance in the banks; never-included files last
     rdir = os.path.join(src, 'routines')
     allr = []
@@ -174,7 +225,12 @@ def snes(src, top):
     for i in sorted((i for i, u in enumerate(units) if u['k'] == 'routine'), key=lambda i: (order.get(i, 1 << 30), units[i]['p'])):
         g = os.path.dirname(units[i]['p'])
         grp.setdefault(g, []).append(i)
-    groups = [{'f': g + '/', 'a': None, 'u': ids} for g, ids in sorted(grp.items(), key=lambda kv: (order.get(kv[1][0], 1 << 30), kv[0]))]
+    inbank = collections.defaultdict(set)
+    for b in banks:
+        for i in b['u']:
+            if b['a'] is not None:
+                inbank[i].add(b['a'] >> 16)
+    groups = [{'f': g + '/', 'a': None, 'e': None, 'd': 0, 'r': None, 'bk': sorted({x for i in ids for x in inbank[i]}), 'u': ids} for g, ids in sorted(grp.items(), key=lambda kv: (order.get(kv[1][0], 1 << 30), kv[0]))]
     return {'units': units, 'groups': groups, 'banks': banks}
 
 # ---------------------------------------------------------------- name maps
@@ -229,7 +285,7 @@ def main():
         d, sha = sync(repo, a.offline)
         dirs.append((gid, d))
         src = os.path.join(d, 'src')
-        g = genesis(src, top) if plat == 'genesis' else snes(src, top)
+        g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)
         data[gid] = g
         meta.append({'id': gid, 'repo': repo, 'plat': plat, 'sha': sha})
     al, used = load_maps(dirs)
@@ -269,7 +325,7 @@ def main():
             views = {'files': []}
             k = 0
             for f in g['files']:
-                views['files'].append({'f': f['f'], 'a': f['a'], 'u': list(range(k, k + len(f['u'])))})
+                views['files'].append({'f': f['f'], 'a': f['a'], 'e': f['e'], 'd': f['d'], 'r': f['r'], 'u': list(range(k, k + len(f['u'])))})
                 k += len(f['u'])
         else:
             units = g['units']
