@@ -17,7 +17,7 @@ Static report (GitHub Pages: https://abdulahmad.github.io/nhl-disasm-report/) th
 Pick a **subject** game, a **view**, and a **comparison** game.
 
 - **Genesis subjects**, view *files*: the source files in include order (a pre-order walk of `include` lines from the top-level file: `hockey.asm`, `hockey93.asm`, `nhl94.asm`, `nhl95.asm`, `nhl96.asm`). The ROM address shows when the include line has a `; $XXXXXX` comment. Each label starts a routine.
-- **SNES subjects**: view *routine groups*: every subfolder of `src/routines` is a "file" and every `.asm` in it is a routine (name = file stem plus its global labels). View *banks*: every `src/banks/*.asm` include list is a "file" and what it `incsrc`s are its routines. That lets you check that bank names fit their contents. Lines in a bank file that are not `incsrc` (org, incbin) show as `(inline …)` / `(incbin …)` units, so a bank that is still incbin shows as not disassembled yet.
+- **SNES subjects**: view *routine groups*: every subfolder of `src/routines` is a "file" (nested subfolders nest at depth +1) and every `.asm` directly in that folder is a routine named by its file stem. Groups are ordered by first appearance in the bank include lists, else alphabetically. View *banks*: every `src/banks/*.asm` include list is a "file" in org/ROM order; each `incsrc` of a routine `.asm` is a routine (stem), and non-`incsrc` stretches show as `(inline …)` / `(incbin …)`. Comparison matching for SNES routines is by `.asm` stem only.
 - **Comparison**: any other Genesis game (matched to its files), or an SNES game as *routine groups* or *banks*.
 
 
@@ -45,7 +45,7 @@ The footer lists the commit SHA of every source repo used.
 - Lineage aliases come from `docs/name_map.csv` in the source repos: the `old,new` columns (93G, 94G) and the `old_name,name` columns (95G, 96G). They are joined in one union-find graph, so a chain of renames (92 → 93 → 94 → 95) links up. The SNES maps (address → name) carry no lineage, so they are not used. 92G has no map.
 - **Name-based only.** No code is compared. A shared generic name (`loop`, a table name) can link code that is not related. Equates and RAM labels (`equ`/`=`/`rs` lines) are skipped, but a RAM or data label written as a plain label still counts as a "routine".
 - **Grey does not always mean new code.** It can also mean a rename that no name map records, or code that came from somewhere the report does not cover.
-- SNES routines match on the file stem plus every global label in the file, so a file with many labels can match several files.
+- SNES routines match on the `.asm` file stem only (not every label inside the file).
 - Local labels (`.x`, `@x`) and anonymous labels are not routines; they stay in the routine above them.
 - **Categories are heuristic.** Labels, comments, file names and light code skims drive them; they are not a proven design document. Placement flags are deterministic given those labels, but a flag is only a hint that a routine may belong elsewhere.
 
