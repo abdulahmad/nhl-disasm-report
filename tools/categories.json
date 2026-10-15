@@ -1,0 +1,233 @@
+{
+  "order": [
+    "system",
+    "video",
+    "sound",
+    "input",
+    "gameloop",
+    "ai",
+    "players",
+    "puck",
+    "collision",
+    "rules",
+    "display",
+    "frontend",
+    "stats",
+    "season",
+    "replay",
+    "save",
+    "data",
+    "other"
+  ],
+  "colors": {
+    "system": "#8B7355",
+    "video": "#4A90D9",
+    "sound": "#9B59B6",
+    "input": "#E67E22",
+    "gameloop": "#27AE60",
+    "ai": "#1ABC9C",
+    "players": "#3498DB",
+    "puck": "#F1C40F",
+    "collision": "#E74C3C",
+    "rules": "#C0392B",
+    "display": "#16A085",
+    "frontend": "#8E44AD",
+    "stats": "#2980B9",
+    "season": "#D35400",
+    "replay": "#7F8C8D",
+    "save": "#B7950B",
+    "data": "#5D6D7E",
+    "other": "#A04000"
+  },
+  "file_defaults": {
+    "main93.asm": [
+      "system",
+      "boot/vectors",
+      "high"
+    ],
+    "sega/SegaInit.asm": [
+      "system",
+      "boot/vectors",
+      "high"
+    ],
+    "checksum93.asm": [
+      "system",
+      "checksum/security",
+      "high"
+    ],
+    "teamdata93.asm": [
+      "data",
+      "team/roster",
+      "high"
+    ],
+    "frames93.asm": [
+      "data",
+      "frame tables",
+      "high"
+    ],
+    "ram93.asm": [
+      "other",
+      "RAM/IO equates (not ROM code)",
+      "high"
+    ],
+    "menu93.asm": [
+      "frontend",
+      "menu engine",
+      "high"
+    ],
+    "sram93.asm": [
+      "save",
+      "sram",
+      "high"
+    ],
+    "sound93.asm": [
+      "sound",
+      "driver",
+      "med"
+    ],
+    "graphics93.asm": [
+      "data",
+      "graphics",
+      "high"
+    ],
+    "main94.asm": [
+      "system",
+      "boot/vectors",
+      "high"
+    ],
+    "checksum94.asm": [
+      "system",
+      "checksum/security",
+      "high"
+    ],
+    "teamdata94.asm": [
+      "data",
+      "team/roster",
+      "high"
+    ],
+    "frames94.asm": [
+      "data",
+      "frame tables",
+      "high"
+    ],
+    "menu94.asm": [
+      "frontend",
+      "menu engine",
+      "high"
+    ],
+    "replay94.asm": [
+      "replay",
+      "playback",
+      "med"
+    ],
+    "assign94.asm": [
+      "ai",
+      "assignments",
+      "high"
+    ],
+    "video94.asm": [
+      "video",
+      "VDP/DMA",
+      "med"
+    ],
+    "penalty94.asm": [
+      "rules",
+      "penalties",
+      "med"
+    ],
+    "collide94.asm": [
+      "collision",
+      "player-player",
+      "med"
+    ],
+    "display94.asm": [
+      "display",
+      "scoreboard/clock",
+      "med"
+    ],
+    "attract94.asm": [
+      "frontend",
+      "attract/splash",
+      "high"
+    ],
+    "sram94.asm": [
+      "save",
+      "sram",
+      "high"
+    ],
+    "sound94.asm": [
+      "sound",
+      "driver",
+      "med"
+    ],
+    "graphics94.asm": [
+      "data",
+      "graphics",
+      "high"
+    ],
+    "onetimer94.asm": [
+      "players",
+      "one-timers",
+      "high"
+    ],
+    "fourway94.asm": [
+      "input",
+      "multitap",
+      "high"
+    ],
+    "crowd94.asm": [
+      "display",
+      "crowd/arena",
+      "med"
+    ],
+    "optsetup94.asm": [
+      "frontend",
+      "options/setup",
+      "high"
+    ],
+    "cards94.asm": [
+      "stats",
+      "player cards",
+      "high"
+    ],
+    "records94.asm": [
+      "stats",
+      "records/name entry",
+      "high"
+    ],
+    "shootout94.asm": [
+      "rules",
+      "shootout",
+      "high"
+    ],
+    "scout94.asm": [
+      "stats",
+      "scouting",
+      "high"
+    ],
+    "period94.asm": [
+      "stats",
+      "game/period stats",
+      "high"
+    ],
+    "goalie94.asm": [
+      "ai",
+      "goalie",
+      "med"
+    ],
+    "title94.asm": [
+      "frontend",
+      "title/credits",
+      "med"
+    ]
+  },
+  "placement": {
+    "neighbour_window": 3,
+    "secondary_line_fraction": 0.15,
+    "secondary_min_routines": 2,
+    "ignore_files": [
+      "ram93.asm",
+      "ram94.asm"
+    ]
+  }
+}
