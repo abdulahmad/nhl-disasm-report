@@ -7,7 +7,7 @@ label{margin-right:8px}
 #leg span{display:inline-block;padding:1px 7px;margin:4px 3px 0 0;border-radius:3px;color:#fff;cursor:default}
 pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px solid;margin:2px 0;scroll-margin-top:120px}.h{padding:3px 8px;font-weight:bold;color:#fff}
 #tt{position:fixed;z-index:9;pointer-events:none;background:#000;color:#eee;border:1px solid #888;padding:5px 8px;white-space:pre;display:none;max-width:70vw;overflow:hidden}
-#rom{position:relative;margin:8px 0 8px 8px}#rom .u{position:absolute;left:0;width:220px}#rom .fb{position:absolute;left:0;width:240px;pointer-events:none;border-top:2px solid #fff}#rom .fl{position:absolute;left:248px;white-space:nowrap;color:#ccc;line-height:12px}
+#rom{position:relative;margin:8px auto;width:520px}#rom .u{position:absolute;left:0;width:220px}#rom .fb{position:absolute;left:0;width:240px;pointer-events:none;border-top:2px solid #fff}#rom .fl{position:absolute;left:248px;white-space:nowrap;color:#ccc;line-height:12px}
 #msg{padding:20px;font-size:14px}footer{padding:10px;border-top:1px solid #333;color:#999}footer a{color:#8ab}
 #catbox{display:none;padding:10px 12px 40px;font:13px/1.35 system-ui,Segoe UI,sans-serif}
 #catbox h2{font-size:16px;margin:0 0 6px}#catbox h3{font-size:13px;margin:14px 0 6px;color:#9ab}
@@ -49,9 +49,9 @@ const $=id=>document.getElementById(id);
 const tname=t=>{const [g,v]=t.split(':');return v?`${g} (${v==='groups'?'routine groups':'banks'})`:g};
 const CAT=M.categories||null;
 const catColor=c=>((CAT&&CAT.colors)||{})[c]||'#555';
-let st={s:'94G',v:'',c:'',f:0,tint:false,nest:false,a:'93G',b:'94G',norm:false},D=null;
-function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c','a','b'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')==='1';st.norm=h.get('norm')==='1'}
-function writeHash(){let u;if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&st.nest?'&nest=1':'')}history.replaceState(null,'',u)}
+let st={s:'94G',v:'',c:'',f:0,tint:false,nest:true,a:'93G',b:'94G',norm:false},D=null;
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c','a','b'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')!=='0';st.norm=h.get('norm')==='1'}
+function writeHash(){let u;if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&!st.nest?'&nest=0':'')}history.replaceState(null,'',u)}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
 function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);if(!NDR.pending[id])NDR.pending[id]=[];NDR.pending[id].push(cb);if(NDR.pending[id].length>1)return;$('msg').textContent='loading '+id+'...';const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function hasCat(){return !!(D&&D.cat&&D.cat.u)}
@@ -63,25 +63,25 @@ function parseSide(spec){const [id,v]=String(spec||'').split(':');return {id,vie
 function stemKey(f){let s=String(f).replace(/\\/g,'/').replace(/\/+$/,'');const base=s.replace(/^.*\//,'').replace(/\.[^.]+$/,'');return base.replace(/\d+$/,'').toLowerCase()||base.toLowerCase()}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
-function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
- // View list always includes layout; build the rest after subject loads (or immediately for layout).
- const viewLabel=v=>{
-  if(v==='layout')return 'layout (side by side)';
+function viewLabel(v){
+  if(v==='layout')return 'side by side';
   if(v==='cat')return 'categories';
-  if(v.startsWith('rom:'))return 'whole ROM, '+v.slice(4)+' order';
-  return {files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]||v};
- if(st.v==='layout'){const vs=['layout'];
-  // still offer other views once subject known — load subject for the dropdown
-  load(st.s,d=>{D=d;const base=Object.keys(d.views);
-   const all=base.concat(base.map(v=>'rom:'+v)).concat(['cat','layout']);
-   opts($('vsel'),all.map(v=>[v,viewLabel(v)]),'layout');
+  if(v.startsWith('rom:'))return 'whole ROM'+(v==='rom:banks'||v==='rom:files'||v==='rom:groups'?' ('+v.slice(4)+')':'');
+  return {files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]||v}
+function orderedViews(base){
+  // whole ROM, side by side, files/groups/banks, categories
+  const roms=base.map(v=>'rom:'+v), files=base.slice();
+  const out=[...roms,'layout',...files,'cat'];
+  return out.filter((v,i)=>out.indexOf(v)===i)}
+function defaultRomView(d){return d.views.banks?'rom:banks':('rom:'+Object.keys(d.views)[0])}
+function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
+ if(st.v==='layout'){
+  load(st.s,d=>{D=d;opts($('vsel'),orderedViews(Object.keys(d.views)).map(v=>[v,viewLabel(v)]),'layout');
    renderLayout()});
   return}
- load(st.s,d=>{D=d;$('msg').textContent='';const base=Object.keys(d.views),vs=base.concat(base.map(v=>'rom:'+v));
-  if(hasCat()||(CAT&&CAT.games&&CAT.games.includes(st.s)))vs.push('cat');
-  else if(!hasCat())vs.push('cat');
-  vs.push('layout');
-  if(st.v==='rom')st.v='rom:'+(d.views.banks?'banks':base[0]);if(!vs.includes(st.v))st.v=vs[0];
+ load(st.s,d=>{D=d;$('msg').textContent='';const base=Object.keys(d.views),vs=orderedViews(base);
+  if(st.v==='rom')st.v=defaultRomView(d);
+  if(!st.v||!vs.includes(st.v))st.v=defaultRomView(d);
   opts($('vsel'),vs.map(v=>[v,viewLabel(v)]),st.v);
   const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
   opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[bv()]||[];if(!(st.f<F.length))st.f=0;
