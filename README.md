@@ -20,6 +20,11 @@ Pick a **subject** game, a **view**, and a **comparison** game.
 - **SNES subjects**: view *routine groups*: every subfolder of `src/routines` is a "file" and every `.asm` in it is a routine (name = file stem plus its global labels). View *banks*: every `src/banks/*.asm` include list is a "file" and what it `incsrc`s are its routines. That lets you check that bank names fit their contents. Lines in a bank file that are not `incsrc` (org, incbin) show as `(inline …)` / `(incbin …)` units, so a bank that is still incbin shows as not disassembled yet.
 - **Comparison**: any other Genesis game (matched to its files), or an SNES game as *routine groups* or *banks*.
 
+
+- **Categories** (`v=cat` in the URL hash; 93G and 94G only for now): a sortable, filterable table of every code routine with a heuristic category and subcategory, confidence, and a placement flag (yellow / red) when the routine looks out of place in its source file. Per-category totals, per-file flag counts and top offenders sit above the table. Click a row to jump to that routine in the file view. Other subject games show "not categorised yet". On a whole-ROM view for a categorised game, an optional **tint ROM by category** checkbox colours the bar by category instead of by comparison match.
+
+**Placement rule (deterministic).** For each source file, the dominant category (by total lines) and its dominant subcategory are computed. A routine is **yellow** if its category matches the file dominant but its subcategory differs from both that dominant subcategory and its ±3 neighbours in the file, or if its category is a secondary but sizeable share of the file (≥15% of lines and ≥2 routines). It is **red** if its category differs from both the file dominant and its neighbours (isolated foreign routine). Whole single-category files are unflagged; RAM/equate files are ignored; low-confidence hits are capped at yellow. The hierarchy (colours, file defaults, placement knobs) lives in `tools/categories.json` and is editable; the classifier is `tools/classify_routines.js` (Node), invoked by `generate.py`.
+
 - **Whole ROM** (`v=rom` in the URL hash; for SNES `v=rom:banks` (true ROM order) or `v=rom:groups`): the whole ROM as one tall vertical bar, top to bottom in ROM/include order. Each file is a band (white boundary line, with the file name and address beside it where there is room), split into its routines. Heights are by line count, not bytes. Colours and legend are the same as in the file view. Hover a routine for its file, name, matches and line count. Click it to open that routine in the file view.
 
 **Address ranges and nesting.** The file dropdown and the whole-ROM labels show each file's ROM range (`$start-$end`, hex), indented by include depth (`└` = included from the file above). A file that only includes others (e.g. 95G `engine95.asm`) is listed with no routines, so the nesting still shows. How a range is worked out, in order (the tooltip names the source):
@@ -40,6 +45,7 @@ The footer lists the commit SHA of every source repo used.
 - **Grey does not always mean new code.** It can also mean a rename that no name map records, or code that came from somewhere the report does not cover.
 - SNES routines match on the file stem plus every global label in the file, so a file with many labels can match several files.
 - Local labels (`.x`, `@x`) and anonymous labels are not routines; they stay in the routine above them.
+- **Categories are heuristic.** Labels, comments, file names and light code skims drive them; they are not a proven design document. Placement flags are deterministic given those labels, but a flag is only a hint that a routine may belong elsewhere.
 
 ## Regenerate
 
@@ -48,7 +54,7 @@ python3 tools/generate.py            # fetch origin/main of every source repo in
 python3 tools/generate.py --offline  # reuse .cache/src as it is
 ```
 
-Python 3 stdlib and `git` only. The source repos are shallow-cloned into `.cache/src` (gitignored) and are only read: nothing is committed or pushed to them. Output: `docs/index.html` plus one `docs/data/<id>.js` per subject game, loaded on demand (a script tag, so the page also works from `file://`). The same source SHAs give byte-identical output: iteration is sorted and the only "version" data is the SHAs.
+Python 3 stdlib, `git`, and `node` (for `tools/classify_routines.js`) only. The source repos are shallow-cloned into `.cache/src` (gitignored) and are only read: nothing is committed or pushed to them. Output: `docs/index.html` plus one `docs/data/<id>.js` per subject game, loaded on demand (a script tag, so the page also works from `file://`). The same source SHAs give byte-identical output: iteration is sorted and the only "version" data is the SHAs.
 
 ## For agents
 
@@ -57,8 +63,8 @@ To publish a new version:
 1. `git pull --ff-only origin main` in this repo.
 2. `python3 tools/generate.py` (needs network; it updates `.cache/src` to each repo's `origin/main`).
 3. Check it is deterministic: `sha256sum docs/index.html docs/data/* > /tmp/a && python3 tools/generate.py --offline && sha256sum docs/index.html docs/data/* | diff - /tmp/a`.
-4. Optional check: `cd docs && python3 -m http.server 8765`, then open `http://localhost:8765/#s=94G&v=files&c=93G`.
+4. Optional check: `cd docs && python3 -m http.server 8765`, then open `http://localhost:8765/#s=94G&v=files&c=93G` or `http://localhost:8765/#s=94G&v=cat`.
 5. `git add docs && git commit -m "Regenerate report"`. Put the source SHAs from the generator output in the message body. Then `git push origin main`. Never force-push.
 6. Never edit, commit to, or push to the source repos (`.cache/src/*`). They are read-only inputs.
 
-Change the viewer in `tools/template.html` and the parsing and matching in `tools/generate.py`, then regenerate and commit the code and `docs/` as separate commits.
+Change the viewer in `tools/template.html`, the parsing and matching in `tools/generate.py`, and the category rules in `tools/categories.json` / `tools/classify_routines.js`, then regenerate and commit the code and `docs/` as separate commits. Routine addresses for the categories table come from `tools/routine_addrs.json` (optional overlay) so regenerate stays deterministic without local assembler listings.
