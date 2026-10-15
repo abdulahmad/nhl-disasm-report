@@ -22,6 +22,12 @@ Pick a **subject** game, a **view**, and a **comparison** game.
 
 - **Whole ROM** (`v=rom` in the URL hash; for SNES `v=rom:banks` (true ROM order) or `v=rom:groups`): the whole ROM as one tall vertical bar, top to bottom in ROM/include order. Each file is a band (white boundary line, with the file name and address beside it where there is room), split into its routines. Heights are by line count, not bytes. Colours and legend are the same as in the file view. Hover a routine for its file, name, matches and line count. Click it to open that routine in the file view.
 
+**Address ranges and nesting.** The file dropdown and the whole-ROM labels show each file's ROM range (`$start-$end`, hex), indented by include depth (`└` = included from the file above). A file that only includes others (e.g. 95G `engine95.asm`) is listed with no routines, so the nesting still shows. How a range is worked out, in order (the tooltip names the source):
+1. the include comment (`; $XXXXXX` or `; $XXXXXX-$YYYYYY`);
+2. else `docs/function_origins.csv` (file, address, size: min address to max address+size-1), where a repo has one (95G);
+3. a missing end = the next file's start - 1; a file that includes others is widened to cover them.
+SNES banks use their `org` line and assume the LoROM bank runs to `$xxFFFF`. SNES routine groups are not contiguous, so they list the banks they occur in. Anything else shows as `$??????-?` (unknown). The `lst/` files in the repos are IDA dumps with no build addresses, so they are not used.
+
 Each file shows a proportional bar and a legend: the share of lines whose routine matches each comparison file (or a set of files), with grey for NEW/unmatched. Every routine gets a coloured header. Hover over a header or a bar segment for an immediate tooltip with its matches in **all** comparison targets. The URL hash (`#s=94G&v=files&c=93G&f=5`) keeps the current view, so you can link to it.
 
 The footer lists the commit SHA of every source repo used.
