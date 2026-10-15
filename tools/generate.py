@@ -101,18 +101,31 @@ def doc_ranges(repo_dir):
 
 def fill_ranges(files, docr):
     """a = start, e = end, r = how it was derived. Explicit include comment > docs CSV > next file's start - 1.
-    A file that includes others is widened to cover them."""
+    Include-list-only parents (no units) are widened to cover their children; code segments are not."""
     for f in files:
         f['r'] = 'include comment' if f['a'] is not None else None
         if f['a'] is None and f['f'].lower() in docr:
             f['a'], f['e'] = docr[f['f'].lower()]; f['r'] = 'docs/function_origins.csv'
+    # Start from the immediate previous end only (do not jump over siblings).
+    for i, f in enumerate(files):
+        if f['a'] is None and i > 0 and files[i - 1].get('e') is not None:
+            f['a'] = files[i - 1]['e'] + 1
+            f['r'] = (f['r'] or '') + '; start = prev end + 1'
+    # End from the next known start, but stop if an intervening band already has an end.
     for i, f in enumerate(files):
         if f['a'] is not None and f.get('e') is None:
-            nxt = [g['a'] for g in files[i + 1:] if g['a'] is not None and g['a'] > f['a']]
-            if nxt:
-                f['e'] = nxt[0] - 1; f['r'] += '; end = next file start - 1'
+            for g in files[i + 1:]:
+                if g['a'] is not None:
+                    if g['a'] > f['a']:
+                        f['e'] = g['a'] - 1
+                        f['r'] = (f['r'] or '') + '; end = next file start - 1'
+                    break
+                if g.get('e') is not None:
+                    break
     for i in range(len(files) - 1, -1, -1):
         f, d = files[i], files[i]['d']
+        if f['u']:
+            continue  # code / data segments keep their own range; do not swallow includes
         for g in files[i + 1:]:
             if g['d'] <= d:
                 break
@@ -125,44 +138,112 @@ def fill_ranges(files, docr):
         f.setdefault('e', None)
 
 def genesis(src, top, docr):
-    """Files in include order (pre-order walk from the top-level file). Units = label segments."""
+    """Files in ROM/include order from the top-level file.
+
+    Hub files (93G hockey93.asm, 92G hockey.asm) interleave their own code with
+    includes: each include is emitted at depth+1 where it appears, and the
+    parent's own label segments between includes are separate bands at the
+    parent's depth. Include-list-only files (e.g. 95G engine95.asm) stay as an
+    empty parent band covering their children. stubinc/ and macros/ are skipped.
+    """
     files, seen = [], set()
-    def walk(p, addr, end, depth):
+    top_path = os.path.join(src, top)
+
+    def is_rom_include(m):
+        if not m:
+            return False
+        low = m.group(1).lower().replace('\\', '/')
+        return low.endswith('.asm') and not low.startswith(('macros/', 'stubinc/'))
+
+    def units_from_lines(lines):
+        st = label_starts(lines)
+        if not st:
+            return []
+        us = []
+        if st[0][0] > 0:
+            us.append(unit('(file header)', [], lines[:st[0][0]], 'pre'))
+        for j, (i, n) in enumerate(st):
+            e = st[j + 1][0] if j + 1 < len(st) else len(lines)
+            us.append(unit(n, [n], lines[i:e], 'code'))
+        return us
+
+    def walk(p, addr, end, depth, first_child_addr=None):
         rp = os.path.relpath(p, src).replace('\\', '/')
         if rp.lower() in seen:
             return
         seen.add(rp.lower())
         L = read(p)
+        rom_incs = [(i, m) for i, m in ((i, INC.match(L[i])) for i in range(len(L))) if is_rom_include(m)]
         st = label_starts(L)
-        entry = None
-        incs = [m for m in map(INC.match, L) if m and m.group(1).lower().replace('\\', '/').endswith('.asm')
-                and not m.group(1).lower().replace('\\', '/').startswith(('macros/', 'stubinc/'))]
-        if not st and incs and depth >= 0 and p != os.path.join(src, top):
-            entry = {'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': []}  # include list only, kept so nesting shows
-            files.append(entry)
-        if st:
-            us = []
-            if st[0][0] > 0:
-                us.append(unit('(file header)', [], L[:st[0][0]], 'pre'))
-            for j, (i, n) in enumerate(st):
-                e = st[j + 1][0] if j + 1 < len(st) else len(L)
-                us.append(unit(n, [n], L[i:e], 'code'))
-            entry = {'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': us}
-            files.append(entry)
-        for l in L:
-            m = INC.match(l)
-            if not m:
-                continue
-            inc = m.group(1)
-            low = inc.lower().replace('\\', '/')
-            if not low.endswith('.asm') or low.startswith(('macros/', 'stubinc/')):
-                continue
-            q = resolve(src, inc)
+
+        if not st:
+            child_depth = depth if p == top_path else depth + 1
+            if p != top_path and rom_incs:
+                files.append({'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': []})
+            first = True
+            for _, m in rom_incs:
+                ia = int(m.group(2)[1:], 16) if m.group(2) else None
+                ie = int(m.group(3)[1:], 16) if m.group(3) else None
+                if ia is None and first and first_child_addr is not None:
+                    ia = first_child_addr
+                first = False
+                q = resolve(src, m.group(1))
+                if q:
+                    walk(q, ia, ie, child_depth)
+            return
+
+        child_depth = depth + 1
+        chunk_start = 0
+        pending_start = addr  # start address for the next emitted parent segment
+        emitted_own = False
+        first_inc = True
+
+        def flush(chunk_end, next_inc_addr):
+            nonlocal pending_start, emitted_own, chunk_start
+            lines = L[chunk_start:chunk_end]
+            us = units_from_lines(lines)
+            if not us:
+                # No labels: glue non-empty trailing source onto the previous segment of this file.
+                if emitted_own and files and files[-1]['f'] == rp and files[-1]['u'] and any(x.strip() for x in lines):
+                    files[-1]['u'][-1]['t'] += '\n' + '\n'.join(lines)
+                chunk_start = chunk_end
+                return
+            if next_inc_addr is not None:
+                if pending_start is not None and next_inc_addr <= pending_start:
+                    seg_end = None  # label sits at the same address as the following include
+                else:
+                    seg_end = next_inc_addr - 1
+            else:
+                seg_end = end
+            files.append({'f': rp, 'a': pending_start, 'e': seg_end, 'd': depth, 'u': us})
+            emitted_own = True
+            pending_start = None
+            chunk_start = chunk_end
+
+        for li, m in rom_incs:
+            ia = int(m.group(2)[1:], 16) if m.group(2) else None
+            ie = int(m.group(3)[1:], 16) if m.group(3) else None
+            if ia is None and first_inc and first_child_addr is not None:
+                ia = first_child_addr
+            first_inc = False
+            flush(li, ia)
+            q = resolve(src, m.group(1))
             if q:
-                walk(q, int(m.group(2)[1:], 16) if m.group(2) else None, int(m.group(3)[1:], 16) if m.group(3) else None, depth + (1 if entry else 0))
-    walk(os.path.join(src, top), None, None, 0)
+                walk(q, ia, ie, child_depth)
+            # Only the segment immediately after an include with a known end inherits ie+1.
+            pending_start = (ie + 1) if ie is not None else None
+            chunk_start = li + 1
+        flush(len(L), None)
+
+        if not emitted_own and not rom_incs:
+            us = units_from_lines(L)
+            if us:
+                files.append({'f': rp, 'a': addr, 'e': end, 'd': depth, 'u': us})
+
+    walk(top_path, None, None, 0, first_child_addr=0)
     fill_ranges(files, docr)
     return {'files': files}
+
 
 INCSRC = re.compile(r'^\s*incsrc\s+"([^"]+)"', re.I)
 
