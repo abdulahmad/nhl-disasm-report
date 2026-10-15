@@ -5,12 +5,14 @@ select,button{font:12px monospace;background:#2a2a2a;color:#ddd;border:1px solid
 label{margin-right:8px}
 .bar{display:flex;height:22px;margin-top:6px;background:#2a2a2a}.bar a{display:block;height:100%}
 #leg span{display:inline-block;padding:1px 7px;margin:4px 3px 0 0;border-radius:3px;color:#fff;cursor:default}
-pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px solid;margin:2px 0}.h{padding:3px 8px;font-weight:bold;color:#fff}
+pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px solid;margin:2px 0;scroll-margin-top:120px}.h{padding:3px 8px;font-weight:bold;color:#fff}
+#tt{position:fixed;z-index:9;pointer-events:none;background:#000;color:#eee;border:1px solid #888;padding:5px 8px;white-space:pre;display:none;max-width:70vw;overflow:hidden}
+#rom{position:relative;margin:8px 0 8px 8px}#rom .u{position:absolute;left:0;width:220px}#rom .fb{position:absolute;left:0;width:240px;border-top:2px solid #fff}#rom .fl{position:absolute;left:248px;white-space:nowrap;color:#ccc;line-height:12px}
 #msg{padding:20px;font-size:14px}footer{padding:10px;border-top:1px solid #333;color:#999}footer a{color:#8ab}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label><br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=msg></div><div id=body></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div>
 <footer id=foot></footer>
 <script>
 const M={"games":[{"id":"92G","plat":"genesis","repo":"NHL92Genesis","sha":"416940d1b6d7723f38ba7e861629e34076f26e2a","units":858,"views":{"files":11}},{"id":"93G","plat":"genesis","repo":"NHLPA93Genesis","sha":"b42e8e611ae849337208108337c1c3eb9d2acf88","units":1225,"views":{"files":16}},{"id":"94G","plat":"genesis","repo":"NHL94Genesis","sha":"af1b6f23432b32123ab10b02c3f8650cf5ea11a8","units":1708,"views":{"files":33}},{"id":"95G","plat":"genesis","repo":"NHL95Genesis","sha":"9a0a39b86e43e6ed86fde3831ca1679f07bfa966","units":2350,"views":{"files":44}},{"id":"96G","plat":"genesis","repo":"NHL96Genesis","sha":"5e4a75c68f75569129f3ea66654830610eaf64a4","units":1936,"views":{"files":89}},{"id":"93S","plat":"snes","repo":"NHLPA93SNES","sha":"0c4bda6e4fe26df6cf574ca5b2416af936d9d7d9","units":536,"views":{"banks":17,"groups":8}},{"id":"94S","plat":"snes","repo":"NHL94SNES","sha":"031f31025cfaf8a26e95db7860a2bd6847535470","units":1974,"views":{"banks":32,"groups":9}}],"maps":[["93G",196],["94G",150],["95G",268],["96G",32],["93S",0],["94S",0]],"targets":["92G","93G","94G","95G","96G","93S:groups","93S:banks","94S:groups","94S:banks"]};
@@ -20,35 +22,57 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'
 const $=id=>document.getElementById(id);
 const tname=t=>{const [g,v]=t.split(':');return v?`${g} (${v==='groups'?'routine groups':'banks'})`:g};
 let st={s:'94G',v:'',c:'',f:0},D=null;
-function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f')}
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip')}
 function writeHash(){history.replaceState(null,'',`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`)}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
 function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);$('msg').textContent='loading '+id+'...';NDR.cb=cb;const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
- load(st.s,d=>{D=d;$('msg').textContent='';const vs=Object.keys(d.views);if(!vs.includes(st.v))st.v=vs[0];
-  opts($('vsel'),vs.map(v=>[v,{files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]]),st.v);
+ load(st.s,d=>{D=d;$('msg').textContent='';const base=Object.keys(d.views),vs=base.concat(base.map(v=>'rom:'+v));if(st.v==='rom')st.v='rom:'+(d.views.banks?'banks':base[0]);if(!vs.includes(st.v))st.v=vs[0];
+  opts($('vsel'),vs.map(v=>[v,v.startsWith('rom:')?'whole ROM, '+v.slice(4)+' order':{files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]]),st.v);
   const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
-  opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[st.v];if(!(st.f<F.length))st.f=0;
+  opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[bv()];if(!(st.f<F.length))st.f=0;
   opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${f.a!=null?'$'+f.a.toString(16).toUpperCase().padStart(6,'0')+'  ':''}${f.f}  (${f.u.length})`]),st.f);render()})}
-function render(){const F=D.views[st.v];writeHash();$('fsel').value=st.f;
+const bv=()=>st.v.replace(/^rom:/,'');
+function keyOf(T,o){return o==null?'(header / not a routine)':o.length?o.map(i=>T.files[i]).join(' / '):'NEW / unmatched'}
+function tipHtml(fi,j){const f=D.views[bv()][fi],ui=f.u[j],u=D.units[ui],n=u.t.split('\n').length,T=D.targets[st.c];
+ const all=Object.entries(D.targets).map(([t,x])=>`${tname(t)}: ${x.o[ui]==null?'-':x.o[ui].map(i=>x.files[i]).join(' / ')||'none'}`).join('\n');
+ return `<b>${esc(f.f)}</b>${f.a!=null?'  (file at $'+f.a.toString(16).toUpperCase().padStart(6,'0')+')':''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>\n\n${esc(all)}`}
+const tt=$('tt');
+document.addEventListener('mousemove',e=>{const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
+ tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block';
+ const w=tt.offsetWidth,h=tt.offsetHeight;tt.style.left=Math.max(0,Math.min(e.clientX+14,innerWidth-w-4))+'px';tt.style.top=Math.max(0,(e.clientY+14+h>innerHeight?e.clientY-h-10:e.clientY+14))+'px'});
+function renderRom(){const F=D.views[bv()],T=D.targets[st.c],cm={};let k=0,tot=0,w={},nb=0;
+ const col=o=>{if(o==null)return NA;if(!o.length)return NEW;const key=o.map(i=>T.files[i]).join(' / ');if(!(key in cm))cm[key]=pal[k++%pal.length];return cm[key]};
+ const nl=ui=>D.units[ui].t.split('\n').length;F.forEach(f=>f.u.forEach(ui=>tot+=nl(ui)));
+ const H=Math.max(innerHeight*3,Math.min(12000,F.length*40)),sc=H/(tot||1);let y=0,h='',lastL=-99;
+ F.forEach((f,fi)=>{const y0=y;f.u.forEach((ui,j)=>{const n=nl(ui),o=T.o[ui];if(o!=null){const kk=keyOf(T,o);w[kk]=(w[kk]||0)+n;nb+=n}
+   h+=`<div class=u data-fi=${fi} data-j=${j} style="top:${(y*sc).toFixed(2)}px;height:${Math.max(n*sc,0.5).toFixed(2)}px;background:${col(o)}"></div>`;y+=n});
+  h+=`<div class=fb style="top:${(y0*sc).toFixed(2)}px"></div>`;const ly=y0*sc;
+  if(ly-lastL>=12){h+=`<div class=fl style="top:${ly.toFixed(1)}px">${f.a!=null?'$'+f.a.toString(16).toUpperCase().padStart(6,'0')+' ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
+ const r=$('rom');r.style.height=H+'px';r.innerHTML=h;$('bar').innerHTML=$('body').innerHTML='';$('msg').textContent='';
+ $('info').textContent=`whole ROM: ${F.length} files, ${tot} lines (height by line count)`;legend(w,cm,nb);
+ const tp=st.tip;st.tip=null;if(tp)setTimeout(()=>{const [fi,j]=tp.split(','),el=r.querySelector(`[data-fi="${fi}"][data-j="${j}"]`);
+  if(el){const b=el.getBoundingClientRect();el.dispatchEvent(new MouseEvent('mousemove',{bubbles:true,clientX:b.left+100,clientY:b.top+b.height/2}))}},50)}
+function legend(w,cm,nb){$('leg').innerHTML=Object.entries(w).sort((a,b)=>b[1]-a[1]||(a[0]<b[0]?-1:1)).map(([kk,v])=>`<span style="background:${kk.startsWith('NEW')?NEW:cm[kk]}">${esc(kk)} ${Math.round(100*v/(nb||1))}%</span>`).join('')}
+$('rom').onclick=e=>{const el=e.target.closest('[data-j]');if(!el)return;st.v=bv();st.f=+el.dataset.fi;const j=el.dataset.j;pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)};
+function render(){const F=D.views[bv()];writeHash();$('fsel').value=st.f;$('rom').innerHTML='';$('rom').style.height='0';tt.style.display='none';
+ if(F.length&&st.v.startsWith('rom:')){$('fsel').disabled=$('prev').disabled=$('next').disabled=true;return renderRom()}$('fsel').disabled=$('prev').disabled=$('next').disabled=false;
  if(!F.length){$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML=$('info').textContent='';$('msg').textContent=`${st.s}: nothing in this view yet (not yet disassembled).`;return}
  const f=F[st.f],T=D.targets[st.c],cm={};let k=0;
  const col=o=>{if(o==null)return NA;if(!o.length)return NEW;const key=o.map(i=>T.files[i]).join(' / ');if(!(key in cm))cm[key]=pal[k++%pal.length];return cm[key]};
  const U=f.u.map(i=>D.units[i]),nl=u=>u.t.split('\n').length,tot=U.reduce((a,u)=>a+nl(u),0)||1,w={};let bar='',body='',nb=0;
  f.u.forEach((ui,j)=>{const u=D.units[ui],o=T.o[ui],c=col(o),n=nl(u);
-  const key=o==null?'(header / not a routine)':o.length?o.map(i=>T.files[i]).join(' / '):'NEW / unmatched';if(o!=null){w[key]=(w[key]||0)+n;nb+=n}
-  const all=Object.entries(D.targets).map(([t,x])=>`${tname(t)}: ${x.o[ui]==null?'-':x.o[ui].map(i=>x.files[i]).join(' / ')||'none'}`).join('\n');
-  const tip=esc(`${u.n}${u.p?' ('+u.p+')':''}, ${n} lines\n${all}`);
-  bar+=`<a href="#" data-j=${j} title="${tip}" style="width:${100*n/tot}%;background:${c}"></a>`;
-  body+=`<div class=r id=u${j} style="border-color:${c}"><div class=h style="background:${c}" title="${tip}">${esc(u.n)}${u.p?' &nbsp;<span style="font-weight:normal">'+esc(u.p)+'</span>':''} &nbsp; ${esc(tname(st.c))}: ${esc(key)} &nbsp; (${n} lines)</div><pre>${esc(u.t)}</pre></div>`});
+  const key=keyOf(T,o);if(o!=null){w[key]=(w[key]||0)+n;nb+=n}
+  bar+=`<a href="#" data-j=${j} style="width:${100*n/tot}%;background:${c}"></a>`;
+  body+=`<div class=r id=u${j} style="border-color:${c}"><div class=h data-j=${j} style="background:${c}">${esc(u.n)}${u.p?' &nbsp;<span style="font-weight:normal">'+esc(u.p)+'</span>':''} &nbsp; ${esc(tname(st.c))}: ${esc(key)} &nbsp; (${n} lines)</div><pre>${esc(u.t)}</pre></div>`});
  $('bar').innerHTML=bar;$('body').innerHTML=body;$('msg').textContent='';
  $('info').textContent=`${f.f}: ${f.u.length} units, ${tot} lines`;
- $('leg').innerHTML=Object.entries(w).sort((a,b)=>b[1]-a[1]||(a[0]<b[0]?-1:1)).map(([kk,v])=>`<span style="background:${kk.startsWith('NEW')?NEW:cm[kk]}">${esc(kk)} ${Math.round(100*v/(nb||1))}%</span>`).join('');window.scrollTo(0,0)}
+ legend(w,cm,nb);window.scrollTo(0,0)}
 $('bar').onclick=e=>{const j=e.target.dataset.j;if(j!=null){e.preventDefault();$('u'+j).scrollIntoView()}};
 $('ssel').onchange=()=>{st.s=$('ssel').value;st.f=0;pick()};$('vsel').onchange=()=>{st.v=$('vsel').value;st.f=0;pick()};
 $('csel').onchange=()=>{st.c=$('csel').value;const y=scrollY;render();scrollTo(0,y)};
 $('fsel').onchange=()=>{st.f=+$('fsel').value;render()};
-$('prev').onclick=()=>{const n=D.views[st.v].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[st.v].length;st.f=(st.f+1)%n;render()};
+$('prev').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+1)%n;render()};
 $('foot').innerHTML='Sources (origin/main): '+M.games.map(g=>`${g.id} <a href="https://github.com/abdulahmad/${g.repo}/tree/${g.sha}">${g.repo}@${g.sha.slice(0,10)}</a> <span title="${g.sha}">${g.sha}</span>`).join(' &middot; ')+'<br>Name maps used: '+M.maps.map(([g,n])=>`${g} (${n} renames)`).join(', ')+'. Matching is by label name plus name_map lineage, weighted by line count. Grey = no match (new code, or a rename no map records).';
-readHash();pick();
+readHash();pick();addEventListener("hashchange",()=>{readHash();pick()});
 </script></body></html>
