@@ -7,7 +7,7 @@ label{margin-right:8px}
 #leg span{display:inline-block;padding:1px 7px;margin:4px 3px 0 0;border-radius:3px;color:#fff;cursor:default}
 pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px solid;margin:2px 0;scroll-margin-top:120px}.h{padding:3px 8px;font-weight:bold;color:#fff}
 #tt{position:fixed;z-index:9;pointer-events:none;background:#000;color:#eee;border:1px solid #888;padding:5px 8px;white-space:pre;display:none;max-width:70vw;overflow:hidden}
-#rom{position:relative;margin:8px 0 8px 8px}#rom .u{position:absolute;left:0;width:220px}#rom .fb{position:absolute;left:0;width:240px;border-top:2px solid #fff}#rom .fl{position:absolute;left:248px;white-space:nowrap;color:#ccc;line-height:12px}
+#rom{position:relative;margin:8px 0 8px 8px}#rom .u{position:absolute;left:0;width:220px}#rom .fb{position:absolute;left:0;width:240px;pointer-events:none;border-top:2px solid #fff}#rom .fl{position:absolute;left:248px;white-space:nowrap;color:#ccc;line-height:12px}
 #msg{padding:20px;font-size:14px}footer{padding:10px;border-top:1px solid #333;color:#999}footer a{color:#8ab}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label><br style="margin-bottom:4px">
@@ -15,7 +15,7 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 <span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div>
 <footer id=foot></footer>
 <script>
-const M={"games":[{"id":"92G","plat":"genesis","repo":"NHL92Genesis","sha":"416940d1b6d7723f38ba7e861629e34076f26e2a","units":858,"views":{"files":11}},{"id":"93G","plat":"genesis","repo":"NHLPA93Genesis","sha":"b42e8e611ae849337208108337c1c3eb9d2acf88","units":1225,"views":{"files":16}},{"id":"94G","plat":"genesis","repo":"NHL94Genesis","sha":"af1b6f23432b32123ab10b02c3f8650cf5ea11a8","units":1708,"views":{"files":33}},{"id":"95G","plat":"genesis","repo":"NHL95Genesis","sha":"9a0a39b86e43e6ed86fde3831ca1679f07bfa966","units":2350,"views":{"files":44}},{"id":"96G","plat":"genesis","repo":"NHL96Genesis","sha":"5e4a75c68f75569129f3ea66654830610eaf64a4","units":1936,"views":{"files":89}},{"id":"93S","plat":"snes","repo":"NHLPA93SNES","sha":"0c4bda6e4fe26df6cf574ca5b2416af936d9d7d9","units":536,"views":{"banks":17,"groups":8}},{"id":"94S","plat":"snes","repo":"NHL94SNES","sha":"031f31025cfaf8a26e95db7860a2bd6847535470","units":1974,"views":{"banks":32,"groups":9}}],"maps":[["93G",196],["94G",150],["95G",268],["96G",32],["93S",0],["94S",0]],"targets":["92G","93G","94G","95G","96G","93S:groups","93S:banks","94S:groups","94S:banks"]};
+const M={"games":[{"id":"92G","plat":"genesis","repo":"NHL92Genesis","sha":"416940d1b6d7723f38ba7e861629e34076f26e2a","units":858,"views":{"files":11}},{"id":"93G","plat":"genesis","repo":"NHLPA93Genesis","sha":"b42e8e611ae849337208108337c1c3eb9d2acf88","units":1225,"views":{"files":16}},{"id":"94G","plat":"genesis","repo":"NHL94Genesis","sha":"af1b6f23432b32123ab10b02c3f8650cf5ea11a8","units":1708,"views":{"files":33}},{"id":"95G","plat":"genesis","repo":"NHL95Genesis","sha":"9a0a39b86e43e6ed86fde3831ca1679f07bfa966","units":2350,"views":{"files":46}},{"id":"96G","plat":"genesis","repo":"NHL96Genesis","sha":"5e4a75c68f75569129f3ea66654830610eaf64a4","units":1936,"views":{"files":89}},{"id":"93S","plat":"snes","repo":"NHLPA93SNES","sha":"0c4bda6e4fe26df6cf574ca5b2416af936d9d7d9","units":536,"views":{"banks":17,"groups":8}},{"id":"94S","plat":"snes","repo":"NHL94SNES","sha":"031f31025cfaf8a26e95db7860a2bd6847535470","units":1974,"views":{"banks":32,"groups":9}}],"maps":[["93G",196],["94G",150],["95G",268],["96G",32],["93S",0],["94S",0]],"targets":["92G","93G","94G","95G","96G","93S:groups","93S:banks","94S:groups","94S:banks"]};
 const NDR={cache:{},cb:null,loaded(d){this.cache[d.id]=d;if(this.cb){const c=this.cb;this.cb=null;c(d)}}};
 const pal=['#4e79a7','#f28e2b','#59a14f','#b07aa1','#76b7b2','#c9a227','#ff9da7','#9c755f','#e15759','#17becf','#8c564b','#bcbd22','#2ca02c','#d62728','#9467bd'];const NEW='#555',NA='#333';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -31,12 +31,15 @@ function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s)
   opts($('vsel'),vs.map(v=>[v,v.startsWith('rom:')?'whole ROM, '+v.slice(4)+' order':{files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]]),st.v);
   const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
   opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[bv()];if(!(st.f<F.length))st.f=0;
-  opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${f.a!=null?'$'+f.a.toString(16).toUpperCase().padStart(6,'0')+'  ':''}${f.f}  (${f.u.length})`]),st.f);render()})}
+  opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);render()})}
+const hx=a=>'$'+a.toString(16).toUpperCase().padStart(6,'0');
+const rng=f=>f.a!=null?hx(f.a)+'-'+(f.e!=null?hx(f.e):'?'):(f.bk&&f.bk.length?'banks '+f.bk.map(b=>'$'+b.toString(16).toUpperCase()).join(','):'$??????-?');
+const ind=f=>'\u00a0\u00a0'.repeat(f.d||0)+(f.d?'\u2514 ':'');
 const bv=()=>st.v.replace(/^rom:/,'');
 function keyOf(T,o){return o==null?'(header / not a routine)':o.length?o.map(i=>T.files[i]).join(' / '):'NEW / unmatched'}
 function tipHtml(fi,j){const f=D.views[bv()][fi],ui=f.u[j],u=D.units[ui],n=u.t.split('\n').length,T=D.targets[st.c];
  const all=Object.entries(D.targets).map(([t,x])=>`${tname(t)}: ${x.o[ui]==null?'-':x.o[ui].map(i=>x.files[i]).join(' / ')||'none'}`).join('\n');
- return `<b>${esc(f.f)}</b>${f.a!=null?'  (file at $'+f.a.toString(16).toUpperCase().padStart(6,'0')+')':''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>\n\n${esc(all)}`}
+ return `<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.r?' ('+esc(f.r)+')':f.a==null&&!f.bk?' (range unknown)':''}${f.d?'  include depth '+f.d:''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>\n\n${esc(all)}`}
 const tt=$('tt');
 document.addEventListener('mousemove',e=>{const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
  tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block';
@@ -48,7 +51,7 @@ function renderRom(){const F=D.views[bv()],T=D.targets[st.c],cm={};let k=0,tot=0
  F.forEach((f,fi)=>{const y0=y;f.u.forEach((ui,j)=>{const n=nl(ui),o=T.o[ui];if(o!=null){const kk=keyOf(T,o);w[kk]=(w[kk]||0)+n;nb+=n}
    h+=`<div class=u data-fi=${fi} data-j=${j} style="top:${(y*sc).toFixed(2)}px;height:${Math.max(n*sc,0.5).toFixed(2)}px;background:${col(o)}"></div>`;y+=n});
   h+=`<div class=fb style="top:${(y0*sc).toFixed(2)}px"></div>`;const ly=y0*sc;
-  if(ly-lastL>=12){h+=`<div class=fl style="top:${ly.toFixed(1)}px">${f.a!=null?'$'+f.a.toString(16).toUpperCase().padStart(6,'0')+' ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
+  if(ly-lastL>=12){h+=`<div class=fl style="top:${ly.toFixed(1)}px;padding-left:${16*(f.d||0)}px">${esc(rng(f))} ${f.d?'\u2514 ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
  const r=$('rom');r.style.height=H+'px';r.innerHTML=h;$('bar').innerHTML=$('body').innerHTML='';$('msg').textContent='';
  $('info').textContent=`whole ROM: ${F.length} files, ${tot} lines (height by line count)`;legend(w,cm,nb);
  const tp=st.tip;st.tip=null;if(tp)setTimeout(()=>{const [fi,j]=tp.split(','),el=r.querySelector(`[data-fi="${fi}"][data-j="${j}"]`);
