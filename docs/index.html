@@ -60,8 +60,7 @@ function layoutChoices(){const out=[];
   else out.push([g.id,g.id+'  '+g.repo])}
  return out}
 function parseSide(spec){const [id,v]=String(spec||'').split(':');return {id,view:v||null}}
-function stemKey(f){const base=String(f).replace(/^.*\//,'').replace(/\.[^.]+$/,'');
- return base.replace(/\d+$/,'').toLowerCase()||base.toLowerCase()}
+function stemKey(f){let s=String(f).replace(/\\/g,'/').replace(/\/+$/,'');const base=s.replace(/^.*\//,'').replace(/\.[^.]+$/,'');return base.replace(/\d+$/,'').toLowerCase()||base.toLowerCase()}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
@@ -99,7 +98,8 @@ function keyOf(T,o){return o==null?'(header / not a routine)':o.length?o.map(i=>
 function tipHtml(fi,j){const f=D.views[bv()][fi],ui=f.u[j],u=D.units[ui],n=u.t.split('\n').length,T=D.targets[st.c];
  const all=Object.entries(D.targets).map(([t,x])=>`${tname(t)}: ${x.o[ui]==null?'-':x.o[ui].map(i=>x.files[i]).join(' / ')||'none'}`).join('\n');
  let cat='';const cu=D.cat&&D.cat.u&&D.cat.u[ui];if(cu)cat=`\ncategory: ${cu[0]} / ${cu[1]} (${cu[2]}${cu[3]?'; placement '+cu[3]:''})`;
- return `<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.r?' ('+esc(f.r)+')':f.a==null&&!f.bk?' (range unknown)':''}${f.d?'  include depth '+f.d:''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>${esc(cat)}\n\n${esc(all)}`}
+ const bks=f.bk&&f.bk.length?'  banks '+f.bk.map(b=>'$'+b.toString(16).toUpperCase()).join(','):'';
+ return `<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.r?' ('+esc(f.r)+')':f.a==null&&!f.bk?' (range unknown)':''}${f.d?'  include depth '+f.d:''}${bks}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}${u.k&&u.k!=='routine'&&u.k!=='code'?'  ['+esc(u.k)+']':''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>${esc(cat)}\n\n${esc(all)}`}
 const tt=$('tt');
 document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='none';return}
  const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
@@ -147,7 +147,8 @@ function drawLayoutBar(el,data,view,H){const F=data.views[view]||[],NEST=15,BAR=
  F.forEach((f,fi)=>{const y0=y,dep=f.d||0,off=dep*NEST,bw=Math.max(36,BAR-off),col=fileColor(f.f);
   const nUnits=f.u.length||1;
   f.u.forEach((ui,j)=>{const n=nl(ui),u=data.units[ui],top=(y*sc),ht=Math.max(n*sc,0.5);
-   const tip=`<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.d!=null?'  depth '+f.d:''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}`;
+   const bks=f.bk&&f.bk.length?'  banks '+f.bk.map(b=>'$'+b.toString(16).toUpperCase()).join(','):'';
+   const tip=`<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.d!=null?'  depth '+f.d:''}${bks}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}${u.k&&u.k!=='routine'&&u.k!=='code'?'  ['+esc(u.k)+']':''}  ${n} lines, routine ${j+1}/${f.u.length}`;
    h+=`<div class="u${j?' sub':''}" data-layout=1 data-side="${esc(el.id)}" data-fi=${fi} data-j=${j} data-tip="${esc(tip).replace(/\n/g,'&#10;')}" style="top:${top.toFixed(2)}px;height:${ht.toFixed(2)}px;left:${off}px;width:${bw}px;background:${col}"></div>`;y+=n});
   if(!f.u.length){const ht=Math.max(8*sc,4);h+=`<div class=u data-layout=1 data-side="${esc(el.id)}" data-fi=${fi} data-j=0 data-tip="${esc('<b>'+esc(f.f)+'</b>  '+rng(f)+'  (include list)').replace(/\n/g,'&#10;')}" style="top:${(y*sc).toFixed(2)}px;height:${ht.toFixed(2)}px;left:${off}px;width:${bw}px;background:${col};opacity:.55"></div>`;y+=8}
   y0s[fi]=y0;y1s[fi]=y;
