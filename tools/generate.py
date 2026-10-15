@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate the NHL disassembly origin report into docs/.
 
-Stdlib only. Shallow-clones (or updates) the source repos into .cache/src at
-origin/main, READ-ONLY, then writes docs/index.html and docs/data/<game>.js.
-Same source SHAs => byte-identical output.
+Stdlib + node (for tools/classify_routines.js). Shallow-clones (or updates)
+the source repos into .cache/src at origin/main, READ-ONLY, then writes
+docs/index.html and docs/data/<game>.js. Classifies 93G/94G routines into
+categories (heuristic). Same source SHAs => byte-identical output.
 
   python3 tools/generate.py            # fetch latest main of every source repo, regenerate
   python3 tools/generate.py --offline  # use the cache as is (no network)
@@ -344,7 +345,56 @@ def main():
             fh.write(js)
         m['units'] = len(units)
         m['views'] = {v: len(fs) for v, fs in sorted(views.items())}
-    manifest = {'games': meta, 'targets': list(targets), 'maps': used}
+    # Categories (93G / 94G): run classifier on the JS we just wrote, merge back.
+    cat_meta = None
+    cat_js = os.path.join(ROOT, 'tools', 'classify_routines.js')
+    if os.path.isfile(cat_js):
+        cat_json = os.path.join(DOCS, 'data', '_categories.json')
+        subprocess.run(['node', cat_js, '--docs', DOCS, '--out', cat_json], check=True)
+        with open(cat_json, encoding='utf-8') as fh:
+            cat_data = json.load(fh)
+        os.remove(cat_json)
+        cat_meta = {
+            'order': cat_data.get('order'),
+            'colors': cat_data.get('colors'),
+            'placement_rule': cat_data.get('placement_rule'),
+            'games': sorted(cat_data.get('games', {})),
+        }
+        for gid, gcat in sorted(cat_data.get('games', {}).items()):
+            path = os.path.join(DOCS, 'data', gid + '.js')
+            with open(path, encoding='ascii') as fh:
+                raw = fh.read()
+            payload = json.loads(raw[raw.index('(') + 1:raw.rindex(')')])
+            # Compact per-unit: [c,s,confidence,placement,address] or null
+            compact = []
+            for u in gcat['units']:
+                if u is None:
+                    compact.append(None)
+                else:
+                    compact.append([u['c'], u['s'], u['n'], u.get('p') or '', u.get('a') or ''])
+            payload['cat'] = {
+                'u': compact,
+                'summary': {
+                    'routines': gcat['summary']['routines'],
+                    'lines': gcat['summary']['lines'],
+                    'low': gcat['summary']['low'],
+                    'yellow': gcat['summary']['yellow'],
+                    'red': gcat['summary']['red'],
+                    'categories': gcat['summary']['categories'],
+                    'files': gcat['summary']['files'],
+                },
+            }
+            js = 'NDR.loaded(' + json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=True) + ');\n'
+            with open(path, 'w', encoding='ascii', newline='\n') as fh:
+                fh.write(js)
+            for m in meta:
+                if m['id'] == gid:
+                    m['categorised'] = True
+                    break
+        for m in meta:
+            m.setdefault('categorised', False)
+
+    manifest = {'games': meta, 'targets': list(targets), 'maps': used, 'categories': cat_meta}
     tpl = open(os.path.join(ROOT, 'tools', 'template.html'), encoding='utf-8').read()
     html = tpl.replace('/*MANIFEST*/null', json.dumps(manifest, sort_keys=True, separators=(',', ':')))
     with open(os.path.join(DOCS, 'index.html'), 'w', encoding='utf-8', newline='\n') as fh:
