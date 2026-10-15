@@ -20,7 +20,9 @@ Pick a **subject** game, a **view**, and a **comparison** game.
 - **SNES subjects**: view *routine groups*: every subfolder of `src/routines` is a "file" and every `.asm` in it is a routine (name = file stem plus its global labels). View *banks*: every `src/banks/*.asm` include list is a "file" and what it `incsrc`s are its routines. That lets you check that bank names fit their contents. Lines in a bank file that are not `incsrc` (org, incbin) show as `(inline …)` / `(incbin …)` units, so a bank that is still incbin shows as not disassembled yet.
 - **Comparison**: any other Genesis game (matched to its files), or an SNES game as *routine groups* or *banks*.
 
-Each file shows a proportional bar and a legend: the share of lines whose routine matches each comparison file (or a set of files), with grey for NEW/unmatched. Every routine gets a coloured header. Hover over a header or a bar segment to see its matches in **all** comparison targets. The URL hash (`#s=94G&v=files&c=93G&f=5`) keeps the current view, so you can link to it.
+- **Whole ROM** (`v=rom` in the URL hash; for SNES `v=rom:banks` (true ROM order) or `v=rom:groups`): the whole ROM as one tall vertical bar, top to bottom in ROM/include order. Each file is a band (white boundary line, with the file name and address beside it where there is room), split into its routines. Heights are by line count, not bytes. Colours and legend are the same as in the file view. Hover a routine for its file, name, matches and line count. Click it to open that routine in the file view.
+
+Each file shows a proportional bar and a legend: the share of lines whose routine matches each comparison file (or a set of files), with grey for NEW/unmatched. Every routine gets a coloured header. Hover over a header or a bar segment for an immediate tooltip with its matches in **all** comparison targets. The URL hash (`#s=94G&v=files&c=93G&f=5`) keeps the current view, so you can link to it.
 
 The footer lists the commit SHA of every source repo used.
 
