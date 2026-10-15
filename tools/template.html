@@ -32,39 +32,58 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 #catbox .num{text-align:right;font-variant-numeric:tabular-nums}
 #catbox .pill{display:inline-block;padding:1px 6px;border-radius:10px;color:#fff;font-size:11px}
 #catbox .conf-high{color:#6c6}#catbox .conf-med{color:#cc6}#catbox .conf-low{color:#c66;font-weight:600}
-#catTintLab,#nestLab{display:none}#rom .nb{position:absolute;width:2px;pointer-events:none;z-index:1}
+#catTintLab,#nestLab,#normLab{display:none}#rom .nb,.lbar .nb{position:absolute;width:2px;pointer-events:none;z-index:1}#layout{display:none;padding:8px;gap:24px}#layout.on{display:flex;align-items:flex-start}#layout .side{flex:1;min-width:0}#layout .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#layout .lbar{position:relative;margin:4px 0 0 0}#layout .lbar .u{position:absolute;box-sizing:border-box}#layout .lbar .u.sub{border-top:1px solid rgba(0,0,0,.25)}#layout .lbar .fb{position:absolute;pointer-events:none;border-top:2px solid #fff;box-sizing:border-box}#layout .lbar .fl{position:absolute;white-space:nowrap;color:#ccc;line-height:12px;font-size:11px}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label>
-<label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label>
+<label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label><label id=normLab><input type=checkbox id=norm> Normalise heights</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div>
 <footer id=foot></footer>
 <script>
 const M=/*MANIFEST*/null;
-const NDR={cache:{},cb:null,loaded(d){this.cache[d.id]=d;if(this.cb){const c=this.cb;this.cb=null;c(d)}}};
+const NDR={cache:{},cb:null,pending:{},loaded(d){this.cache[d.id]=d;const q=this.pending[d.id];if(q){delete this.pending[d.id];q.forEach(c=>c(d))}else if(this.cb){const c=this.cb;this.cb=null;c(d)}}};
 const pal=['#4e79a7','#f28e2b','#59a14f','#b07aa1','#76b7b2','#c9a227','#ff9da7','#9c755f','#e15759','#17becf','#8c564b','#bcbd22','#2ca02c','#d62728','#9467bd'];const NEW='#555',NA='#333';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const $=id=>document.getElementById(id);
 const tname=t=>{const [g,v]=t.split(':');return v?`${g} (${v==='groups'?'routine groups':'banks'})`:g};
 const CAT=M.categories||null;
 const catColor=c=>((CAT&&CAT.colors)||{})[c]||'#555';
-let st={s:'94G',v:'',c:'',f:0,tint:false,nest:false},D=null;
-function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')==='1'}
-function writeHash(){history.replaceState(null,'',`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&st.nest?'&nest=1':''))}
+let st={s:'94G',v:'',c:'',f:0,tint:false,nest:false,a:'93G',b:'94G',norm:false},D=null;
+function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c','a','b'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')==='1';st.norm=h.get('norm')==='1'}
+function writeHash(){let u;if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&st.nest?'&nest=1':'')}history.replaceState(null,'',u)}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
-function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);$('msg').textContent='loading '+id+'...';NDR.cb=cb;const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
+function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);if(!NDR.pending[id])NDR.pending[id]=[];NDR.pending[id].push(cb);if(NDR.pending[id].length>1)return;$('msg').textContent='loading '+id+'...';const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function hasCat(){return !!(D&&D.cat&&D.cat.u)}
+function layoutChoices(){const out=[];
+ for(const g of M.games){if(g.plat==='snes'){out.push([g.id+':banks',g.id+' banks']);out.push([g.id+':groups',g.id+' groups'])}
+  else out.push([g.id,g.id+'  '+g.repo])}
+ return out}
+function parseSide(spec){const [id,v]=String(spec||'').split(':');return {id,view:v||null}}
+function stemKey(f){const base=String(f).replace(/^.*\//,'').replace(/\.[^.]+$/,'');
+ return base.replace(/\d+$/,'').toLowerCase()||base.toLowerCase()}
+function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
+function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
+ // View list always includes layout; build the rest after subject loads (or immediately for layout).
+ const viewLabel=v=>{
+  if(v==='layout')return 'layout (side by side)';
+  if(v==='cat')return 'categories';
+  if(v.startsWith('rom:'))return 'whole ROM, '+v.slice(4)+' order';
+  return {files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]||v};
+ if(st.v==='layout'){const vs=['layout'];
+  // still offer other views once subject known — load subject for the dropdown
+  load(st.s,d=>{D=d;const base=Object.keys(d.views);
+   const all=base.concat(base.map(v=>'rom:'+v)).concat(['cat','layout']);
+   opts($('vsel'),all.map(v=>[v,viewLabel(v)]),'layout');
+   renderLayout()});
+  return}
  load(st.s,d=>{D=d;$('msg').textContent='';const base=Object.keys(d.views),vs=base.concat(base.map(v=>'rom:'+v));
   if(hasCat()||(CAT&&CAT.games&&CAT.games.includes(st.s)))vs.push('cat');
   else if(!hasCat())vs.push('cat');
+  vs.push('layout');
   if(st.v==='rom')st.v='rom:'+(d.views.banks?'banks':base[0]);if(!vs.includes(st.v))st.v=vs[0];
-  opts($('vsel'),vs.map(v=>{
-    if(v==='cat')return [v,'categories'];
-    if(v.startsWith('rom:'))return [v,'whole ROM, '+v.slice(4)+' order'];
-    return [v,{files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]||v];
-  }),st.v);
+  opts($('vsel'),vs.map(v=>[v,viewLabel(v)]),st.v);
   const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
   opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[bv()]||[];if(!(st.f<F.length))st.f=0;
   if(F.length)opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);
@@ -82,8 +101,10 @@ function tipHtml(fi,j){const f=D.views[bv()][fi],ui=f.u[j],u=D.units[ui],n=u.t.s
  let cat='';const cu=D.cat&&D.cat.u&&D.cat.u[ui];if(cu)cat=`\ncategory: ${cu[0]} / ${cu[1]} (${cu[2]}${cu[3]?'; placement '+cu[3]:''})`;
  return `<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.r?' ('+esc(f.r)+')':f.a==null&&!f.bk?' (range unknown)':''}${f.d?'  include depth '+f.d:''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}\n<b>${esc(tname(st.c))}: ${esc(keyOf(T,T.o[ui]))}</b>${esc(cat)}\n\n${esc(all)}`}
 const tt=$('tt');
-document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='none';return}const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
- tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block';
+document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='none';return}
+ const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
+ if(el.dataset.layout){tt.innerHTML=el.dataset.tip||'';tt.style.display='block'}
+ else{tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block'}
  const w=tt.offsetWidth,h=tt.offsetHeight;tt.style.left=Math.max(0,Math.min(e.clientX+14,innerWidth-w-4))+'px';tt.style.top=Math.max(0,(e.clientY+14+h>innerHeight?e.clientY-h-10:e.clientY+14))+'px'});
 function unitCat(ui){return D.cat&&D.cat.u?D.cat.u[ui]:null}
 function renderRom(){const F=D.views[bv()],T=D.targets[st.c],cm={};let k=0,tot=0,w={},nb=0;
@@ -117,8 +138,48 @@ $('rom').onclick=e=>{const el=e.target.closest('[data-j]');if(!el)return;st.v=bv
 function jumpToUnit(ui){const F=D.views.files||D.views[Object.keys(D.views)[0]];let fi=-1,j=-1;
  for(let i=0;i<F.length;i++){const ix=F[i].u.indexOf(ui);if(ix>=0){fi=i;j=ix;break}}
  if(fi<0)return;st.v=D.views.files?'files':Object.keys(D.views)[0];st.f=fi;pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)}
+
+function sideView(data,spec){const p=parseSide(spec);if(p.view&&data.views[p.view])return p.view;
+ return data.views.files?'files':(data.views.banks?'banks':Object.keys(data.views)[0])}
+function drawLayoutBar(el,data,view,H){const F=data.views[view]||[],NEST=15,BAR=160,FBw=172,LBL=180;
+ const nl=ui=>data.units[ui].t.split('\n').length;let tot=0;F.forEach(f=>f.u.forEach(ui=>tot+=nl(ui)));
+ const sc=H/(tot||1);let y=0,h='',lastL=-99,y0s=[],y1s=[];
+ F.forEach((f,fi)=>{const y0=y,dep=f.d||0,off=dep*NEST,bw=Math.max(36,BAR-off),col=fileColor(f.f);
+  const nUnits=f.u.length||1;
+  f.u.forEach((ui,j)=>{const n=nl(ui),u=data.units[ui],top=(y*sc),ht=Math.max(n*sc,0.5);
+   const tip=`<b>${esc(f.f)}</b>  ${esc(rng(f))}${f.d!=null?'  depth '+f.d:''}\n<b>${esc(u.n)}</b>${u.p?'  '+esc(u.p):''}  ${n} lines, routine ${j+1}/${f.u.length}`;
+   h+=`<div class="u${j?' sub':''}" data-layout=1 data-side="${esc(el.id)}" data-fi=${fi} data-j=${j} data-tip="${esc(tip).replace(/\n/g,'&#10;')}" style="top:${top.toFixed(2)}px;height:${ht.toFixed(2)}px;left:${off}px;width:${bw}px;background:${col}"></div>`;y+=n});
+  if(!f.u.length){const ht=Math.max(8*sc,4);h+=`<div class=u data-layout=1 data-side="${esc(el.id)}" data-fi=${fi} data-j=0 data-tip="${esc('<b>'+esc(f.f)+'</b>  '+rng(f)+'  (include list)').replace(/\n/g,'&#10;')}" style="top:${(y*sc).toFixed(2)}px;height:${ht.toFixed(2)}px;left:${off}px;width:${bw}px;background:${col};opacity:.55"></div>`;y+=8}
+  y0s[fi]=y0;y1s[fi]=y;
+  h+=`<div class=fb style="top:${(y0*sc).toFixed(2)}px;left:${off}px;width:${Math.max(40,FBw-off)}px"></div>`;
+  const ly=y0*sc;if(ly-lastL>=11){h+=`<div class=fl style="top:${ly.toFixed(1)}px;left:${LBL}px;padding-left:${off}px">${esc(rng(f))} ${dep?'\u2514 ':''}${esc(f.f)} (${f.u.length})</div>`;lastL=ly}});
+ for(let fi=0;fi<F.length;fi++){const d=F[fi].d||0;let end=fi;
+  for(let j=fi+1;j<F.length;j++){if((F[j].d||0)<=d)break;end=j}
+  if(end>fi){const top=y0s[fi]*sc,bot=y1s[end]*sc;
+   h+=`<div class=nb style="top:${top.toFixed(2)}px;height:${Math.max(bot-top,1).toFixed(2)}px;left:${d*NEST+1}px;background:${fileColor(F[fi].f)}"></div>`}}
+ el.style.height=H+'px';el.innerHTML=h;return tot}
+function renderLayout(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
+ $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
+ $('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='inline';
+ $('norm').checked=!!st.norm;writeHash();
+ const choices=layoutChoices();
+ if(!choices.find(([v])=>v===st.a))st.a=choices[0][0];
+ if(!choices.find(([v])=>v===st.b))st.b=choices[Math.min(1,choices.length-1)][0];
+ opts($('asel'),choices,st.a);opts($('bsel'),choices,st.b);
+ $('layout').classList.add('on');
+ const pa=parseSide(st.a),pb=parseSide(st.b);let left=null,right=null,pending=2;
+ const done=()=>{if(--pending)return;$('msg').textContent='';
+  const va=sideView(left,st.a),vb=sideView(right,st.b);
+  const totA=(left.views[va]||[]).reduce((s,f)=>s+f.u.reduce((x,ui)=>x+left.units[ui].t.split('\n').length,0),0);
+  const totB=(right.views[vb]||[]).reduce((s,f)=>s+f.u.reduce((x,ui)=>x+right.units[ui].t.split('\n').length,0),0);
+  const baseH=Math.max(innerHeight*2.5,Math.min(14000,Math.max(totA,totB)*0.35,8000));
+  let Ha,Hb;if(st.norm){Ha=Hb=baseH}else{const m=Math.max(totA,totB)||1;Ha=baseH*(totA/m);Hb=baseH*(totB/m)}
+  drawLayoutBar($('lbarA'),left,va,Math.max(Ha,200));
+  drawLayoutBar($('lbarB'),right,vb,Math.max(Hb,200));
+  $('info').textContent=`layout: ${tname(st.a)} (${totA} lines) vs ${tname(st.b)} (${totB} lines)${st.norm?' · normalised':''} · nesting on · colour by file stem`};
+ load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}
 function renderCat(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
- $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('catTintLab').style.display='none';$('nestLab').style.display='none';
+ $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=false;$('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';$('layout').classList.remove('on');
  writeHash();
  if(!hasCat()){$('catbox').style.display='block';$('catbox').innerHTML=`<p class=note><b>${esc(st.s)}</b> is not categorised yet. Categories are currently produced for 93G and 94G only.</p>`;$('info').textContent='categories: not categorised yet';$('msg').textContent='';return}
  const S=D.cat.summary,colors=(CAT&&CAT.colors)||{},order=(CAT&&CAT.order)||Object.keys(S.categories||{});
@@ -172,7 +233,10 @@ function renderCat(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').in
    else if(k==='placement'){const rank={red:2,yellow:1,'':0};av=rank[av]||0;bv=rank[bv]||0}else{av=av.toLowerCase();bv=bv.toLowerCase()}
    if(av<bv)return asc?-1:1;if(av>bv)return asc?1:-1;return 0});sorted.forEach(r=>tb.appendChild(r))}});
  table.tBodies[0].onclick=e=>{const tr=e.target.closest('tr[data-ui]');if(tr)jumpToUnit(+tr.dataset.ui)}}
-function render(){const isCat=st.v==='cat';$('csel').disabled=isCat;writeHash();
+function render(){const isCat=st.v==='cat',isLay=st.v==='layout';
+ $('csel').disabled=isCat||isLay;$('ssel').disabled=isLay;writeHash();
+ if(isLay)return renderLayout();
+ $('layout').classList.remove('on');$('normLab').style.display='none';
  if(isCat)return renderCat();
  $('catbox').style.display='none';$('catbox').innerHTML='';$('fsel').value=st.f;$('rom').innerHTML='';$('rom').style.height='0';tt.style.display='none';
  $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
@@ -197,6 +261,14 @@ $('csel').onchange=()=>{st.c=$('csel').value;const y=scrollY;render();scrollTo(0
 $('fsel').onchange=()=>{st.f=+$('fsel').value;render()};
 $('catTint').onchange=()=>{st.tint=$('catTint').checked;render()};
 $('nest').onchange=()=>{st.nest=$('nest').checked;render()};
+$('norm').onchange=()=>{st.norm=$('norm').checked;render()};
+$('asel').onchange=()=>{st.a=$('asel').value;renderLayout()};
+$('bsel').onchange=()=>{st.b=$('bsel').value;renderLayout()};
+$('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.dataset.layout)return;
+ const side=el.dataset.side==='lbarA'?st.a:st.b;const p=parseSide(side);
+ st.s=p.id;const d=NDR.cache[p.id];if(!d)return;
+ st.v=sideView(d,side);st.f=+el.dataset.fi;const j=el.dataset.j;
+ pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)};
 $('prev').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+1)%n;render()};
 $('foot').innerHTML='Sources (origin/main): '+M.games.map(g=>`${g.id} <a href="https://github.com/abdulahmad/${g.repo}/tree/${g.sha}">${g.repo}@${g.sha.slice(0,10)}</a> <span title="${g.sha}">${g.sha}</span>`).join(' &middot; ')+'<br>Name maps used: '+M.maps.map(([g,n])=>`${g} (${n} renames)`).join(', ')+'. Matching is by label name plus name_map lineage, weighted by line count. Grey = no match (new code, or a rename no map records).'+(CAT?' Categories (93G/94G) are heuristic.':'');
 readHash();pick();addEventListener("hashchange",()=>{readHash();pick()});
