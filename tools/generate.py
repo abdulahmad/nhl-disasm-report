@@ -248,16 +248,28 @@ def genesis(src, top, docr):
 INCSRC = re.compile(r'^\s*incsrc\s+"([^"]+)"', re.I)
 
 def snes(src, top):
-    """Two views: routine groups (src/routines/<group>/*.asm) and banks (src/banks/*.asm include lists)."""
+    """Two views: routine groups (src/routines/<group>/*.asm) and banks (src/banks/*.asm include lists).
+
+    Groups: each subfolder of src/routines is a FILE; each .asm in that folder is a ROUTINE
+    named by its stem. Nested subfolders are nested files (depth +1). Group order follows the
+    first bank-include appearance of any routine in the folder, else alphabetical.
+    Matching for routine units is by .asm stem only (not every label in the file).
+    """
     units, byfile = [], {}
     def file_unit(p):
         rp = os.path.relpath(p, src).replace('\\', '/')
         if rp not in byfile:
             L = read(p)
             stem = os.path.splitext(os.path.basename(p))[0]
-            names = [stem] + [n for _, n in label_starts(L)]
+            # Routines match on the .asm stem only; other bank payloads keep labels too.
+            if rp.startswith('routines/'):
+                names = [stem]
+                kind = 'routine'
+            else:
+                names = [stem] + [n for _, n in label_starts(L)]
+                kind = 'data'
             byfile[rp] = len(units)
-            units.append(dict(unit(stem, names, L, 'routine' if rp.startswith('routines/') else 'data'), p=rp))
+            units.append(dict(unit(stem, names, L, kind), p=rp))
         return byfile[rp]
     banks = []
     for l in read(os.path.join(src, top)):
@@ -288,7 +300,7 @@ def snes(src, top):
             flush()
             banks.append({'f': os.path.relpath(bp, src).replace('\\', '/'), 'a': min(orgs) if orgs else None,
                           'e': (max(orgs) | 0x7FFF) if orgs else None, 'd': 0, 'r': 'org line, LoROM bank end' if orgs else None, 'u': ids})
-    # routine groups, ordered by first appearance in the banks; never-included files last
+    # All routine .asm files under src/routines/
     rdir = os.path.join(src, 'routines')
     allr = []
     if os.path.isdir(rdir):
@@ -303,17 +315,57 @@ def snes(src, top):
             order.setdefault(i, len(order))
     for p in allr:
         file_unit(p)
-    grp = collections.OrderedDict()
-    for i in sorted((i for i, u in enumerate(units) if u['k'] == 'routine'), key=lambda i: (order.get(i, 1 << 30), units[i]['p'])):
-        g = os.path.dirname(units[i]['p'])
-        grp.setdefault(g, []).append(i)
+
+    # Direct .asm members per folder; also keep ancestor folders for nesting.
+    direct = collections.OrderedDict()
+    folders = set()
+    for i, u in enumerate(units):
+        if u['k'] != 'routine':
+            continue
+        g = os.path.dirname(u['p']).replace('\\', '/').rstrip('/')
+        direct.setdefault(g, []).append(i)
+        # ancestors under routines/ (inclusive)
+        parts = g.split('/')
+        for k in range(2, len(parts) + 1):  # routines/X, routines/X/Y, ...
+            folders.add('/'.join(parts[:k]))
+    for g in sorted(folders):
+        direct.setdefault(g, [])
+
+    def folder_depth(g):
+        # routines/hockey -> 0; routines/hockey/sub -> 1
+        return max(0, len(g.split('/')) - 2)
+
+    def folder_order_key(g):
+        ids = direct.get(g) or []
+        if ids:
+            return (min(order.get(i, 1 << 30) for i in ids), g)
+        # empty parent: earliest child order, else alpha
+        child_keys = [folder_order_key(c) for c in folders if c.startswith(g + '/') and c.count('/') == g.count('/') + 1]
+        if child_keys:
+            return (min(k[0] for k in child_keys), g)
+        return (1 << 30, g)
+
     inbank = collections.defaultdict(set)
     for b in banks:
         for i in b['u']:
             if b['a'] is not None:
                 inbank[i].add(b['a'] >> 16)
-    groups = [{'f': g + '/', 'a': None, 'e': None, 'd': 0, 'r': None, 'bk': sorted({x for i in ids for x in inbank[i]}), 'u': ids} for g, ids in sorted(grp.items(), key=lambda kv: (order.get(kv[1][0], 1 << 30), kv[0]))]
+
+    groups = []
+    for g in sorted(folders, key=folder_order_key):
+        ids = sorted(direct[g], key=lambda i: (order.get(i, 1 << 30), units[i]['p']))
+        # banks that any direct routine (or, for empty parents, any descendant) appears in
+        if ids:
+            bset = {x for i in ids for x in inbank[i]}
+        else:
+            desc = [i for gg, lst in direct.items() if gg.startswith(g + '/') for i in lst]
+            bset = {x for i in desc for x in inbank[i]}
+        groups.append({
+            'f': g + '/', 'a': None, 'e': None, 'd': folder_depth(g), 'r': None,
+            'bk': sorted(bset), 'u': ids,
+        })
     return {'units': units, 'groups': groups, 'banks': banks}
+
 
 # ---------------------------------------------------------------- name maps
 class Alias:
