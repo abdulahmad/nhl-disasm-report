@@ -39,7 +39,7 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 <label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label><label id=normLab><input type=checkbox id=norm> Normalise heights</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div id=treeBar><label><input type=checkbox id=tShowR checked> show routines</label><label><input type=checkbox id=tShowL checked> show labels</label><label><input type=checkbox id=tHideM> hide matching routines</label><button id=treeReset>reset align</button><div id=treeLeg><b>bold</b> routine = also in the other game, in a matching file (same file name ignoring the 92&ndash;96 year) &middot; <b class=y>bold yellow</b> = in the other game, but in a different file &middot; plain = not in the other game<br><span class=tf style="color:#9ab">&#9662; file.asm</span> = a source file (root, then its includes) &middot; routine <span class=tc>;start of its comment</span> = a routine, in source order with the includes &middot; <span class=tl>.label</span> = a label inside the routine (no comparison) &middot; &#9656;/&#9662; = collapsed / expanded (click the triangle)<br>Click a bold or yellow routine, or a file that has a matching file in the other game, to line it up with its match (on the same row); <b>reset align</b> or a click on the root undoes it. Hover a routine for its full comment and where it is in the other game.</div></div><div id=treeCols><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div id=treeBar><label><input type=checkbox id=tShowR checked> show routines</label><label><input type=checkbox id=tShowL checked> show labels</label><label><input type=checkbox id=tHideM> hide matching routines</label><button id=treeReset>reset align</button><button id=treeExp>expand all</button><button id=treeCol>collapse all</button><div id=treeLeg><b>bold</b> routine = also in the other game, in a matching file (same file name ignoring the 92&ndash;96 year) &middot; <b class=y>bold yellow</b> = in the other game, but in a different file &middot; plain = not in the other game<br><span class=tf style="color:#9ab">&#9662; file.asm</span> = a source file (root, then its includes) &middot; routine <span class=tc>;start of its comment</span> = a routine, in source order with the includes &middot; <span class=tl>.label</span> = a label inside the routine (no comparison) &middot; &#9656;/&#9662; = collapsed / expanded (click the triangle)<br>Click a bold or yellow routine, or a file that has a matching file in the other game, to line it up with its match (on the same row); <b>reset align</b> or a click on the root undoes it. Hover a routine for its full comment and where it is in the other game.</div></div><div id=treeCols><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div></div>
 <footer id=foot></footer>
 <script>
 const M=/*MANIFEST*/null;
@@ -52,7 +52,9 @@ const CAT=M.categories||null;
 const catColor=c=>((CAT&&CAT.colors)||{})[c]||'#555';
 let st={s:'94G',v:'',c:'',f:0,tint:false,nest:true,a:'93G',b:'94G',norm:false},D=null;
 function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c','a','b'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.ab=st.ab||h.has('a')||h.has('b');st.tint=h.get('tint')==='1';st.nest=h.get('nest')!=='0';st.norm=h.get('norm')==='1'}
-function writeHash(){let u;if(st.v==='tree'){u=`#v=tree&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`}else if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&!st.nest?'&nest=0':'')}history.replaceState(null,'',u)}
+function lsGet(k){try{const v=localStorage.getItem(k);return v==null?null:JSON.parse(v)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function writeHash(){let u;if(st.v==='tree'){u=`#v=tree&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`}else if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&!st.nest?'&nest=0':'')}history.replaceState(null,'',u);lsSet('ndr.hash',u)}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
 function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);if(!NDR.pending[id])NDR.pending[id]=[];NDR.pending[id].push(cb);if(NDR.pending[id].length>1)return;$('msg').textContent='loading '+id+'...';const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function hasCat(){return !!(D&&D.cat&&D.cat.u)}
@@ -195,7 +197,15 @@ function drawTree(el,side,d,other){const T=d.tree,N=T.nodes,C=T.cmp[other.id]||n
   if(nd[1]===2){kind.push('l');h+=`<div class="tn tl" data-tree="${side}" data-n=${i} style="${pad}">${tg}${esc(nd[2])}${nd[3]?' <span class=tc>;'+esc(nd[3])+'</span>':''}</div>`;return}
   const hit=C&&C.o[k].length,y=ys.has(k),nm=hit?`<b>${esc(nd[2])}</b>`:esc(nd[2]);if(hit)nb++;if(y)ny++;kind.push(y?'y':hit?'m':'p');
   h+=`<div class="tn tr${y?' ty':''}${hit?' tm':''}" data-tree="${side}" data-n=${i} data-j=${k} style="${pad}">${tg}${nm}${nd[3]?' <span class=tc>;'+esc(nd[3].replace(/\n/g,' '))+'</span>':''}</div>`;R.push(nd);nR.push(i);k++});
- el.innerHTML=h;el.style.paddingTop='0px';TR[side]={R,C,N,nR,nF,kind,el,rows:[...el.children],col,force:new Set(),other:other.id};treeVis(side);return {n:k,nb,ny}}
+ const ids=[],seen={};N.forEach(nd=>{const id=nd[1]===0?'f:'+nd[2]:nd[1]===1?'r:'+nd[4]+':'+nd[2]:'l:'+nd[2];seen[id]=(seen[id]||0)+1;ids.push(id+'#'+seen[id])});
+ const sv=treeSaved()[side];if(sv&&sv.open){const o=new Set(sv.open);N.forEach((nd,i)=>{if(!(i+1<N.length&&N[i+1][0]>nd[0]))return;o.has(ids[i])?col.delete(i):col.add(i)})}
+ el.innerHTML=h;el.style.paddingTop=(sv&&sv.pad||0)+'px';TR[side]={R,C,N,nR,nF,kind,el,ids,rows:[...el.children],col,force:new Set(),other:other.id};treeVis(side);return {n:k,nb,ny}}
+// expanded nodes, alignment and scroll per game pair, by stable node id (file path / file + routine name)
+const treeKey=()=>'ndr.tree.'+st.a+'|'+st.b;
+function treeSaved(){return lsGet(treeKey())||{}}
+function treeSave(){if(!TR.A||!TR.B)return;const o={y:scrollY};for(const s of['A','B']){const t=TR[s];
+  o[s]={open:t.ids.filter((_,i)=>t.rows[i].querySelector('.tg')&&!t.col.has(i)),pad:parseFloat(t.el.style.paddingTop)||0}}lsSet(treeKey(),o)}
+function treeAll(open){for(const s of['A','B']){const t=TR[s];if(!t)continue;t.col.clear();if(!open)t.N.forEach((nd,i)=>{if(i&&i+1<t.N.length&&t.N[i+1][0]>nd[0])t.col.add(i)});treeVis(s)}treeReset()}
 function treeFilt(t,i){const k=t.kind[i];if(t.force.has(i))return false;if(k==='l')return !TO.l||!TO.r;if(k==='f')return false;return !TO.r||(TO.h&&k==='m')}
 function treeVis(side){const t=TR[side];let hide=Infinity;
  t.N.forEach((nd,i)=>{const r=t.rows[i];if(nd[0]<=hide)hide=Infinity;let vis=hide===Infinity;
@@ -204,14 +214,14 @@ function treeVis(side){const t=TR[side];let hide=Infinity;
   if(g){g.textContent=t.col.has(i)?'\u25b8':'\u25be';g.style.visibility=t.kind[i]!=='f'&&!TO.l?'hidden':''}
   if(vis&&t.col.has(i))hide=nd[0]})}
 function treeOpen(side,i){const t=TR[side];let d=t.N[i][0];for(let j=i-1;j>=0&&d>0;j--)if(t.N[j][0]<d){t.col.delete(j);d=t.N[j][0]}treeVis(side)}
-function treeReset(){for(const s of['A','B'])if(TR[s])TR[s].el.style.paddingTop='0px'}
+function treeReset(){for(const s of['A','B'])if(TR[s])TR[s].el.style.paddingTop='0px';treeSave()}
 function treeAlign(side,el){const t=TR[side],os=side==='A'?'B':'A',o=TR[os];if(!t||!o||!t.C)return;
  const ti=el.dataset.j!=null?o.nR[t.C.r[+el.dataset.j]]:o.nF[t.C.f[+el.dataset.f]];if(ti==null)return;
  if(treeFilt(o,ti))o.force.add(ti); // a match hidden by a toggle is shown until the next toggle change
  treeOpen(side,+el.dataset.n);treeOpen(os,ti);const me=t.rows[+el.dataset.n],tg=o.rows[ti],before=me.getBoundingClientRect().top;
  const off=(r,x)=>r.getBoundingClientRect().top-x.el.getBoundingClientRect().top-parseFloat(x.el.style.paddingTop||0);
  const diff=off(me,t)-off(tg,o);t.el.style.paddingTop=Math.max(0,-diff)+'px';o.el.style.paddingTop=Math.max(0,diff)+'px';
- scrollBy(0,me.getBoundingClientRect().top-before);
+ scrollBy(0,me.getBoundingClientRect().top-before);treeSave();
  for(const r of[me,tg]){r.classList.add('hl');setTimeout(()=>r.classList.remove('hl'),1200)}}
 function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
@@ -220,9 +230,10 @@ function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$
  const ids=M.games.map(g=>g.id);st.a=parseSide(st.a).id;st.b=parseSide(st.b).id;
  if(!ids.includes(st.a))st.a=ids[0];if(!ids.includes(st.b))st.b=ids[Math.min(1,ids.length-1)];writeHash();
  const choices=M.games.map(g=>[g.id,g.id+'  '+g.repo]);opts($('tasel'),choices,st.a);opts($('tbsel'),choices,st.b);
- $('tree').classList.add('on');let left=null,right=null,pending=2;
+ $('tree').classList.add('on');TR.A=TR.B=null;let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
-  const sa=drawTree($('treeA'),'A',left,right),sb=drawTree($('treeB'),'B',right,left);
+  for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).checked=TO[key];
+  const sa=drawTree($('treeA'),'A',left,right),sb=drawTree($('treeB'),'B',right,left);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
   $('info').textContent=`include tree: ${st.a} vs ${st.b} · ${st.a}: ${sa.n} routines, ${sa.nb} in ${st.b} (${sa.ny} yellow) · ${st.b}: ${sb.n} routines, ${sb.nb} in ${st.a} (${sb.ny} yellow) · bold = in the other game, yellow = there but in a non-matching file`};
  load(st.a,d=>{left=d;done()});load(st.b,d=>{right=d;done()})}
 function renderCat(){$('tree').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
@@ -317,10 +328,12 @@ $('tree').onclick=e=>{const g=e.target.closest('.tg');if(g){const r=g.closest('[
   const open=t.col.has(i);open?t.col.delete(i):t.col.add(i);treeVis(s);
   // mirror the toggle onto the matching node on the other side (cmp.r / cmp.f), opening its ancestors when expanding
   const m=o&&treeMatch(t,o,r);if(m!=null&&o.rows[m].querySelector('.tg')){if(open){o.col.delete(m);treeOpen(os,m)}else{o.col.add(m);treeVis(os)}}
-  return}
+  treeSave();return}
  const r=e.target.closest('#tree [data-n]');if(!r)return;if(r.classList.contains('troot'))return treeReset();if(r.classList.contains('tm'))treeAlign(r.dataset.tree,r)};
 $('treeReset').onclick=e=>{e.stopPropagation();treeReset()};
-for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).onchange=()=>{TO[key]=$(id).checked;treeReset();for(const s of['A','B'])if(TR[s]){TR[s].force.clear();treeVis(s)}};
+$('treeExp').onclick=()=>treeAll(true);$('treeCol').onclick=()=>treeAll(false);
+let treeSy=0;addEventListener('scroll',()=>{if(st.v!=='tree')return;clearTimeout(treeSy);treeSy=setTimeout(treeSave,300)});
+for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).onchange=()=>{TO[key]=$(id).checked;lsSet('ndr.treeTO',TO);treeReset();for(const s of['A','B'])if(TR[s]){TR[s].force.clear();treeVis(s)}};
 $('tasel').onchange=()=>{st.a=$('tasel').value;renderTree()};
 $('tbsel').onchange=()=>{st.b=$('tbsel').value;renderTree()};
 $('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.dataset.layout)return;
@@ -330,5 +343,8 @@ $('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.datas
  pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)};
 $('prev').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+1)%n;render()};
 $('foot').innerHTML='Sources (origin/main): '+M.games.map(g=>`${g.id} <a href="https://github.com/abdulahmad/${g.repo}/tree/${g.sha}">${g.repo}@${g.sha.slice(0,10)}</a> <span title="${g.sha}">${g.sha}</span>`).join(' &middot; ')+'<br>Name maps used: '+M.maps.map(([g,n])=>`${g} (${n} renames)`).join(', ')+'. Matching is by label name plus name_map lineage, weighted by line count. Grey = no match (new code, or a rename no map records).'+(CAT?' Categories (93G/94G) are heuristic.':'');
+// a refresh keeps the hash; a bare URL restores the last stored state (a hash in the URL always wins)
+if(!location.hash.slice(1)){const h=lsGet('ndr.hash');if(h)history.replaceState(null,'',h)}
+{const t=lsGet('ndr.treeTO');if(t)for(const k of['r','l','h'])if(typeof t[k]==='boolean')TO[k]=t[k]}
 readHash();pick();addEventListener("hashchange",()=>{readHash();pick()});
 </script></body></html>
