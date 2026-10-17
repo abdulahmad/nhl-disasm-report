@@ -46,7 +46,7 @@ def sync(repo, offline):
 
 # ---------------------------------------------------------------- parsing
 LBL = re.compile(r'^([A-Za-z_][\w]*)(:?)(?=\s|$|;)(.*)')
-NOEMIT = re.compile(r'^\s*(equ|=|set|rs\.?\w*|macro|equr|reg|rsset|rsreset)\b', re.I)
+NOEMIT = re.compile(r'^\s*(equ|=|set|rs\.?\w*|macro|equr|reg|rsset|rsreset)(?![\w])', re.I)
 KEYW = {'include', 'endm', 'end', 'if', 'else', 'endc', 'endif', 'incsrc', 'incbin', 'org', 'macro', 'endmacro'}
 
 def read(p):
