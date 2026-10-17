@@ -312,7 +312,12 @@ $('nest').onchange=()=>{st.nest=$('nest').checked;render()};
 $('norm').onchange=()=>{st.norm=$('norm').checked;render()};
 $('asel').onchange=()=>{st.ab=true;st.a=$('asel').value;renderLayout()};
 $('bsel').onchange=()=>{st.ab=true;st.b=$('bsel').value;renderLayout()};
-$('tree').onclick=e=>{const g=e.target.closest('.tg');if(g){const r=g.closest('[data-n]'),s=r.dataset.tree,t=TR[s],i=+r.dataset.n;t.col.has(i)?t.col.delete(i):t.col.add(i);treeVis(s);return}
+function treeMatch(t,o,r){if(!t.C)return null;let x=-1;if(r.dataset.j!=null)x=o.nR[t.C.r[+r.dataset.j]];else if(r.dataset.f!=null)x=o.nF[t.C.f[+r.dataset.f]];return x==null||x<0?null:x}
+$('tree').onclick=e=>{const g=e.target.closest('.tg');if(g){const r=g.closest('[data-n]'),s=r.dataset.tree,t=TR[s],i=+r.dataset.n,os=s==='A'?'B':'A',o=TR[os];
+  const open=t.col.has(i);open?t.col.delete(i):t.col.add(i);treeVis(s);
+  // mirror the toggle onto the matching node on the other side (cmp.r / cmp.f), opening its ancestors when expanding
+  const m=o&&treeMatch(t,o,r);if(m!=null&&o.rows[m].querySelector('.tg')){if(open){o.col.delete(m);treeOpen(os,m)}else{o.col.add(m);treeVis(os)}}
+  return}
  const r=e.target.closest('#tree [data-n]');if(!r)return;if(r.classList.contains('troot'))return treeReset();if(r.classList.contains('tm'))treeAlign(r.dataset.tree,r)};
 $('treeReset').onclick=e=>{e.stopPropagation();treeReset()};
 for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).onchange=()=>{TO[key]=$(id).checked;treeReset();for(const s of['A','B'])if(TR[s]){TR[s].force.clear();treeVis(s)}};
