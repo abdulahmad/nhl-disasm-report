@@ -367,6 +367,121 @@ def snes(src, top):
     return {'units': units, 'groups': groups, 'banks': banks}
 
 
+# ---------------------------------------------------------------- include tree
+# Tree nodes (pre-order, source order): [depth, 0, path, kind] for a file (kind '' or 'data'),
+# [depth, 1, name, comment, home] for a routine. home = the file the routine is matched as living in
+# (Genesis: the file that defines it; SNES: its src/routines/<group>/ folder).
+SEP = re.compile(r'^[\s;\-=*_#~+.<>]*$')
+
+def code_comment(s):
+    """Text after the first ';' outside quotes, or None."""
+    q = None
+    for i, c in enumerate(s):
+        if q:
+            if c == q:
+                q = None
+        elif c in '\'"':
+            q = c
+        elif c == ';':
+            return s[i + 1:]
+    return None
+
+def clean_comment(lines):
+    out = [x.strip().lstrip(';').strip() for x in lines]
+    out = [x for x in out if x and not SEP.match(x)]
+    return '\n'.join(out)
+
+def routine_comment(L, i):
+    """Label-line comment plus the pure comment lines straight after it; else the comment block
+    straight above the label (no blank line in between)."""
+    m = LBL.match(L[i])
+    c = code_comment(m.group(3)) if m else None
+    if c is not None and c.strip():
+        lines = [c]
+        j = i + 1
+        while j < len(L) and re.match(r'^\s*;', L[j]):
+            lines.append(L[j]); j += 1
+        t = clean_comment(lines)
+        if t:
+            return t
+    lines, j = [], i - 1
+    while j >= 0 and re.match(r'^\s*;', L[j]):
+        lines.insert(0, L[j]); j -= 1
+    return clean_comment(lines)
+
+def tree_genesis(src, top):
+    """Root file, then its labels and .asm includes interleaved in source order, recursively.
+    Same include rule as the files view: .asm only, macros/ and stubinc/ skipped."""
+    nodes, seen = [], set()
+    def walk(p, depth):
+        rp = os.path.relpath(p, src).replace('\\', '/')
+        if rp.lower() in seen:
+            return
+        seen.add(rp.lower())
+        nodes.append([depth, 0, rp, ''])
+        L = read(p)
+        labels = dict(label_starts(L))
+        for i, l in enumerate(L):
+            if i in labels:
+                nodes.append([depth + 1, 1, labels[i], routine_comment(L, i), rp])
+                continue
+            m = INC.match(l)
+            if m:
+                low = m.group(1).lower().replace('\\', '/')
+                if low.endswith('.asm') and not low.startswith(('macros/', 'stubinc/')):
+                    q = resolve(src, m.group(1))
+                    if q:
+                        walk(q, depth + 1)
+    walk(os.path.join(src, top), 0)
+    return nodes
+
+def tree_snes(src, top):
+    """Root file -> its incsrc'd .asm files (inc/ and macros/ skipped) -> for banks/*.asm, each
+    incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file."""
+    nodes = []
+    nodes.append([0, 0, top, ''])
+    for l in read(os.path.join(src, top)):
+        m = INCSRC.match(l)
+        if not m:
+            continue
+        low = m.group(1).lower().replace('\\', '/')
+        if not low.endswith('.asm') or low.startswith(('inc/', 'macros/')):
+            continue
+        bp = resolve(src, m.group(1))
+        if not bp:
+            continue
+        brp = os.path.relpath(bp, src).replace('\\', '/')
+        nodes.append([1, 0, brp, '' if low.startswith('banks/') else 'data'])
+        if not low.startswith('banks/'):
+            continue
+        for bl in read(bp):
+            mm = INCSRC.match(bl)
+            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            if not q:
+                continue
+            rp = os.path.relpath(q, src).replace('\\', '/')
+            if rp.startswith('routines/'):
+                stem = os.path.splitext(os.path.basename(q))[0]
+                L = read(q)
+                st = label_starts(L)
+                hit = [i for i, n in st if n.lower() == stem.lower()] or [i for i, _ in st]
+                cm = routine_comment(L, hit[0]) if hit else clean_comment([x for x in L if re.match(r'^\s*;', x)][:3])
+                nodes.append([2, 1, stem, cm, os.path.dirname(rp) + '/'])
+            else:
+                nodes.append([2, 0, rp, 'data'])
+    return nodes
+
+def file_key(f):
+    """Matching-file key: last path part, no extension, lowercased, cut at the game year (92-96)
+    so stats93 / stats94, logic95 / logic96_ass and routines/logic/ all give 'logic' / 'stats'."""
+    b = f.rstrip('/').split('/')[-1]
+    if not f.endswith('/'):
+        b = os.path.splitext(b)[0]
+    b = b.lower()
+    m = re.match(r'^(.+?)9[2-6](?:_.*)?$', b)
+    return m.group(1) if m else b
+
+
 # ---------------------------------------------------------------- name maps
 class Alias:
     def __init__(self):
@@ -420,6 +535,7 @@ def main():
         dirs.append((gid, d))
         src = os.path.join(d, 'src')
         g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)
+        g['tree'] = tree_genesis(src, top) if plat == 'genesis' else tree_snes(src, top)
         data[gid] = g
         meta.append({'id': gid, 'repo': repo, 'plat': plat, 'sha': sha})
     al, used = load_maps(dirs)
@@ -451,6 +567,35 @@ def main():
                 hit |= idx.get(x, set())
         return sorted(hit)
 
+    # include tree: per game, for every other game, where each routine lives there (bold / yellow)
+    tidx = {}
+    for m in meta:
+        idx = collections.defaultdict(set)
+        for nd in data[m['id']]['tree']:
+            if nd[1] == 1:
+                idx[nd[2].lower()].add(nd[4])
+        tidx[m['id']] = idx
+    def tree_out(gid):
+        nodes = data[gid]['tree']
+        cmp = {}
+        for m in meta:
+            oid = m['id']
+            if oid == gid:
+                continue
+            idx, hits = tidx[oid], []
+            for nd in nodes:
+                if nd[1] == 1:
+                    hit = set()
+                    for x in al.of(nd[2].lower()):
+                        hit |= idx.get(x, set())
+                    hits.append(sorted(hit))
+            names = sorted({h for hs in hits for h in hs})
+            pos = {n: i for i, n in enumerate(names)}
+            homes = [nd[4] for nd in nodes if nd[1] == 1]
+            y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
+            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y}
+        return {'nodes': nodes, 'cmp': cmp}
+
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
     for m in meta:
         gid, g = m['id'], data[m['id']]
@@ -472,7 +617,7 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             tg[tid] = {'files': names, 'o': [[pos[o] for o in origins(u['m'], idx)] if u['m'] else None for u in units]}
         out = {'id': gid, 'units': [{'n': u['n'], 't': u['t'], 'k': u['k'], **({'p': u['p']} if 'p' in u else {})} for u in units],
-               'views': views, 'targets': tg}
+               'views': views, 'targets': tg, 'tree': tree_out(gid)}
         js = 'NDR.loaded(' + json.dumps(out, sort_keys=True, separators=(',', ':'), ensure_ascii=True) + ');\n'
         with open(os.path.join(DOCS, 'data', gid + '.js'), 'w', encoding='ascii', newline='\n') as fh:
             fh.write(js)
