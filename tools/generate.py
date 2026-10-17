@@ -602,7 +602,13 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             homes = [nd[4] for nd in nodes if nd[1] == 1]
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
-            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr}
+            # files: first file in the other tree with the same matching-file key (the roots are not matched)
+            ofk = {}
+            for j, p in enumerate([nd[2] for nd in data[oid]['tree'] if nd[1] == 0]):
+                if j:
+                    ofk.setdefault(file_key(p), j)
+            fr = [-1 if j == 0 else ofk.get(file_key(p), -1) for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0])]
+            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr, 'f': fr}
         return {'nodes': nodes, 'cmp': cmp}
 
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
