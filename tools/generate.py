@@ -570,11 +570,16 @@ def main():
     # include tree: per game, for every other game, where each routine lives there (bold / yellow)
     tidx = {}
     for m in meta:
-        idx = collections.defaultdict(set)
+        idx, ridx, k = collections.defaultdict(set), collections.defaultdict(list), 0
         for nd in data[m['id']]['tree']:
             if nd[1] == 1:
                 idx[nd[2].lower()].add(nd[4])
-        tidx[m['id']] = idx
+                ridx[nd[2].lower()].append((k, nd[4]))
+                k += 1
+        tidx[m['id']] = (idx, ridx)
+    rnames = {m['id']: [nd[2].lower() for nd in data[m['id']]['tree'] if nd[1] == 1] for m in meta}
+    def nodes_name(c, oid):
+        return rnames[oid][c[0]]
     def tree_out(gid):
         nodes = data[gid]['tree']
         cmp = {}
@@ -582,18 +587,22 @@ def main():
             oid = m['id']
             if oid == gid:
                 continue
-            idx, hits = tidx[oid], []
+            (idx, ridx), hits, rr = tidx[oid], [], []
             for nd in nodes:
                 if nd[1] == 1:
-                    hit = set()
-                    for x in al.of(nd[2].lower()):
+                    hit, cand = set(), []
+                    for x in sorted(al.of(nd[2].lower())):
                         hit |= idx.get(x, set())
+                        cand += ridx.get(x, [])
                     hits.append(sorted(hit))
+                    # the routine to jump to in the other tree: same name first, then one in a matching file, then the first
+                    cand.sort(key=lambda c: (nodes_name(c, oid) != nd[2].lower(), file_key(c[1]) != file_key(nd[4]), c[0]))
+                    rr.append(cand[0][0] if cand else -1)
             names = sorted({h for hs in hits for h in hs})
             pos = {n: i for i, n in enumerate(names)}
             homes = [nd[4] for nd in nodes if nd[1] == 1]
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
-            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y}
+            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr}
         return {'nodes': nodes, 'cmp': cmp}
 
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
