@@ -33,12 +33,13 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 #catbox .pill{display:inline-block;padding:1px 6px;border-radius:10px;color:#fff;font-size:11px}
 #catbox .conf-high{color:#6c6}#catbox .conf-med{color:#cc6}#catbox .conf-low{color:#c66;font-weight:600}
 #catTintLab,#nestLab,#normLab{display:none}#rom .nb,.lbar .nb{position:absolute;width:2px;pointer-events:none;z-index:1}#layout{display:none;padding:8px;gap:24px}#layout.on{display:flex;align-items:flex-start}#layout .side{flex:1;min-width:0}#layout .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#layout .lbar{position:relative;margin:4px 0 0 0}#layout .lbar .u{position:absolute;box-sizing:border-box}#layout .lbar .u.sub{border-top:1px solid rgba(0,0,0,.25)}#layout .lbar .fb{position:absolute;pointer-events:none;border-top:2px solid #fff;box-sizing:border-box}#layout .lbar .fl{position:absolute;white-space:nowrap;color:#ccc;line-height:12px;font-size:11px}
+#tree{display:none;padding:8px;gap:24px}#tree.on{display:flex;align-items:flex-start}#tree .side{flex:1;min-width:0}#tree .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#tree .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:16px;font-weight:normal}#tree .tf{color:#9ab}#tree .tr b{color:#fff}#tree .tr.ty b{color:#e6c200}#tree .tc{color:#888}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label>
 <label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label><label id=normLab><input type=checkbox id=norm> Normalise heights</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div>
 <footer id=foot></footer>
 <script>
 const M=/*MANIFEST*/null;
@@ -51,7 +52,7 @@ const CAT=M.categories||null;
 const catColor=c=>((CAT&&CAT.colors)||{})[c]||'#555';
 let st={s:'94G',v:'',c:'',f:0,tint:false,nest:true,a:'93G',b:'94G',norm:false},D=null;
 function readHash(){const h=new URLSearchParams(location.hash.slice(1));for(const k of['s','v','c','a','b'])if(h.get(k))st[k]=h.get(k);if(h.get('f'))st.f=+h.get('f');st.tip=h.get('tip');st.tint=h.get('tint')==='1';st.nest=h.get('nest')!=='0';st.norm=h.get('norm')==='1'}
-function writeHash(){let u;if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&!st.nest?'&nest=0':'')}history.replaceState(null,'',u)}
+function writeHash(){let u;if(st.v==='tree'){u=`#v=tree&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`}else if(st.v==='layout'){u=`#v=layout&a=${encodeURIComponent(st.a)}&b=${encodeURIComponent(st.b)}`+(st.norm?'&norm=1':'')}else{u=`#s=${st.s}&v=${st.v}&c=${encodeURIComponent(st.c)}&f=${st.f}`+(st.v.startsWith('rom:')&&st.tint?'&tint=1':'')+(st.v.startsWith('rom:')&&!st.nest?'&nest=0':'')}history.replaceState(null,'',u)}
 function opts(sel,list,cur){sel.innerHTML=list.map(([v,t])=>`<option value="${esc(v)}"${v==cur?' selected':''}>${esc(t)}</option>`).join('')}
 function load(id,cb){if(NDR.cache[id])return cb(NDR.cache[id]);if(!NDR.pending[id])NDR.pending[id]=[];NDR.pending[id].push(cb);if(NDR.pending[id].length>1)return;$('msg').textContent='loading '+id+'...';const s=document.createElement('script');s.src='data/'+id+'.js';document.head.appendChild(s)}
 function hasCat(){return !!(D&&D.cat&&D.cat.u)}
@@ -66,18 +67,19 @@ function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function viewLabel(v){
   if(v==='layout')return 'side by side';
   if(v==='cat')return 'categories';
+  if(v==='tree')return 'include tree';
   if(v.startsWith('rom:'))return 'whole ROM'+(v==='rom:banks'||v==='rom:files'||v==='rom:groups'?' ('+v.slice(4)+')':'');
   return {files:'files (include order)',groups:'routine groups (src/routines/*)',banks:'banks (src/banks include lists)'}[v]||v}
 function orderedViews(base){
-  // whole ROM, side by side, files/groups/banks, categories
+  // whole ROM, side by side, files/groups/banks, categories, include tree
   const roms=base.map(v=>'rom:'+v), files=base.slice();
-  const out=[...roms,'layout',...files,'cat'];
+  const out=[...roms,'layout',...files,'cat','tree'];
   return out.filter((v,i)=>out.indexOf(v)===i)}
 function defaultRomView(d){return d.views.banks?'rom:banks':('rom:'+Object.keys(d.views)[0])}
 function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s);
- if(st.v==='layout'){
-  load(st.s,d=>{D=d;opts($('vsel'),orderedViews(Object.keys(d.views)).map(v=>[v,viewLabel(v)]),'layout');
-   renderLayout()});
+ if(st.v==='layout'||st.v==='tree'){const v=st.v;
+  load(st.s,d=>{D=d;opts($('vsel'),orderedViews(Object.keys(d.views)).map(v=>[v,viewLabel(v)]),v);
+   v==='tree'?renderTree():renderLayout()});
   return}
  load(st.s,d=>{D=d;$('msg').textContent='';const base=Object.keys(d.views),vs=orderedViews(base);
   if(st.v==='rom')st.v=defaultRomView(d);
@@ -104,6 +106,7 @@ const tt=$('tt');
 document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='none';return}
  const el=e.target.closest('[data-j]');if(!el){tt.style.display='none';return}
  if(el.dataset.layout){tt.innerHTML=el.dataset.tip||'';tt.style.display='block'}
+ else if(el.dataset.tree){tt.innerHTML=treeTip(el.dataset.tree,+el.dataset.j);tt.style.display='block'}
  else{tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block'}
  const w=tt.offsetWidth,h=tt.offsetHeight;tt.style.left=Math.max(0,Math.min(e.clientX+14,innerWidth-w-4))+'px';tt.style.top=Math.max(0,(e.clientY+14+h>innerHeight?e.clientY-h-10:e.clientY+14))+'px'});
 function unitCat(ui){return D.cat&&D.cat.u?D.cat.u[ui]:null}
@@ -159,7 +162,7 @@ function drawLayoutBar(el,data,view,H){const F=data.views[view]||[],NEST=15,BAR=
   if(end>fi){const top=y0s[fi]*sc,bot=y1s[end]*sc;
    h+=`<div class=nb style="top:${top.toFixed(2)}px;height:${Math.max(bot-top,1).toFixed(2)}px;left:${d*NEST+1}px;background:${fileColor(F[fi].f)}"></div>`}}
  el.style.height=H+'px';el.innerHTML=h;return tot}
-function renderLayout(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
+function renderLayout(){$('tree').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
  $('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='inline';
  $('norm').checked=!!st.norm;writeHash();
@@ -179,7 +182,28 @@ function renderLayout(){$('rom').innerHTML='';$('rom').style.height='0';$('bar')
   drawLayoutBar($('lbarB'),right,vb,Math.max(Hb,200));
   $('info').textContent=`layout: ${tname(st.a)} (${totA} lines) vs ${tname(st.b)} (${totB} lines)${st.norm?' · normalised':''} · nesting on · colour by file stem`};
  load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}
-function renderCat(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
+const TR={};
+function treeTip(side,k){const t=TR[side];if(!t)return '';const nd=t.R[k],c=t.C,hs=c?c.o[k]:[];
+ const where=hs.length?hs.map(i=>c.files[i]).join(' / '):'not in '+t.other;
+ return `<b>${esc(nd[2])}</b>  ${esc(nd[4])}\n${esc(t.other)}: <b>${esc(where)}</b>${c&&c.y.includes(k)?'  (different file)':''}\n\n${esc(nd[3]||'(no comment)')}`}
+function drawTree(el,side,d,other){const T=d.tree,C=T.cmp[other.id]||null,ys=new Set(C?C.y:[]),R=[];let h='',k=0,nb=0,ny=0;
+ for(const nd of T.nodes){const pad=`padding-left:${nd[0]*14}px`;
+  if(!nd[1]){h+=`<div class="tn tf" style="${pad}">${esc(nd[2])}${nd[3]?' <span class=tc>['+esc(nd[3])+']</span>':''}</div>`;continue}
+  const hit=C&&C.o[k].length,y=ys.has(k),nm=hit?`<b>${esc(nd[2])}</b>`:esc(nd[2]);if(hit)nb++;if(y)ny++;
+  h+=`<div class="tn tr${y?' ty':''}" data-tree="${side}" data-j=${k} style="${pad}">${nm}${nd[3]?' <span class=tc>;'+esc(nd[3].replace(/\n/g,' '))+'</span>':''}</div>`;R.push(nd);k++}
+ TR[side]={R,C,other:other.id};el.innerHTML=h;return {n:k,nb,ny}}
+function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
+ $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
+ $('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';
+ const ids=M.games.map(g=>g.id);st.a=parseSide(st.a).id;st.b=parseSide(st.b).id;
+ if(!ids.includes(st.a))st.a=ids[0];if(!ids.includes(st.b))st.b=ids[Math.min(1,ids.length-1)];writeHash();
+ const choices=M.games.map(g=>[g.id,g.id+'  '+g.repo]);opts($('tasel'),choices,st.a);opts($('tbsel'),choices,st.b);
+ $('tree').classList.add('on');let left=null,right=null,pending=2;
+ const done=()=>{if(--pending)return;$('msg').textContent='';
+  const sa=drawTree($('treeA'),'A',left,right),sb=drawTree($('treeB'),'B',right,left);
+  $('info').textContent=`include tree: ${st.a} vs ${st.b} · ${st.a}: ${sa.n} routines, ${sa.nb} in ${st.b} (${sa.ny} yellow) · ${st.b}: ${sb.n} routines, ${sb.nb} in ${st.a} (${sb.ny} yellow) · bold = in the other game, yellow = there but in a non-matching file`};
+ load(st.a,d=>{left=d;done()});load(st.b,d=>{right=d;done()})}
+function renderCat(){$('tree').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=false;$('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';$('layout').classList.remove('on');
  writeHash();
  if(!hasCat()){$('catbox').style.display='block';$('catbox').innerHTML=`<p class=note><b>${esc(st.s)}</b> is not categorised yet. Categories are currently produced for 93G and 94G only.</p>`;$('info').textContent='categories: not categorised yet';$('msg').textContent='';return}
@@ -234,10 +258,11 @@ function renderCat(){$('rom').innerHTML='';$('rom').style.height='0';$('bar').in
    else if(k==='placement'){const rank={red:2,yellow:1,'':0};av=rank[av]||0;bv=rank[bv]||0}else{av=av.toLowerCase();bv=bv.toLowerCase()}
    if(av<bv)return asc?-1:1;if(av>bv)return asc?1:-1;return 0});sorted.forEach(r=>tb.appendChild(r))}});
  table.tBodies[0].onclick=e=>{const tr=e.target.closest('tr[data-ui]');if(tr)jumpToUnit(+tr.dataset.ui)}}
-function render(){const isCat=st.v==='cat',isLay=st.v==='layout';
- $('csel').disabled=isCat||isLay;$('ssel').disabled=isLay;writeHash();
+function render(){const isCat=st.v==='cat',isLay=st.v==='layout',isTree=st.v==='tree';
+ $('csel').disabled=isCat||isLay||isTree;$('ssel').disabled=isLay||isTree;writeHash();
+ if(isTree)return renderTree();
  if(isLay)return renderLayout();
- $('layout').classList.remove('on');$('normLab').style.display='none';
+ $('layout').classList.remove('on');$('tree').classList.remove('on');$('normLab').style.display='none';
  if(isCat)return renderCat();
  $('catbox').style.display='none';$('catbox').innerHTML='';$('fsel').value=st.f;$('rom').innerHTML='';$('rom').style.height='0';tt.style.display='none';
  $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
@@ -265,6 +290,8 @@ $('nest').onchange=()=>{st.nest=$('nest').checked;render()};
 $('norm').onchange=()=>{st.norm=$('norm').checked;render()};
 $('asel').onchange=()=>{st.a=$('asel').value;renderLayout()};
 $('bsel').onchange=()=>{st.b=$('bsel').value;renderLayout()};
+$('tasel').onchange=()=>{st.a=$('tasel').value;renderTree()};
+$('tbsel').onchange=()=>{st.b=$('tbsel').value;renderTree()};
 $('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.dataset.layout)return;
  const side=el.dataset.side==='lbarA'?st.a:st.b;const p=parseSide(side);
  st.s=p.id;const d=NDR.cache[p.id];if(!d)return;
