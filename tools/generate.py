@@ -409,6 +409,14 @@ def routine_comment(L, i):
         lines.insert(0, L[j]); j -= 1
     return clean_comment(lines)
 
+LOCAL = re.compile(r'^([.@][A-Za-z_\d][\w]*):?(?=\s|$|;)(.*)')
+
+def label_node(depth, name, rest):
+    """[depth, 2, name] or [depth, 2, name, same-line comment] for a label inside a routine."""
+    c = code_comment(rest)
+    c = clean_comment([c]) if c else ''
+    return [depth, 2, name, c] if c else [depth, 2, name]
+
 def tree_genesis(src, top):
     """Root file, then its labels and .asm includes interleaved in source order, recursively.
     Same include rule as the files view: .asm only, macros/ and stubinc/ skipped."""
@@ -421,12 +429,19 @@ def tree_genesis(src, top):
         nodes.append([depth, 0, rp, ''])
         L = read(p)
         labels = dict(label_starts(L))
+        inr = False  # inside a routine: local labels (.x / @x) after it become its children
         for i, l in enumerate(L):
             if i in labels:
                 nodes.append([depth + 1, 1, labels[i], routine_comment(L, i), rp])
+                inr = True
+                continue
+            lm = LOCAL.match(l)
+            if lm and inr:
+                nodes.append(label_node(depth + 2, lm.group(1), lm.group(2)))
                 continue
             m = INC.match(l)
             if m:
+                inr = False  # a label after an include and before the next routine has no routine above it in the tree
                 low = m.group(1).lower().replace('\\', '/')
                 if low.endswith('.asm') and not low.startswith(('macros/', 'stubinc/')):
                     q = resolve(src, m.group(1))
@@ -467,6 +482,16 @@ def tree_snes(src, top):
                 hit = [i for i, n in st if n.lower() == stem.lower()] or [i for i, _ in st]
                 cm = routine_comment(L, hit[0]) if hit else clean_comment([x for x in L if re.match(r'^\s*;', x)][:3])
                 nodes.append([2, 1, stem, cm, os.path.dirname(rp) + '/'])
+                # labels inside the routine file: other global labels and local (.x) labels, in source order
+                main = hit[0] if hit else -1
+                gl = dict(st)
+                for i, l in enumerate(L):
+                    if i in gl and i != main:
+                        nodes.append(label_node(3, gl[i], LBL.match(l).group(3)))
+                    elif i not in gl:
+                        lm = LOCAL.match(l)
+                        if lm:
+                            nodes.append(label_node(3, lm.group(1), lm.group(2)))
             else:
                 nodes.append([2, 0, rp, 'data'])
     return nodes
