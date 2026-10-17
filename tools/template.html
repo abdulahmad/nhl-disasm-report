@@ -33,13 +33,13 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 #catbox .pill{display:inline-block;padding:1px 6px;border-radius:10px;color:#fff;font-size:11px}
 #catbox .conf-high{color:#6c6}#catbox .conf-med{color:#cc6}#catbox .conf-low{color:#c66;font-weight:600}
 #catTintLab,#nestLab,#normLab{display:none}#rom .nb,.lbar .nb{position:absolute;width:2px;pointer-events:none;z-index:1}#layout{display:none;padding:8px;gap:24px}#layout.on{display:flex;align-items:flex-start}#layout .side{flex:1;min-width:0}#layout .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#layout .lbar{position:relative;margin:4px 0 0 0}#layout .lbar .u{position:absolute;box-sizing:border-box}#layout .lbar .u.sub{border-top:1px solid rgba(0,0,0,.25)}#layout .lbar .fb{position:absolute;pointer-events:none;border-top:2px solid #fff;box-sizing:border-box}#layout .lbar .fl{position:absolute;white-space:nowrap;color:#ccc;line-height:12px;font-size:11px}
-#tree{display:none;padding:8px;gap:24px}#tree.on{display:flex;align-items:flex-start}#tree .side{flex:1;min-width:0}#tree .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#tree .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:16px;font-weight:normal}#tree .tf{color:#9ab}#tree .tr b{color:#fff}#tree .tr.ty b{color:#e6c200}#tree .tc{color:#888}
+#tree{display:none;padding:8px;gap:24px}#tree.on{display:flex;align-items:flex-start}#tree .side{flex:1;min-width:0}#tree .side h3{margin:0 0 6px;font:13px monospace;color:#9ab}#tree .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:16px;font-weight:normal}#tree .tf{color:#9ab}#tree .tr b{color:#fff}#tree .tr.ty b{color:#e6c200}#tree .tc{color:#888}#tree .tm,#tree .troot{cursor:pointer}#tree .tg{cursor:pointer;display:inline-block;width:10px;color:#9ab}#tree .tg0{display:inline-block;width:10px}#tree .hl{background:#3a4a6a}
 </style></head><body><div id=top>
 <label>Subject <select id=ssel></select></label><label>View <select id=vsel></select></label><label>Compare with <select id=csel></select></label>
 <label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label><label id=normLab><input type=checkbox id=norm> Normalise heights</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div class=side><h3>A <select id=tasel></select> <button id=treeReset>reset align</button></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div>
 <footer id=foot></footer>
 <script>
 const M=/*MANIFEST*/null;
@@ -186,12 +186,25 @@ const TR={};
 function treeTip(side,k){const t=TR[side];if(!t)return '';const nd=t.R[k],c=t.C,hs=c?c.o[k]:[];
  const where=hs.length?hs.map(i=>c.files[i]).join(' / '):'not in '+t.other;
  return `<b>${esc(nd[2])}</b>  ${esc(nd[4])}\n${esc(t.other)}: <b>${esc(where)}</b>${c&&c.y.includes(k)?'  (different file)':''}\n\n${esc(nd[3]||'(no comment)')}`}
-function drawTree(el,side,d,other){const T=d.tree,C=T.cmp[other.id]||null,ys=new Set(C?C.y:[]),R=[];let h='',k=0,nb=0,ny=0;
- for(const nd of T.nodes){const pad=`padding-left:${nd[0]*14}px`;
-  if(!nd[1]){h+=`<div class="tn tf" style="${pad}">${esc(nd[2])}${nd[3]?' <span class=tc>['+esc(nd[3])+']</span>':''}</div>`;continue}
+function drawTree(el,side,d,other){const T=d.tree,N=T.nodes,C=T.cmp[other.id]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[];let h='',k=0,f=0,nb=0,ny=0;
+ N.forEach((nd,i)=>{const pad=`padding-left:${nd[0]*14}px`;
+  if(!nd[1]){const kids=i+1<N.length&&N[i+1][0]>nd[0],m=C&&C.f[f]>=0;
+   h+=`<div class="tn tf${m?' tm':''}${i?'':' troot'}" data-tree="${side}" data-n=${i} data-f=${f} style="${pad}">${kids?'<span class=tg>\u25be</span> ':'<span class=tg0></span> '}${esc(nd[2])}${nd[3]?' <span class=tc>['+esc(nd[3])+']</span>':''}</div>`;nF.push(i);f++;return}
   const hit=C&&C.o[k].length,y=ys.has(k),nm=hit?`<b>${esc(nd[2])}</b>`:esc(nd[2]);if(hit)nb++;if(y)ny++;
-  h+=`<div class="tn tr${y?' ty':''}" data-tree="${side}" data-j=${k} style="${pad}">${nm}${nd[3]?' <span class=tc>;'+esc(nd[3].replace(/\n/g,' '))+'</span>':''}</div>`;R.push(nd);k++}
- TR[side]={R,C,other:other.id};el.innerHTML=h;return {n:k,nb,ny}}
+  h+=`<div class="tn tr${y?' ty':''}${hit?' tm':''}" data-tree="${side}" data-n=${i} data-j=${k} style="${pad}"><span class=tg0></span> ${nm}${nd[3]?' <span class=tc>;'+esc(nd[3].replace(/\n/g,' '))+'</span>':''}</div>`;R.push(nd);nR.push(i);k++});
+ el.innerHTML=h;el.style.paddingTop='0px';TR[side]={R,C,N,nR,nF,el,rows:[...el.children],col:new Set(),other:other.id};return {n:k,nb,ny}}
+function treeVis(side){const t=TR[side];let hide=Infinity;
+ t.N.forEach((nd,i)=>{const r=t.rows[i];if(nd[0]<=hide)hide=Infinity;const vis=hide===Infinity;r.style.display=vis?'':'none';
+  if(!nd[1]){const g=r.querySelector('.tg');if(g)g.textContent=t.col.has(i)?'\u25b8':'\u25be';if(vis&&t.col.has(i))hide=nd[0]}})}
+function treeOpen(side,i){const t=TR[side];let d=t.N[i][0];for(let j=i-1;j>=0&&d>0;j--)if(!t.N[j][1]&&t.N[j][0]<d){t.col.delete(j);d=t.N[j][0]}treeVis(side)}
+function treeReset(){for(const s of['A','B'])if(TR[s])TR[s].el.style.paddingTop='0px'}
+function treeAlign(side,el){const t=TR[side],os=side==='A'?'B':'A',o=TR[os];if(!t||!o||!t.C)return;
+ const ti=el.dataset.j!=null?o.nR[t.C.r[+el.dataset.j]]:o.nF[t.C.f[+el.dataset.f]];if(ti==null)return;
+ treeOpen(side,+el.dataset.n);treeOpen(os,ti);const me=t.rows[+el.dataset.n],tg=o.rows[ti],before=me.getBoundingClientRect().top;
+ const off=(r,x)=>r.getBoundingClientRect().top-x.el.getBoundingClientRect().top-parseFloat(x.el.style.paddingTop||0);
+ const diff=off(me,t)-off(tg,o);t.el.style.paddingTop=Math.max(0,-diff)+'px';o.el.style.paddingTop=Math.max(0,diff)+'px';
+ scrollBy(0,me.getBoundingClientRect().top-before);
+ for(const r of[me,tg]){r.classList.add('hl');setTimeout(()=>r.classList.remove('hl'),1200)}}
 function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
  $('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';
@@ -291,6 +304,9 @@ $('nest').onchange=()=>{st.nest=$('nest').checked;render()};
 $('norm').onchange=()=>{st.norm=$('norm').checked;render()};
 $('asel').onchange=()=>{st.ab=true;st.a=$('asel').value;renderLayout()};
 $('bsel').onchange=()=>{st.ab=true;st.b=$('bsel').value;renderLayout()};
+$('tree').onclick=e=>{const g=e.target.closest('.tg');if(g){const r=g.closest('[data-n]'),s=r.dataset.tree,t=TR[s],i=+r.dataset.n;t.col.has(i)?t.col.delete(i):t.col.add(i);treeVis(s);return}
+ const r=e.target.closest('#tree [data-n]');if(!r)return;if(r.classList.contains('troot'))return treeReset();if(r.classList.contains('tm'))treeAlign(r.dataset.tree,r)};
+$('treeReset').onclick=e=>{e.stopPropagation();treeReset()};
 $('tasel').onchange=()=>{st.a=$('tasel').value;renderTree()};
 $('tbsel').onchange=()=>{st.b=$('tbsel').value;renderTree()};
 $('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.dataset.layout)return;
