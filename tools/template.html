@@ -39,7 +39,7 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 <label id=catTintLab><input type=checkbox id=catTint> tint ROM by category</label><label id=nestLab><input type=checkbox id=nest> Show nesting</label><label id=normLab><input type=checkbox id=norm> Normalise heights</label>
 <br style="margin-bottom:4px">
 <button id=prev>&#9664;</button><select id=fsel></select><button id=next>&#9654;</button>
-<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div id=treeBar><label><input type=checkbox id=tShowR checked> show routines</label><label><input type=checkbox id=tShowL checked> show labels</label><label><input type=checkbox id=tHideM> hide matching routines</label><button id=treeReset>reset align</button><button id=treeExp>expand all</button><button id=treeCol>collapse all</button><div id=treeLeg><b>bold</b> routine = also in the other game, in a matching file (same file name ignoring the 92&ndash;96 year) &middot; <b class=y>bold yellow</b> = in the other game, but in a different file &middot; plain = not in the other game<br><span class=tf style="color:#9ab">&#9662; file.asm</span> = a source file (root, then its includes) &middot; routine <span class=tc>;start of its comment</span> = a routine, in source order with the includes &middot; <span class=tl>.label</span> = a label inside the routine (no comparison) &middot; &#9656;/&#9662; = collapsed / expanded (click the triangle)<br>Click a bold or yellow routine, or a file that has a matching file in the other game, to line it up with its match (on the same row); <b>reset align</b> or a click on the root undoes it. Hover a routine for its full comment and where it is in the other game.</div></div><div id=treeCols><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div></div>
+<span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div id=treeBar><label><input type=checkbox id=tShowR checked> show routines</label><label><input type=checkbox id=tShowL checked> show labels</label><label><input type=checkbox id=tHideM> hide matching routines</label><button id=treeReset>reset align</button><button id=treeExp>expand all</button><button id=treeCol>collapse all</button><div id=treeLeg><b>bold</b> routine = also in the other game, in a matching file (same file name ignoring the 92&ndash;96 year) &middot; <b class=y>bold yellow</b> = in the other game, but in a different file &middot; plain = not in the other game<br><span class=tf style="color:#9ab">&#9662; file.asm</span> = a source file (root, then its includes; for SNES groups, a src/routines folder) &middot; routine <span class=tc>;start of its comment</span> = a routine, in source order with the includes &middot; <span class=tl>.label</span> = a label inside the routine (no comparison) &middot; &#9656;/&#9662; = collapsed / expanded (click the triangle)<br>Click a bold or yellow routine, or a file that has a matching file in the other game, to line it up with its match (on the same row); <b>reset align</b> or a click on the root undoes it. Hover a routine for its full comment and where it is in the other game.</div></div><div id=treeCols><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div></div>
 <footer id=foot></footer>
 <script>
 const M=/*MANIFEST*/null;
@@ -189,7 +189,11 @@ function treeTip(side,k){const t=TR[side];if(!t)return '';const nd=t.R[k],c=t.C,
  const where=hs.length?hs.map(i=>c.files[i]).join(' / '):'not in '+t.other;
  return `<b>${esc(nd[2])}</b>  ${esc(nd[4])}\n${esc(t.other)}: <b>${esc(where)}</b>${c&&c.y.includes(k)?'  (different file)':''}\n\n${esc(nd[3]||'(no comment)')}`}
 const TO={r:true,l:true,h:false};
-function drawTree(el,side,d,other){const T=d.tree,N=T.nodes,C=T.cmp[other.id]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
+// A tree side is a game (Genesis) or an SNES game as banks or routine groups: 'id', 'id:banks', 'id:groups'.
+const treeSpec=(sp,games)=>{const x=parseSide(sp),g=games.find(g=>g.id===x.id);return g&&g.plat==='snes'?x.id+':'+(x.view==='groups'?'groups':'banks'):x.id};
+const treeSpecName=sp=>sp.id+(sp.view?' '+sp.view:'');
+function treeTid(sp){return sp.id+(sp.view==='groups'?':groups':'')}
+function drawTree(el,side,d,sp,other,osp){const T=sp.view==='groups'&&d.treeg?d.treeg:d.tree,N=T.nodes,C=T.cmp[treeTid(osp)]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
  N.forEach((nd,i)=>{const pad=`padding-left:${nd[0]*14}px`,kids=i+1<N.length&&N[i+1][0]>nd[0],tg=kids?'<span class=tg>\u25b8</span> ':'<span class=tg0></span> ';
   if(kids&&i)col.add(i);
   if(nd[1]===0){const m=C&&C.f[f]>=0;kind.push('f');
@@ -199,7 +203,7 @@ function drawTree(el,side,d,other){const T=d.tree,N=T.nodes,C=T.cmp[other.id]||n
   h+=`<div class="tn tr${y?' ty':''}${hit?' tm':''}" data-tree="${side}" data-n=${i} data-j=${k} style="${pad}">${tg}${nm}${nd[3]?' <span class=tc>;'+esc(nd[3].replace(/\n/g,' '))+'</span>':''}</div>`;R.push(nd);nR.push(i);k++});
  const ids=[],seen={};N.forEach(nd=>{const id=nd[1]===0?'f:'+nd[2]:nd[1]===1?'r:'+nd[4]+':'+nd[2]:'l:'+nd[2];seen[id]=(seen[id]||0)+1;ids.push(id+'#'+seen[id])});
  const sv=treeSaved()[side];if(sv&&sv.open){const o=new Set(sv.open);N.forEach((nd,i)=>{if(!(i+1<N.length&&N[i+1][0]>nd[0]))return;o.has(ids[i])?col.delete(i):col.add(i)})}
- el.innerHTML=h;el.style.paddingTop=(sv&&sv.pad||0)+'px';TR[side]={R,C,N,nR,nF,kind,el,ids,rows:[...el.children],col,force:new Set(),other:other.id};treeVis(side);return {n:k,nb,ny}}
+ el.innerHTML=h;el.style.paddingTop=(sv&&sv.pad||0)+'px';TR[side]={R,C,N,nR,nF,kind,el,ids,rows:[...el.children],col,force:new Set(),other:treeSpecName(osp)};treeVis(side);return {n:k,nb,ny}}
 // expanded nodes, alignment and scroll per game pair, by stable node id (file path / file + routine name)
 const treeKey=()=>'ndr.tree.'+st.a+'|'+st.b;
 function treeSaved(){return lsGet(treeKey())||{}}
@@ -226,16 +230,18 @@ function treeAlign(side,el){const t=TR[side],os=side==='A'?'B':'A',o=TR[os];if(!
 function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';$('catbox').style.display='none';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=true;
  $('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';
- if(!st.ab){st.a='92G';st.b='93G'}st.ab=true; // tree default pair when no a/b was given
- const ids=M.games.map(g=>g.id);st.a=parseSide(st.a).id;st.b=parseSide(st.b).id;
- if(!ids.includes(st.a))st.a=ids[0];if(!ids.includes(st.b))st.b=ids[Math.min(1,ids.length-1)];writeHash();
- const choices=M.games.map(g=>[g.id,g.id+'  '+g.repo]);opts($('tasel'),choices,st.a);opts($('tbsel'),choices,st.b);
+ if(!st.ab){st.a='92G';st.b='93S:groups'}st.ab=true; // tree default pair when no a/b was given: 92G and 93S as routine groups
+ const ids=M.games.map(g=>g.id);let pa=parseSide(st.a),pb=parseSide(st.b);
+ if(!ids.includes(pa.id))pa={id:ids[0]};if(!ids.includes(pb.id))pb={id:ids[Math.min(1,ids.length-1)]};
+ st.a=treeSpec(pa.id+(pa.view?':'+pa.view:''),M.games);st.b=treeSpec(pb.id+(pb.view?':'+pb.view:''),M.games);pa=parseSide(st.a);pb=parseSide(st.b);writeHash();
+ const choices=layoutChoices();opts($('tasel'),choices,st.a);opts($('tbsel'),choices,st.b);
  $('tree').classList.add('on');TR.A=TR.B=null;let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).checked=TO[key];
-  const sa=drawTree($('treeA'),'A',left,right),sb=drawTree($('treeB'),'B',right,left);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
+  const sa=drawTree($('treeA'),'A',left,pa,right,pb),sb=drawTree($('treeB'),'B',right,pb,left,pa);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
   $('info').textContent=`include tree: ${st.a} vs ${st.b} · ${st.a}: ${sa.n} routines, ${sa.nb} in ${st.b} (${sa.ny} yellow) · ${st.b}: ${sb.n} routines, ${sb.nb} in ${st.a} (${sb.ny} yellow) · bold = in the other game, yellow = there but in a non-matching file`};
- load(st.a,d=>{left=d;done()});load(st.b,d=>{right=d;done()})}
+
+ load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}
 function renderCat(){$('tree').classList.remove('on');$('rom').innerHTML='';$('rom').style.height='0';$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML='';tt.style.display='none';
  $('fsel').disabled=$('prev').disabled=$('next').disabled=true;$('csel').disabled=true;$('ssel').disabled=false;$('catTintLab').style.display='none';$('nestLab').style.display='none';$('normLab').style.display='none';$('layout').classList.remove('on');
  writeHash();
