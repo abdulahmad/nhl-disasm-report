@@ -53,11 +53,15 @@ def read(p):
     with open(p, encoding='latin-1', newline='') as fh:
         return fh.read().replace('\r\n', '\n').replace('\r', '\n').split('\n')
 
-def label_starts(L):
+# Include tree only: the pre-2f02f6c rule, where '=' needed a word character after it, so
+# `name<tab>=<tab>value` equates (e.g. the RAM files) are still listed as routine-like rows there.
+TREE_NOEMIT = re.compile(r'^\s*(equ|=|set|rs\.?\w*|macro|equr|reg|rsset|rsreset)\b', re.I)
+
+def label_starts(L, noemit=NOEMIT):
     out = []
     for i, l in enumerate(L):
         m = LBL.match(l)
-        if m and not NOEMIT.match(m.group(3)) and m.group(1).lower() not in KEYW:
+        if m and not noemit.match(m.group(3)) and m.group(1).lower() not in KEYW:
             out.append((i, m.group(1)))
     return out
 
@@ -428,7 +432,7 @@ def tree_genesis(src, top):
         seen.add(rp.lower())
         nodes.append([depth, 0, rp, ''])
         L = read(p)
-        labels = dict(label_starts(L))
+        labels = dict(label_starts(L, TREE_NOEMIT))
         inr = False  # inside a routine: local labels (.x / @x) after it become its children
         for i, l in enumerate(L):
             if i in labels:
@@ -478,7 +482,7 @@ def tree_snes(src, top):
             if rp.startswith('routines/'):
                 stem = os.path.splitext(os.path.basename(q))[0]
                 L = read(q)
-                st = label_starts(L)
+                st = label_starts(L, TREE_NOEMIT)
                 hit = [i for i, n in st if n.lower() == stem.lower()] or [i for i, _ in st]
                 cm = routine_comment(L, hit[0]) if hit else clean_comment([x for x in L if re.match(r'^\s*;', x)][:3])
                 nodes.append([2, 1, stem, cm, os.path.dirname(rp) + '/'])
