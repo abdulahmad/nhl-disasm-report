@@ -475,6 +475,28 @@ def snes_routine_nodes(src, q, depth):
                 nodes.append(label_node(depth + 1, lm.group(1), lm.group(2)))
     return nodes
 
+def snes_data_file_nodes(src, q, depth):
+    """A src/data/<x>.asm (teamdata, frames) as a file node with its labels as routines (as a Genesis file),
+    local labels under each routine. Matches the Genesis teamdata / frames files by the matching-file rule."""
+    rp = os.path.relpath(q, src).replace('\\', '/')
+    L = read(q)
+    labels = dict(label_starts(L, TREE_NOEMIT))
+    nodes = [[depth, 0, rp, '']]
+    inr = False
+    for i, l in enumerate(L):
+        if i in labels:
+            nodes.append([depth + 1, 1, labels[i], routine_comment(L, i), rp])
+            inr = True
+            continue
+        lm = LOCAL.match(l)
+        if lm and inr:
+            nodes.append(label_node(depth + 2, lm.group(1), lm.group(2)))
+    return nodes
+
+def is_top_data(rp):
+    """src/data/<x>.asm directly in data/ (teamdata, frames); the gfx / sound / text / tables files stay leaves."""
+    return rp.startswith('data/') and rp.count('/') == 1
+
 def tree_snes(src, top):
     """Banks view. Root file -> its incsrc'd .asm files (inc/ and macros/ skipped) -> for banks/*.asm, each
     incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file."""
@@ -502,6 +524,8 @@ def tree_snes(src, top):
             rp = os.path.relpath(q, src).replace('\\', '/')
             if rp.startswith('routines/'):
                 nodes += snes_routine_nodes(src, q, 2)
+            elif is_top_data(rp):
+                nodes += snes_data_file_nodes(src, q, 2)
             else:
                 nodes.append([2, 0, rp, 'data'])
     return nodes
@@ -514,16 +538,27 @@ def tree_snes_groups(src, top, g):
         nodes.append([1 + grp['d'], 0, grp['f'], ''])
         for i in grp['u']:
             nodes += snes_routine_nodes(src, os.path.join(src, g['units'][i]['p']), 2 + grp['d'])
+    # the data files directly in src/data (teamdata, frames), in bank-include order, after the groups
+    for l in read(os.path.join(src, top)):
+        m = INCSRC.match(l)
+        if not m or not m.group(1).replace('\\', '/').startswith('banks/'):
+            continue
+        bp = resolve(src, m.group(1))
+        for bl in read(bp) if bp else []:
+            mm = INCSRC.match(bl)
+            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            if q and is_top_data(os.path.relpath(q, src).replace('\\', '/')):
+                nodes += snes_data_file_nodes(src, q, 1)
     return nodes
 
 def file_key(f):
     """Matching-file key: last path part, no extension, lowercased, cut at the game year (92-96)
-    so stats93 / stats94, logic95 / logic96_ass and routines/logic/ all give 'logic' / 'stats'."""
+    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
     b = f.rstrip('/').split('/')[-1]
     if not f.endswith('/'):
         b = os.path.splitext(b)[0]
     b = b.lower()
-    m = re.match(r'^(.+?)9[2-6](?:_.*)?$', b)
+    m = re.match(r'^(.+?)9[2-6]s?(?:_.*)?$', b)
     return m.group(1) if m else b
 
 
