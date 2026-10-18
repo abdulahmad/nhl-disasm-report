@@ -513,6 +513,9 @@ def tree_snes(src, top):
         if not bp:
             continue
         brp = os.path.relpath(bp, src).replace('\\', '/')
+        if brp.count('/') == 0:
+            nodes += snes_data_file_nodes(src, bp, 1)  # ram93snes.asm: its equates as rows, as the Genesis RAM files
+            continue
         nodes.append([1, 0, brp, '' if low.startswith('banks/') else 'data'])
         if not low.startswith('banks/'):
             continue
@@ -534,6 +537,11 @@ def tree_snes_groups(src, top, g):
     """Routine groups view: root file -> each routine group (a src/routines subfolder, nested folders nest;
     contiguous runs in bank-include order, as in the report's groups view) -> its routines (stem) and their labels."""
     nodes = [[0, 0, top, '']]
+    for l in read(os.path.join(src, top)):  # root-level files (ram93snes.asm) first, as in the banks tree
+        m = INCSRC.match(l)
+        bp = resolve(src, m.group(1)) if m else None
+        if bp and m.group(1).lower().endswith('.asm') and os.path.relpath(bp, src).replace('\\', '/').count('/') == 0:
+            nodes += snes_data_file_nodes(src, bp, 1)
     for grp in g['groups']:
         nodes.append([1 + grp['d'], 0, grp['f'], ''])
         for i in grp['u']:
@@ -553,12 +561,12 @@ def tree_snes_groups(src, top, g):
 
 def file_key(f):
     """Matching-file key: last path part, no extension, lowercased, cut at the game year (92-96)
-    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
+    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s / ram93snes and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
     b = f.rstrip('/').split('/')[-1]
     if not f.endswith('/'):
         b = os.path.splitext(b)[0]
     b = b.lower()
-    m = re.match(r'^(.+?)9[2-6]s?(?:_.*)?$', b)
+    m = re.match(r'^(.+?)9[2-6](?:snes|s)?(?:_.*)?$', b)
     return m.group(1) if m else b
 
 
