@@ -695,12 +695,48 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             homes = [nd[4] for nd in nodes if nd[1] == 1]
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
-            # files: first file in the other tree with the same matching-file key (the roots are not matched)
-            ofk = {}
+            # files: first file in the other tree with the same matching-file key (the roots are not matched). A file
+            # with no such match falls back to the routines it holds: an SNES bank file holds routines from several
+            # src/routines folders, so a Genesis file (main.asm) matches the bank file holding most of the routines of
+            # the folder with its key (routines/main/), and a bank file matches the Genesis file of its busiest folder.
+            def spans(ns):
+                """Per file node (in order): {home key: routine count} of the routines that are its children."""
+                out, stack = [], []
+                for nd in ns:
+                    if nd[1] == 0:
+                        while stack and stack[-1][0] >= nd[0]:
+                            stack.pop()
+                        cur = {}
+                        out.append(cur)
+                        stack.append((nd[0], cur))
+                    elif nd[1] == 1:
+                        while stack and stack[-1][0] >= nd[0]:
+                            stack.pop()
+                        if stack:
+                            k = file_key(nd[4])
+                            stack[-1][1][k] = stack[-1][1].get(k, 0) + 1
+                return out
+            ofk, ofk2, ospans = {}, {}, spans(onodes)
             for j, p in enumerate([nd[2] for nd in onodes if nd[1] == 0]):
                 if j:
                     ofk.setdefault(file_key(p), j)
-            fr = [-1 if j == 0 else ofk.get(file_key(p), -1) for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0])]
+                    for k, c in ospans[j].items():
+                        if k != file_key(p) and c > ofk2.get(k, (0, 0))[0]:
+                            ofk2[k] = (c, j)
+            mspans = spans(nodes)
+            fr = []
+            for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0]):
+                x = -1
+                if j:
+                    x = ofk.get(file_key(p), -1)
+                    if x < 0 and file_key(p) in ofk2:
+                        x = ofk2[file_key(p)][1]
+                    if x < 0:
+                        for k, c in sorted(mspans[j].items(), key=lambda kc: -kc[1]):
+                            if k != file_key(p) and k in ofk:
+                                x = ofk[k]
+                                break
+                fr.append(x)
             cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr, 'f': fr}
         return {'nodes': nodes, 'cmp': cmp}
 
