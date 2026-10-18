@@ -513,6 +513,9 @@ def tree_snes(src, top):
         if not bp:
             continue
         brp = os.path.relpath(bp, src).replace('\\', '/')
+        if brp.count('/') == 0:
+            nodes += snes_data_file_nodes(src, bp, 1)  # ram93snes.asm: its equates as rows, as the Genesis RAM files
+            continue
         nodes.append([1, 0, brp, '' if low.startswith('banks/') else 'data'])
         if not low.startswith('banks/'):
             continue
@@ -534,6 +537,11 @@ def tree_snes_groups(src, top, g):
     """Routine groups view: root file -> each routine group (a src/routines subfolder, nested folders nest;
     contiguous runs in bank-include order, as in the report's groups view) -> its routines (stem) and their labels."""
     nodes = [[0, 0, top, '']]
+    for l in read(os.path.join(src, top)):  # root-level files (ram93snes.asm) first, as in the banks tree
+        m = INCSRC.match(l)
+        bp = resolve(src, m.group(1)) if m else None
+        if bp and m.group(1).lower().endswith('.asm') and os.path.relpath(bp, src).replace('\\', '/').count('/') == 0:
+            nodes += snes_data_file_nodes(src, bp, 1)
     for grp in g['groups']:
         nodes.append([1 + grp['d'], 0, grp['f'], ''])
         for i in grp['u']:
@@ -553,12 +561,12 @@ def tree_snes_groups(src, top, g):
 
 def file_key(f):
     """Matching-file key: last path part, no extension, lowercased, cut at the game year (92-96)
-    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
+    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s / ram93snes and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
     b = f.rstrip('/').split('/')[-1]
     if not f.endswith('/'):
         b = os.path.splitext(b)[0]
     b = b.lower()
-    m = re.match(r'^(.+?)9[2-6]s?(?:_.*)?$', b)
+    m = re.match(r'^(.+?)9[2-6](?:snes|s)?(?:_.*)?$', b)
     return m.group(1) if m else b
 
 
@@ -687,12 +695,48 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             homes = [nd[4] for nd in nodes if nd[1] == 1]
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
-            # files: first file in the other tree with the same matching-file key (the roots are not matched)
-            ofk = {}
+            # files: first file in the other tree with the same matching-file key (the roots are not matched). A file
+            # with no such match falls back to the routines it holds: an SNES bank file holds routines from several
+            # src/routines folders, so a Genesis file (main.asm) matches the bank file holding most of the routines of
+            # the folder with its key (routines/main/), and a bank file matches the Genesis file of its busiest folder.
+            def spans(ns):
+                """Per file node (in order): {home key: routine count} of the routines that are its children."""
+                out, stack = [], []
+                for nd in ns:
+                    if nd[1] == 0:
+                        while stack and stack[-1][0] >= nd[0]:
+                            stack.pop()
+                        cur = {}
+                        out.append(cur)
+                        stack.append((nd[0], cur))
+                    elif nd[1] == 1:
+                        while stack and stack[-1][0] >= nd[0]:
+                            stack.pop()
+                        if stack:
+                            k = file_key(nd[4])
+                            stack[-1][1][k] = stack[-1][1].get(k, 0) + 1
+                return out
+            ofk, ofk2, ospans = {}, {}, spans(onodes)
             for j, p in enumerate([nd[2] for nd in onodes if nd[1] == 0]):
                 if j:
                     ofk.setdefault(file_key(p), j)
-            fr = [-1 if j == 0 else ofk.get(file_key(p), -1) for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0])]
+                    for k, c in ospans[j].items():
+                        if k != file_key(p) and c > ofk2.get(k, (0, 0))[0]:
+                            ofk2[k] = (c, j)
+            mspans = spans(nodes)
+            fr = []
+            for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0]):
+                x = -1
+                if j:
+                    x = ofk.get(file_key(p), -1)
+                    if x < 0 and file_key(p) in ofk2:
+                        x = ofk2[file_key(p)][1]
+                    if x < 0:
+                        for k, c in sorted(mspans[j].items(), key=lambda kc: -kc[1]):
+                            if k != file_key(p) and k in ofk:
+                                x = ofk[k]
+                                break
+                fr.append(x)
             cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr, 'f': fr}
         return {'nodes': nodes, 'cmp': cmp}
 
