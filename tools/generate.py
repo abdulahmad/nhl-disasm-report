@@ -454,8 +454,29 @@ def tree_genesis(src, top):
     walk(os.path.join(src, top), 0)
     return nodes
 
+def snes_routine_nodes(src, q, depth):
+    """A src/routines .asm as a routine node (stem, comment, home folder) followed by its other global
+    labels and local (.x) labels, in source order."""
+    rp = os.path.relpath(q, src).replace('\\', '/')
+    stem = os.path.splitext(os.path.basename(q))[0]
+    L = read(q)
+    st = label_starts(L, TREE_NOEMIT)
+    hit = [i for i, n in st if n.lower() == stem.lower()] or [i for i, _ in st]
+    cm = routine_comment(L, hit[0]) if hit else clean_comment([x for x in L if re.match(r'^\s*;', x)][:3])
+    nodes = [[depth, 1, stem, cm, os.path.dirname(rp) + '/']]
+    main = hit[0] if hit else -1
+    gl = dict(st)
+    for i, l in enumerate(L):
+        if i in gl and i != main:
+            nodes.append(label_node(depth + 1, gl[i], LBL.match(l).group(3)))
+        elif i not in gl:
+            lm = LOCAL.match(l)
+            if lm:
+                nodes.append(label_node(depth + 1, lm.group(1), lm.group(2)))
+    return nodes
+
 def tree_snes(src, top):
-    """Root file -> its incsrc'd .asm files (inc/ and macros/ skipped) -> for banks/*.asm, each
+    """Banks view. Root file -> its incsrc'd .asm files (inc/ and macros/ skipped) -> for banks/*.asm, each
     incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file."""
     nodes = []
     nodes.append([0, 0, top, ''])
@@ -480,24 +501,19 @@ def tree_snes(src, top):
                 continue
             rp = os.path.relpath(q, src).replace('\\', '/')
             if rp.startswith('routines/'):
-                stem = os.path.splitext(os.path.basename(q))[0]
-                L = read(q)
-                st = label_starts(L, TREE_NOEMIT)
-                hit = [i for i, n in st if n.lower() == stem.lower()] or [i for i, _ in st]
-                cm = routine_comment(L, hit[0]) if hit else clean_comment([x for x in L if re.match(r'^\s*;', x)][:3])
-                nodes.append([2, 1, stem, cm, os.path.dirname(rp) + '/'])
-                # labels inside the routine file: other global labels and local (.x) labels, in source order
-                main = hit[0] if hit else -1
-                gl = dict(st)
-                for i, l in enumerate(L):
-                    if i in gl and i != main:
-                        nodes.append(label_node(3, gl[i], LBL.match(l).group(3)))
-                    elif i not in gl:
-                        lm = LOCAL.match(l)
-                        if lm:
-                            nodes.append(label_node(3, lm.group(1), lm.group(2)))
+                nodes += snes_routine_nodes(src, q, 2)
             else:
                 nodes.append([2, 0, rp, 'data'])
+    return nodes
+
+def tree_snes_groups(src, top, g):
+    """Routine groups view: root file -> each routine group (a src/routines subfolder, nested folders nest;
+    contiguous runs in bank-include order, as in the report's groups view) -> its routines (stem) and their labels."""
+    nodes = [[0, 0, top, '']]
+    for grp in g['groups']:
+        nodes.append([1 + grp['d'], 0, grp['f'], ''])
+        for i in grp['u']:
+            nodes += snes_routine_nodes(src, os.path.join(src, g['units'][i]['p']), 2 + grp['d'])
     return nodes
 
 def file_key(f):
@@ -565,6 +581,8 @@ def main():
         src = os.path.join(d, 'src')
         g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)
         g['tree'] = tree_genesis(src, top) if plat == 'genesis' else tree_snes(src, top)
+        if plat == 'snes':
+            g['treeg'] = tree_snes_groups(src, top, g)
         data[gid] = g
         meta.append({'id': gid, 'repo': repo, 'plat': plat, 'sha': sha})
     al, used = load_maps(dirs)
@@ -596,25 +614,28 @@ def main():
                 hit |= idx.get(x, set())
         return sorted(hit)
 
-    # include tree: per game, for every other game, where each routine lives there (bold / yellow)
-    tidx = {}
+    # include tree: per tree (a Genesis game; an SNES game as banks = its id, or as routine groups = id:groups),
+    # for every other tree of another game, where each routine lives there (bold / yellow)
+    trees = collections.OrderedDict()
     for m in meta:
+        trees[m['id']] = (m['id'], data[m['id']]['tree'])
+        if 'treeg' in data[m['id']]:
+            trees[m['id'] + ':groups'] = (m['id'], data[m['id']]['treeg'])
+    tidx, rnames = {}, {}
+    for tid, (owner, nodes) in trees.items():
         idx, ridx, k = collections.defaultdict(set), collections.defaultdict(list), 0
-        for nd in data[m['id']]['tree']:
+        for nd in nodes:
             if nd[1] == 1:
                 idx[nd[2].lower()].add(nd[4])
                 ridx[nd[2].lower()].append((k, nd[4]))
                 k += 1
-        tidx[m['id']] = (idx, ridx)
-    rnames = {m['id']: [nd[2].lower() for nd in data[m['id']]['tree'] if nd[1] == 1] for m in meta}
-    def nodes_name(c, oid):
-        return rnames[oid][c[0]]
-    def tree_out(gid):
-        nodes = data[gid]['tree']
+        tidx[tid] = (idx, ridx)
+        rnames[tid] = [nd[2].lower() for nd in nodes if nd[1] == 1]
+    def tree_out(gid, tid):
+        nodes = trees[tid][1]
         cmp = {}
-        for m in meta:
-            oid = m['id']
-            if oid == gid:
+        for oid, (owner, onodes) in trees.items():
+            if owner == gid:
                 continue
             (idx, ridx), hits, rr = tidx[oid], [], []
             for nd in nodes:
@@ -625,7 +646,7 @@ def main():
                         cand += ridx.get(x, [])
                     hits.append(sorted(hit))
                     # the routine to jump to in the other tree: same name first, then one in a matching file, then the first
-                    cand.sort(key=lambda c: (nodes_name(c, oid) != nd[2].lower(), file_key(c[1]) != file_key(nd[4]), c[0]))
+                    cand.sort(key=lambda c: (rnames[oid][c[0]] != nd[2].lower(), file_key(c[1]) != file_key(nd[4]), c[0]))
                     rr.append(cand[0][0] if cand else -1)
             names = sorted({h for hs in hits for h in hs})
             pos = {n: i for i, n in enumerate(names)}
@@ -633,7 +654,7 @@ def main():
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
             # files: first file in the other tree with the same matching-file key (the roots are not matched)
             ofk = {}
-            for j, p in enumerate([nd[2] for nd in data[oid]['tree'] if nd[1] == 0]):
+            for j, p in enumerate([nd[2] for nd in onodes if nd[1] == 0]):
                 if j:
                     ofk.setdefault(file_key(p), j)
             fr = [-1 if j == 0 else ofk.get(file_key(p), -1) for j, p in enumerate([nd[2] for nd in nodes if nd[1] == 0])]
@@ -661,7 +682,9 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             tg[tid] = {'files': names, 'o': [[pos[o] for o in origins(u['m'], idx)] if u['m'] else None for u in units]}
         out = {'id': gid, 'units': [{'n': u['n'], 't': u['t'], 'k': u['k'], **({'p': u['p']} if 'p' in u else {})} for u in units],
-               'views': views, 'targets': tg, 'tree': tree_out(gid)}
+               'views': views, 'targets': tg, 'tree': tree_out(gid, gid)}
+        if gid + ':groups' in trees:
+            out['treeg'] = tree_out(gid, gid + ':groups')
         js = 'NDR.loaded(' + json.dumps(out, sort_keys=True, separators=(',', ':'), ensure_ascii=True) + ');\n'
         with open(os.path.join(DOCS, 'data', gid + '.js'), 'w', encoding='ascii', newline='\n') as fh:
             fh.write(js)
