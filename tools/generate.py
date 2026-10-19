@@ -561,9 +561,13 @@ def tree_snes_groups(src, top, g):
 
 def file_key(f):
     """Matching-file key: last path part, no extension, lowercased, cut at the game year (92-96)
-    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s / ram93snes and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'."""
-    b = f.rstrip('/').split('/')[-1]
-    if not f.endswith('/'):
+    so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s / ram93snes and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'.
+    An SNES folder below the module (routines/hockey/collisions/) gives the module key ('hockey'), so every area matches the Genesis file of its module."""
+    parts = f.rstrip('/').split('/')
+    if parts[0] == 'routines' and len(parts) > 1:
+        parts = parts[:2]       # SNES routine folders: the folder under routines (the 93G module) is the file; the areas below it only nest
+    b = parts[-1]
+    if not f.endswith('/') and len(parts) == len(f.rstrip('/').split('/')):
         b = os.path.splitext(b)[0]
     b = b.lower()
     m = re.match(r'^(.+?)9[2-6](?:snes|s)?(?:_.*)?$', b)
