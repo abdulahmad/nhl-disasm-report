@@ -82,3 +82,9 @@ To publish a new version:
 6. Never edit, commit to, or push to the source repos (`.cache/src/*`). They are read-only inputs.
 
 Change the viewer in `tools/template.html`, the parsing and matching in `tools/generate.py`, and the category rules in `tools/categories.json` / `tools/classify_routines.js`, then regenerate and commit the code and `docs/` as separate commits. Routine addresses for the categories table come from `tools/routine_addrs.json` (optional overlay) so regenerate stays deterministic without local assembler listings.
+
+## VS Code extension
+
+The `nhl-asm` VS Code extension (syntax highlighting and ctrl+click on includes for these repos) used to live in `vscode/` here.
+It moved, with its history, to [abdulahmad/vscode-nhl-asm](https://github.com/abdulahmad/vscode-nhl-asm) and installs from the
+Marketplace or Open VSX as `Abdul-HaseebAhmad.nhl-asm`; each disassembly repo recommends it in `.vscode/extensions.json`.
