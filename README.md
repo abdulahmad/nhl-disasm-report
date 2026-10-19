@@ -87,4 +87,4 @@ Change the viewer in `tools/template.html`, the parsing and matching in `tools/g
 
 The `nhl-asm` VS Code extension (syntax highlighting and ctrl+click on includes for these repos) used to live in `vscode/` here.
 It moved, with its history, to [abdulahmad/vscode-nhl-asm](https://github.com/abdulahmad/vscode-nhl-asm) and installs from the
-Marketplace or Open VSX as `abdulahmad.nhl-asm`; each disassembly repo recommends it in `.vscode/extensions.json`.
+Marketplace or Open VSX as `Abdul-HaseebAhmad.nhl-asm`; each disassembly repo recommends it in `.vscode/extensions.json`.
