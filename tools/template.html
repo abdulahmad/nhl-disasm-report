@@ -193,7 +193,24 @@ const TO={r:true,l:true,h:false};
 const treeSpec=(sp,games)=>{const x=parseSide(sp),g=games.find(g=>g.id===x.id);return g&&g.plat==='snes'?x.id+':'+(x.view==='groups'?'groups':'banks'):x.id};
 const treeSpecName=sp=>sp.id+(sp.view?' '+sp.view:'');
 function treeTid(sp){return sp.id+(sp.view==='groups'?':groups':'')}
-function drawTree(el,side,d,sp,other,osp){const T=sp.view==='groups'&&d.treeg?d.treeg:d.tree,N=T.nodes,C=T.cmp[treeTid(osp)]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
+const treeOf=(d,sp)=>sp.view==='groups'&&d.treeg?d.treeg:d.tree;
+// Routine groups tree in pane B: its module blocks (gb) are re-sorted by the position of the file with the same
+// matching key in pane A's include order (fk); unmatched modules keep first-ROM order, after the matched ones.
+// Returns [A tree, B tree] with the node order and every routine / file index in both cmp maps remapped.
+function treePair(ta,pa,tb,pb){if(pb.view!=='groups'||!tb.gb||!tb.gb.length||!ta.fk)return [ta,tb];
+ const pos={};ta.fk.forEach((k,j)=>{if(j&&!(k in pos))pos[k]=j});
+ const bl=tb.gb.map((b,i)=>[b,i]).sort((x,y)=>{const px=x[0][2] in pos?pos[x[0][2]]:1e9,py=y[0][2] in pos?pos[y[0][2]]:1e9;return px-py||x[1]-y[1]});
+ if(bl.every((x,i)=>x[1]===i))return [ta,tb];
+ const N=tb.nodes,s0=tb.gb[0][0],s1=tb.gb[tb.gb.length-1][1],ord=[];for(let i=0;i<s0;i++)ord.push(i);
+ for(const [b] of bl)for(let i=b[0];i<b[1];i++)ord.push(i);for(let i=s1;i<N.length;i++)ord.push(i);
+ const ok=[],of=[];let k=0,f=0;N.forEach(nd=>{if(nd[1]===1)ok.push(k++);else ok.push(-1);if(nd[1]===0)of.push(f++);else of.push(-1)});
+ const kMap=new Array(k),fMap=new Array(f);let nk=0,nf=0;for(const i of ord){if(N[i][1]===1)kMap[ok[i]]=nk++;if(N[i][1]===0)fMap[of[i]]=nf++}
+ const perm=(a,m)=>{const o=new Array(a.length);a.forEach((v,i)=>o[m[i]]=v);return o};
+ const cmpB={};for(const [t,c] of Object.entries(tb.cmp))cmpB[t]={files:c.files,o:perm(c.o,kMap),r:perm(c.r,kMap),f:perm(c.f,fMap),y:c.y.map(x=>kMap[x]).sort((a,b)=>a-b)};
+ const tid=treeTid(pb),cmpA=Object.assign({},ta.cmp),ca=ta.cmp[tid];
+ if(ca)cmpA[tid]=Object.assign({},ca,{r:ca.r.map(x=>x<0?x:kMap[x]),f:ca.f.map(x=>x<0?x:fMap[x])});
+ return [Object.assign({},ta,{cmp:cmpA}),Object.assign({},tb,{nodes:ord.map(i=>N[i]),cmp:cmpB,fk:perm(tb.fk,fMap)})]}
+function drawTree(el,side,T,sp,osp){const N=T.nodes,C=T.cmp[treeTid(osp)]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
  N.forEach((nd,i)=>{const pad=`padding-left:${nd[0]*14}px`,kids=i+1<N.length&&N[i+1][0]>nd[0],tg=kids?'<span class=tg>\u25b8</span> ':'<span class=tg0></span> ';
   if(kids&&i)col.add(i);
   if(nd[1]===0){const m=C&&C.f[f]>=0;kind.push('f');
@@ -238,7 +255,7 @@ function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$
  $('tree').classList.add('on');TR.A=TR.B=null;let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).checked=TO[key];
-  const sa=drawTree($('treeA'),'A',left,pa,right,pb),sb=drawTree($('treeB'),'B',right,pb,left,pa);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
+  const [ta,tb]=treePair(treeOf(left,pa),pa,treeOf(right,pb),pb),sa=drawTree($('treeA'),'A',ta,pa,pb),sb=drawTree($('treeB'),'B',tb,pb,pa);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
   $('info').textContent=`include tree: ${st.a} vs ${st.b} · ${st.a}: ${sa.n} routines, ${sa.nb} in ${st.b} (${sa.ny} yellow) · ${st.b}: ${sb.n} routines, ${sb.nb} in ${st.a} (${sb.ny} yellow) · bold = in the other game, yellow = there but in a non-matching file`};
 
  load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}

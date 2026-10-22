@@ -257,8 +257,8 @@ def snes(src, top):
 
     Groups: each subfolder of src/routines is a FILE; each .asm in that folder is a ROUTINE
     named by its stem. Nested subfolders are nested files (depth +1). Bands are contiguous
-    runs in bank-include (ROM) order so folders interleaved across banks stay visible rather
-    than one mega-band per folder. Matching for routine units is by .asm stem only.
+    one band per folder, ordered by first ROM appearance (module, then its areas); routines inside
+    a band stay in ROM order. The banks view is the ROM-order view. Matching for routine units is by .asm stem only.
     """
     units, byfile = [], {}
     def file_unit(p):
@@ -340,35 +340,31 @@ def snes(src, top):
     for i in sorted((i for i, u in enumerate(units) if u['k'] == 'routine' and i not in seen), key=lambda i: units[i]['p']):
         ordered.append(i)
 
-    # Contiguous runs by folder so interleaved folders stay separate bands.
-    runs = []
+    # One group per folder (no repeats). Folders form a tree under src/routines; siblings are ordered by the first
+    # ROM appearance of any routine in their subtree, so a module's areas always sit directly under the module.
+    # Routines inside a group stay in ROM order (never-included ones last, by path). The page re-sorts the modules
+    # by the comparison game's include order in the include tree (see tree 'gb' / 'fk').
+    rank = {i: n for n, i in enumerate(ordered)}
+    byf = collections.OrderedDict()
     for i in ordered:
-        g = folder_of(i)
-        if runs and runs[-1][0] == g:
-            runs[-1][1].append(i)
-        else:
-            runs.append([g, [i]])
-
-    # Empty ancestor folders (for future nesting) inserted before first child run.
-    present = {g for g, _ in runs}
-    ancestors = set()
-    for g in present:
+        byf.setdefault(folder_of(i), []).append(i)
+    first = {}
+    for g, ids in byf.items():
         parts = g.split('/')
-        for k in range(2, len(parts)):
-            ancestors.add('/'.join(parts[:k]))
-    ancestors -= present
-
+        for k in range(2, len(parts) + 1):
+            a = '/'.join(parts[:k])
+            first[a] = min(first.get(a, len(ordered)), rank[ids[0]])
+    kids = collections.defaultdict(list)
+    for a in first:
+        kids['/'.join(a.split('/')[:-1])].append(a)
     groups = []
-    emitted_anc = set()
-    for g, ids in runs:
-        parts = g.split('/')
-        for k in range(2, len(parts)):
-            anc = '/'.join(parts[:k])
-            if anc in ancestors and anc not in emitted_anc:
-                groups.append({'f': anc + '/', 'a': None, 'e': None, 'd': folder_depth(anc), 'r': None, 'bk': [], 'u': []})
-                emitted_anc.add(anc)
-        bset = {x for i in ids for x in inbank[i]}
-        groups.append({'f': g + '/', 'a': None, 'e': None, 'd': folder_depth(g), 'r': None, 'bk': sorted(bset), 'u': ids})
+    def walk(parent):
+        for a in sorted(kids.get(parent, []), key=lambda x: (first[x], x)):
+            ids = byf.get(a, [])
+            bset = {x for i in ids for x in inbank[i]}
+            groups.append({'f': a + '/', 'a': None, 'e': None, 'd': folder_depth(a), 'r': None, 'bk': sorted(bset), 'u': ids})
+            walk(a)
+    walk('routines')
     return {'units': units, 'groups': groups, 'banks': banks}
 
 
@@ -536,17 +532,26 @@ def tree_snes(src, top):
 
 def tree_snes_groups(src, top, g):
     """Routine groups view: root file -> each routine group (a src/routines subfolder, nested folders nest;
-    contiguous runs in bank-include order, as in the report's groups view) -> its routines (stem) and their labels."""
+    one node per folder as in the report's groups view) -> its routines (stem) and their labels.
+    Records g['gb'] = [[start, end, module key]] per module block so the page can re-sort modules by the other pane."""
     nodes = [[0, 0, top, '']]
     for l in read(os.path.join(src, top)):  # root-level files (ram93snes.asm) first, as in the banks tree
         m = INCSRC.match(l)
         bp = resolve(src, m.group(1)) if m else None
         if bp and m.group(1).lower().endswith('.asm') and os.path.relpath(bp, src).replace('\\', '/').count('/') == 0:
             nodes += snes_data_file_nodes(src, bp, 1)
+    blocks = []
     for grp in g['groups']:
+        if grp['d'] == 0:
+            if blocks:
+                blocks[-1][1] = len(nodes)
+            blocks.append([len(nodes), None, file_key(grp['f'])])
         nodes.append([1 + grp['d'], 0, grp['f'], ''])
         for i in grp['u']:
             nodes += snes_routine_nodes(src, os.path.join(src, g['units'][i]['p']), 2 + grp['d'])
+    if blocks:
+        blocks[-1][1] = len(nodes)
+    g['gb'] = blocks
     # the data files directly in src/data (teamdata, frames), in bank-include order, after the groups
     for l in read(os.path.join(src, top)):
         m = INCSRC.match(l)
@@ -743,7 +748,10 @@ def main():
                                 break
                 fr.append(x)
             cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr, 'f': fr}
-        return {'nodes': nodes, 'cmp': cmp}
+        out = {'nodes': nodes, 'cmp': cmp, 'fk': [file_key(nd[2]) for nd in nodes if nd[1] == 0]}
+        if tid.endswith(':groups'):
+            out['gb'] = data[gid]['gb']
+        return out
 
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
     for m in meta:
