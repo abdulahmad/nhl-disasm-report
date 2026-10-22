@@ -53,9 +53,10 @@ def read(p):
     with open(p, encoding='latin-1', newline='') as fh:
         return fh.read().replace('\r\n', '\n').replace('\r', '\n').split('\n')
 
-# Include tree only: the pre-2f02f6c rule, where '=' needed a word character after it, so
-# `name<tab>=<tab>value` equates (e.g. the RAM files) are still listed as routine-like rows there.
-TREE_NOEMIT = re.compile(r'^\s*(equ|=|set|rs\.?\w*|macro|equr|reg|rsset|rsreset)\b', re.I)
+# Include tree only: equates are listed as routine-like rows there (the RAM files expand).
+# Symbol definitions (`name equ v`, `name = v`, `name set v`, with spaces or tabs, optional `:`) are all
+# listed the same way; only `==` (a comparison) and the rs / macro / register forms are excluded.
+TREE_NOEMIT = re.compile(r'^\s*(?:(rs\.?\w*|macro|equr|reg|rsset|rsreset)\b|==)', re.I)
 
 def label_starts(L, noemit=NOEMIT):
     out = []
