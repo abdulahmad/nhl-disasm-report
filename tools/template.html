@@ -80,7 +80,8 @@ function sortGroups(F,seq){if(!F||!F.length||!seq||!seq.length)return F;
  keyed.sort((x,y)=>{const px=x.k in pos?pos[x.k]:1e9,py=y.k in pos?pos[y.k]:1e9;return px-py||x.i-y.i});
  if(keyed.every((x,i)=>x.i===i))return F;const out=[];for(const {b} of keyed){out.push(b.mod);for(const k of b.kids)out.push(k)}return out}
 function filesFor(data,view,seq){const F=data.views[view]||[];return view==='groups'?sortGroups(F,seq):F}
-function filesForView(){return filesFor(D,bv(),(D.targets[st.c]||{}).seq)}
+function genesisSeq(c){if(!c||String(c).includes(':'))return [];const g=M.games.find(x=>x.id===c);return g&&g.plat==='genesis'?(D.targets[c]||{}).seq||[]:[]}
+function filesForView(){return filesFor(D,bv(),genesisSeq(st.c))}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function viewLabel(v){
@@ -193,7 +194,7 @@ function renderLayout(){$('tree').classList.remove('on');$('rom').innerHTML='';$
  const pa=parseSide(st.a),pb=parseSide(st.b);let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   const va=sideView(left,st.a),vb=sideView(right,st.b);
-  const Fa=filesFor(left,va,seqOf(right.views[vb]||[])),Fb=filesFor(right,vb,seqOf(left.views[va]||[]));
+  const Fa=filesFor(left,va,genesisFilesSeq(right,pb)),Fb=filesFor(right,vb,genesisFilesSeq(left,pa));
   const totA=Fa.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+left.units[ui].t.split('\n').length,0),0);
   const totB=Fb.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+right.units[ui].t.split('\n').length,0),0);
   const baseH=Math.max(innerHeight*2.5,Math.min(14000,Math.max(totA,totB)*0.35,8000));
@@ -229,7 +230,8 @@ function sortTreeGroups(T,seq){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)ret
  return {T:Object.assign({},T,{nodes:ord.map(i=>N[i]),cmp,fk:perm(T.fk,fMap),gb:bl.map(x=>x[0])}),kMap,fMap}}
 function applyIncoming(src,tid,kMap,fMap){if(!kMap||!src.cmp[tid])return src;const ca=src.cmp[tid];
  return Object.assign({},src,{cmp:Object.assign({},src.cmp,{[tid]:Object.assign({},ca,{r:ca.r.map(x=>x<0?x:kMap[x]),f:ca.f.map(x=>x<0?x:fMap[x])})})})}
-function paneSeq(d,p){if(p.view==='groups')return seqOf(d.views.groups);if(d.views.files)return seqOf(d.views.files);return seqOf(d.views.banks||[])}
+function genesisFilesSeq(d,p){return p.view||!d.views.files?[]:seqOf(d.views.files)}
+function paneSeq(d,p){return genesisFilesSeq(d,p)}
 function treePair(ta,pa,tb,pb,da,db){let rb=pb.view==='groups'?sortTreeGroups(tb,paneSeq(da,pa)):null;
  if(rb){tb=rb.T;ta=applyIncoming(ta,treeTid(pb),rb.kMap,rb.fMap)}
  const ra=pa.view==='groups'?sortTreeGroups(ta,paneSeq(db,pb)):null;

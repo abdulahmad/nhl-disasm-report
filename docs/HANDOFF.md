@@ -10,4 +10,4 @@
 
 - The report must be regenerated after the NHL94SNES comment pass finishes (see that repo's `docs/HANDOFF.md`; about 1,640 labels were still uncommented).
 - 94S matches 93S by routine group; 94S folders follow the 94G files, so many 94S routines show as placed differently from 93S. That is expected, not a bug.
-- SNES *groups* / `rom:groups` / a groups layout pane / a groups include-tree pane re-sort modules to the other game's include order (`targets.*.seq`). 93S vs 92G is `main`, `hockey`, `logic`, `middle`, `penalty`, `video`, then SNES-only modules. Banks view stays ROM order. Routines inside a group stay in ROM order.
+- SNES *groups* / `rom:groups` / a groups layout pane / a groups include-tree pane re-sort modules to a **Genesis** comparison's include order (`targets.*.seq`). Applies to both 93S and 94S vs 92G, 93G, 94G, 95G, 96G. Banks view stays ROM order. A SNES banks/groups comparison leaves first-ROM order. Routines inside a group stay in ROM order. `python3 tools/test_group_order.py` checks the 93S/94S × Genesis pairs.
