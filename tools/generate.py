@@ -343,7 +343,7 @@ def snes(src, top):
     # One group per folder (no repeats). Folders form a tree under src/routines; siblings are ordered by the first
     # ROM appearance of any routine in their subtree, so a module's areas always sit directly under the module.
     # Routines inside a group stay in ROM order (never-included ones last, by path). The page re-sorts the modules
-    # by the comparison game's include order in the include tree (see tree 'gb' / 'fk').
+    # by the comparison game's include order (groups / rom:groups / layout / include tree; see target 'seq', tree 'gb').
     rank = {i: n for n, i in enumerate(ordered)}
     byf = collections.OrderedDict()
     for i in ordered:
@@ -579,6 +579,16 @@ def file_key(f):
     m = re.match(r'^(.+?)9[2-6](?:snes|s)?(?:_.*)?$', b)
     return m.group(1) if m else b
 
+def seq_of(files):
+    """Unique matching-file keys in include / first-ROM-appearance order (the order a groups view should follow)."""
+    out, seen = [], set()
+    for f in files:
+        k = file_key(f['f'])
+        if k not in seen:
+            seen.add(k)
+            out.append(k)
+    return out
+
 
 # ---------------------------------------------------------------- name maps
 class Alias:
@@ -728,8 +738,9 @@ def main():
                 return out
             ofk, ofk2, ospans = {}, {}, spans(onodes)
             for j, p in enumerate([nd[2] for nd in onodes if nd[1] == 0]):
+                # include the root: SNES routines/hockey/ matches Genesis hockey.asm even when that file is the tree root
+                ofk.setdefault(file_key(p), j)
                 if j:
-                    ofk.setdefault(file_key(p), j)
                     for k, c in ospans[j].items():
                         if k != file_key(p) and c > ofk2.get(k, (0, 0))[0]:
                             ofk2[k] = (c, j)
@@ -753,6 +764,18 @@ def main():
             out['gb'] = data[gid]['gb']
         return out
 
+    # include-order matching keys per comparison id (92G files, 93S:groups, …). The page re-sorts an SNES
+    # groups view to this sequence when that id is the comparison (or the other tree pane).
+    all_seq = {}
+    for m in meta:
+        g = data[m['id']]
+        if m['plat'] == 'genesis':
+            all_seq[m['id']] = seq_of(g['files'])
+        else:
+            all_seq[m['id'] + ':groups'] = seq_of(g['groups'])
+            all_seq[m['id'] + ':banks'] = seq_of(g['banks'])
+            all_seq[m['id']] = all_seq[m['id'] + ':banks']
+
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
     for m in meta:
         gid, g = m['id'], data[m['id']]
@@ -772,7 +795,8 @@ def main():
                 continue
             names = sorted({o for u in units for o in origins(u['m'], idx)})
             pos = {n: i for i, n in enumerate(names)}
-            tg[tid] = {'files': names, 'o': [[pos[o] for o in origins(u['m'], idx)] if u['m'] else None for u in units]}
+            tg[tid] = {'files': names, 'o': [[pos[o] for o in origins(u['m'], idx)] if u['m'] else None for u in units],
+                       'seq': all_seq.get(tid, [])}
         out = {'id': gid, 'units': [{'n': u['n'], 't': u['t'], 'k': u['k'], **({'p': u['p']} if 'p' in u else {})} for u in units],
                'views': views, 'targets': tg, 'tree': tree_out(gid, gid)}
         if gid + ':groups' in trees:

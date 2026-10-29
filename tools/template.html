@@ -64,6 +64,23 @@ function layoutChoices(){const out=[];
  return out}
 function parseSide(spec){const [id,v]=String(spec||'').split(':');return {id,view:v||null}}
 function stemKey(f){let s=String(f).replace(/\\/g,'/').replace(/\/+$/,'');const base=s.replace(/^.*\//,'').replace(/\.[^.]+$/,'');return base.replace(/\d+$/,'').toLowerCase()||base.toLowerCase()}
+// Matching-file key (same rule as generate.py file_key): last path part, no extension, cut at the game year;
+// an SNES routines/<module>/ folder (and its areas) is the module name.
+function fileKey(f){const raw=String(f),s=raw.replace(/\\/g,'/').replace(/\/+$/,'');let parts=s.split('/');
+ if(parts[0]==='routines'&&parts.length>1)parts=parts.slice(0,2);let b=parts[parts.length-1];
+ if(!/[/\\]$/.test(raw)){const d=b.lastIndexOf('.');if(d>0)b=b.slice(0,d)}b=b.toLowerCase();
+ const m=b.match(/^(.+?)9[2-6](?:snes|s)?(?:_.*)?$/);return m?m[1]:b}
+function seqOf(F){const seq=[],seen={};for(const f of F||[]){const k=fileKey(f.f);if(!(k in seen)){seen[k]=1;seq.push(k)}}return seq}
+// SNES groups view: keep each module's areas under it, re-order the modules to follow `seq` (the comparison
+// game's include order). Unmatched modules keep first-ROM order, after the matched ones.
+function sortGroups(F,seq){if(!F||!F.length||!seq||!seq.length)return F;
+ const pos={};seq.forEach((k,i)=>{if(!(k in pos))pos[k]=i});const blocks=[];
+ for(const g of F){if(!(g.d||0))blocks.push({mod:g,kids:[]});else if(blocks.length)blocks[blocks.length-1].kids.push(g);else blocks.push({mod:g,kids:[]})}
+ const keyed=blocks.map((b,i)=>({b,i,k:fileKey(b.mod.f)}));
+ keyed.sort((x,y)=>{const px=x.k in pos?pos[x.k]:1e9,py=y.k in pos?pos[y.k]:1e9;return px-py||x.i-y.i});
+ if(keyed.every((x,i)=>x.i===i))return F;const out=[];for(const {b} of keyed){out.push(b.mod);for(const k of b.kids)out.push(k)}return out}
+function filesFor(data,view,seq){const F=data.views[view]||[];return view==='groups'?sortGroups(F,seq):F}
+function filesForView(){return filesFor(D,bv(),(D.targets[st.c]||{}).seq)}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function viewLabel(v){
@@ -88,7 +105,7 @@ function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s)
   if(!st.v||!vs.includes(st.v))st.v=defaultRomView(d);
   opts($('vsel'),vs.map(v=>[v,viewLabel(v)]),st.v);
   const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
-  opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=d.views[bv()]||[];if(!(st.f<F.length))st.f=0;
+  opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=filesForView();if(!(st.f<F.length))st.f=0;
   if(F.length)opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);
   else opts($('fsel'),[['0','(n/a)']],0);
   $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
@@ -99,7 +116,7 @@ const rng=f=>f.a!=null?hx(f.a)+'-'+(f.e!=null?hx(f.e):'?'):(f.bk&&f.bk.length?'b
 const ind=f=>'\u00a0\u00a0'.repeat(f.d||0)+(f.d?'\u2514 ':'');
 const bv=()=>st.v.replace(/^rom:/,'');
 function keyOf(T,o){return o==null?'(header / not a routine)':o.length?o.map(i=>T.files[i]).join(' / '):'NEW / unmatched'}
-function tipHtml(fi,j){const f=D.views[bv()][fi],ui=f.u[j],u=D.units[ui],n=u.t.split('\n').length,T=D.targets[st.c];
+function tipHtml(fi,j){const f=filesForView()[fi],ui=f.u[j],u=D.units[ui],n=u.t.split('\n').length,T=D.targets[st.c];
  const all=Object.entries(D.targets).map(([t,x])=>`${tname(t)}: ${x.o[ui]==null?'-':x.o[ui].map(i=>x.files[i]).join(' / ')||'none'}`).join('\n');
  let cat='';const cu=D.cat&&D.cat.u&&D.cat.u[ui];if(cu)cat=`\ncategory: ${cu[0]} / ${cu[1]} (${cu[2]}${cu[3]?'; placement '+cu[3]:''})`;
  const bks=f.bk&&f.bk.length?'  banks '+f.bk.map(b=>'$'+b.toString(16).toUpperCase()).join(','):'';
@@ -112,7 +129,7 @@ document.addEventListener('mousemove',e=>{if(st.v==='cat'){tt.style.display='non
  else{tt.innerHTML=tipHtml(el.dataset.fi!=null?+el.dataset.fi:st.f,+el.dataset.j);tt.style.display='block'}
  const w=tt.offsetWidth,h=tt.offsetHeight;tt.style.left=Math.max(0,Math.min(e.clientX+14,innerWidth-w-4))+'px';tt.style.top=Math.max(0,(e.clientY+14+h>innerHeight?e.clientY-h-10:e.clientY+14))+'px'});
 function unitCat(ui){return D.cat&&D.cat.u?D.cat.u[ui]:null}
-function renderRom(){const F=D.views[bv()],T=D.targets[st.c],cm={};let k=0,tot=0,w={},nb=0;
+function renderRom(){const F=filesForView(),T=D.targets[st.c],cm={};let k=0,tot=0,w={},nb=0;
  const useCat=st.tint&&hasCat(),nest=!!st.nest,NEST=15,BAR=220,FBw=240,LBL=248;
  const col=o=>{if(o==null)return NA;if(!o.length)return NEW;const key=o.map(i=>T.files[i]).join(' / ');if(!(key in cm))cm[key]=pal[k++%pal.length];return cm[key]};
  const colU=(ui,o)=>{const cu=unitCat(ui);if(useCat&&cu)return catColor(cu[0]);return col(o)};
@@ -146,7 +163,7 @@ function jumpToUnit(ui){const F=D.views.files||D.views[Object.keys(D.views)[0]];
 
 function sideView(data,spec){const p=parseSide(spec);if(p.view&&data.views[p.view])return p.view;
  return data.views.files?'files':(data.views.banks?'banks':Object.keys(data.views)[0])}
-function drawLayoutBar(el,data,view,H){const F=data.views[view]||[],NEST=15,BAR=160,FBw=172,LBL=180;
+function drawLayoutBar(el,data,F,H){F=F||[];const NEST=15,BAR=160,FBw=172,LBL=180;
  const nl=ui=>data.units[ui].t.split('\n').length;let tot=0;F.forEach(f=>f.u.forEach(ui=>tot+=nl(ui)));
  const sc=H/(tot||1);let y=0,h='',lastL=-99,y0s=[],y1s=[];
  F.forEach((f,fi)=>{const y0=y,dep=f.d||0,off=dep*NEST,bw=Math.max(36,BAR-off),col=fileColor(f.f);
@@ -176,12 +193,13 @@ function renderLayout(){$('tree').classList.remove('on');$('rom').innerHTML='';$
  const pa=parseSide(st.a),pb=parseSide(st.b);let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   const va=sideView(left,st.a),vb=sideView(right,st.b);
-  const totA=(left.views[va]||[]).reduce((s,f)=>s+f.u.reduce((x,ui)=>x+left.units[ui].t.split('\n').length,0),0);
-  const totB=(right.views[vb]||[]).reduce((s,f)=>s+f.u.reduce((x,ui)=>x+right.units[ui].t.split('\n').length,0),0);
+  const Fa=filesFor(left,va,seqOf(right.views[vb]||[])),Fb=filesFor(right,vb,seqOf(left.views[va]||[]));
+  const totA=Fa.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+left.units[ui].t.split('\n').length,0),0);
+  const totB=Fb.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+right.units[ui].t.split('\n').length,0),0);
   const baseH=Math.max(innerHeight*2.5,Math.min(14000,Math.max(totA,totB)*0.35,8000));
   let Ha,Hb;if(st.norm){Ha=Hb=baseH}else{const m=Math.max(totA,totB)||1;Ha=baseH*(totA/m);Hb=baseH*(totB/m)}
-  drawLayoutBar($('lbarA'),left,va,Math.max(Ha,200));
-  drawLayoutBar($('lbarB'),right,vb,Math.max(Hb,200));
+  drawLayoutBar($('lbarA'),left,Fa,Math.max(Ha,200));
+  drawLayoutBar($('lbarB'),right,Fb,Math.max(Hb,200));
   $('info').textContent=`layout: ${tname(st.a)} (${totA} lines) vs ${tname(st.b)} (${totB} lines)${st.norm?' · normalised':''} · nesting on · colour by file stem`};
  load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}
 const TR={};
@@ -194,22 +212,29 @@ const treeSpec=(sp,games)=>{const x=parseSide(sp),g=games.find(g=>g.id===x.id);r
 const treeSpecName=sp=>sp.id+(sp.view?' '+sp.view:'');
 function treeTid(sp){return sp.id+(sp.view==='groups'?':groups':'')}
 const treeOf=(d,sp)=>sp.view==='groups'&&d.treeg?d.treeg:d.tree;
-// Routine groups tree in pane B: its module blocks (gb) are re-sorted by the position of the file with the same
-// matching key in pane A's include order (fk); unmatched modules keep first-ROM order, after the matched ones.
-// Returns [A tree, B tree] with the node order and every routine / file index in both cmp maps remapped.
-function treePair(ta,pa,tb,pb){if(pb.view!=='groups'||!tb.gb||!tb.gb.length||!ta.fk)return [ta,tb];
- const pos={};ta.fk.forEach((k,j)=>{if(j&&!(k in pos))pos[k]=j});
- const bl=tb.gb.map((b,i)=>[b,i]).sort((x,y)=>{const px=x[0][2] in pos?pos[x[0][2]]:1e9,py=y[0][2] in pos?pos[y[0][2]]:1e9;return px-py||x[1]-y[1]});
- if(bl.every((x,i)=>x[1]===i))return [ta,tb];
- const N=tb.nodes,s0=tb.gb[0][0],s1=tb.gb[tb.gb.length-1][1],ord=[];for(let i=0;i<s0;i++)ord.push(i);
+// A groups tree: module blocks (gb) are re-sorted by the other pane's include order (Genesis files view,
+// or that SNES game's groups). Matching uses fileKey, including the other game's root (so 93S hockey
+// follows 92G hockey.asm). Unmatched modules keep first-ROM order, after the matched ones.
+// Returns the remapped tree plus the routine/file index maps, or null if the order did not change.
+function sortTreeGroups(T,seq){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)return null;
+ const pos={};seq.forEach((k,j)=>{if(!(k in pos))pos[k]=j});
+ const bl=T.gb.map((b,i)=>[b,i]).sort((x,y)=>{const px=x[0][2] in pos?pos[x[0][2]]:1e9,py=y[0][2] in pos?pos[y[0][2]]:1e9;return px-py||x[1]-y[1]});
+ if(bl.every((x,i)=>x[1]===i))return null;
+ const N=T.nodes,s0=T.gb[0][0],s1=T.gb[T.gb.length-1][1],ord=[];for(let i=0;i<s0;i++)ord.push(i);
  for(const [b] of bl)for(let i=b[0];i<b[1];i++)ord.push(i);for(let i=s1;i<N.length;i++)ord.push(i);
  const ok=[],of=[];let k=0,f=0;N.forEach(nd=>{if(nd[1]===1)ok.push(k++);else ok.push(-1);if(nd[1]===0)of.push(f++);else of.push(-1)});
  const kMap=new Array(k),fMap=new Array(f);let nk=0,nf=0;for(const i of ord){if(N[i][1]===1)kMap[ok[i]]=nk++;if(N[i][1]===0)fMap[of[i]]=nf++}
  const perm=(a,m)=>{const o=new Array(a.length);a.forEach((v,i)=>o[m[i]]=v);return o};
- const cmpB={};for(const [t,c] of Object.entries(tb.cmp))cmpB[t]={files:c.files,o:perm(c.o,kMap),r:perm(c.r,kMap),f:perm(c.f,fMap),y:c.y.map(x=>kMap[x]).sort((a,b)=>a-b)};
- const tid=treeTid(pb),cmpA=Object.assign({},ta.cmp),ca=ta.cmp[tid];
- if(ca)cmpA[tid]=Object.assign({},ca,{r:ca.r.map(x=>x<0?x:kMap[x]),f:ca.f.map(x=>x<0?x:fMap[x])});
- return [Object.assign({},ta,{cmp:cmpA}),Object.assign({},tb,{nodes:ord.map(i=>N[i]),cmp:cmpB,fk:perm(tb.fk,fMap)})]}
+ const cmp={};for(const [t,c] of Object.entries(T.cmp))cmp[t]={files:c.files,o:perm(c.o,kMap),r:perm(c.r,kMap),f:perm(c.f,fMap),y:c.y.map(x=>kMap[x]).sort((a,b)=>a-b)};
+ return {T:Object.assign({},T,{nodes:ord.map(i=>N[i]),cmp,fk:perm(T.fk,fMap),gb:bl.map(x=>x[0])}),kMap,fMap}}
+function applyIncoming(src,tid,kMap,fMap){if(!kMap||!src.cmp[tid])return src;const ca=src.cmp[tid];
+ return Object.assign({},src,{cmp:Object.assign({},src.cmp,{[tid]:Object.assign({},ca,{r:ca.r.map(x=>x<0?x:kMap[x]),f:ca.f.map(x=>x<0?x:fMap[x])})})})}
+function paneSeq(d,p){if(p.view==='groups')return seqOf(d.views.groups);if(d.views.files)return seqOf(d.views.files);return seqOf(d.views.banks||[])}
+function treePair(ta,pa,tb,pb,da,db){let rb=pb.view==='groups'?sortTreeGroups(tb,paneSeq(da,pa)):null;
+ if(rb){tb=rb.T;ta=applyIncoming(ta,treeTid(pb),rb.kMap,rb.fMap)}
+ const ra=pa.view==='groups'?sortTreeGroups(ta,paneSeq(db,pb)):null;
+ if(ra){ta=ra.T;tb=applyIncoming(tb,treeTid(pa),ra.kMap,ra.fMap)}
+ return [ta,tb]}
 function drawTree(el,side,T,sp,osp){const N=T.nodes,C=T.cmp[treeTid(osp)]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
  N.forEach((nd,i)=>{const pad=`padding-left:${nd[0]*14}px`,kids=i+1<N.length&&N[i+1][0]>nd[0],tg=kids?'<span class=tg>\u25b8</span> ':'<span class=tg0></span> ';
   if(kids&&i)col.add(i);
@@ -255,7 +280,7 @@ function renderTree(){$('layout').classList.remove('on');$('rom').innerHTML='';$
  $('tree').classList.add('on');TR.A=TR.B=null;let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   for(const [id,key] of [['tShowR','r'],['tShowL','l'],['tHideM','h']])$(id).checked=TO[key];
-  const [ta,tb]=treePair(treeOf(left,pa),pa,treeOf(right,pb),pb),sa=drawTree($('treeA'),'A',ta,pa,pb),sb=drawTree($('treeB'),'B',tb,pb,pa);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
+  const [ta,tb]=treePair(treeOf(left,pa),pa,treeOf(right,pb),pb,left,right),sa=drawTree($('treeA'),'A',ta,pa,pb),sb=drawTree($('treeB'),'B',tb,pb,pa);const sy=treeSaved().y;if(sy)scrollTo(0,sy);
   $('info').textContent=`include tree: ${st.a} vs ${st.b} · ${st.a}: ${sa.n} routines, ${sa.nb} in ${st.b} (${sa.ny} yellow) · ${st.b}: ${sb.n} routines, ${sb.nb} in ${st.a} (${sb.ny} yellow) · bold = in the other game, yellow = there but in a non-matching file`};
 
  load(pa.id,d=>{left=d;done()});load(pb.id,d=>{right=d;done()})}
@@ -323,7 +348,7 @@ function render(){const isCat=st.v==='cat',isLay=st.v==='layout',isTree=st.v==='
  $('catbox').style.display='none';$('catbox').innerHTML='';$('fsel').value=st.f;$('rom').innerHTML='';$('rom').style.height='0';tt.style.display='none';
  $('catTintLab').style.display=st.v.startsWith('rom:')&&hasCat()?'inline':'none';
  $('nestLab').style.display=st.v.startsWith('rom:')?'inline':'none';
- const F=D.views[bv()];
+ const F=filesForView();
  if(F.length&&st.v.startsWith('rom:')){$('fsel').disabled=$('prev').disabled=$('next').disabled=true;return renderRom()}$('fsel').disabled=$('prev').disabled=$('next').disabled=false;
  if(!F.length){$('bar').innerHTML=$('leg').innerHTML=$('body').innerHTML=$('info').textContent='';$('msg').textContent=`${st.s}: nothing in this view yet (not yet disassembled).`;return}
  const f=F[st.f],T=D.targets[st.c],cm={};let k=0;
@@ -339,7 +364,11 @@ function render(){const isCat=st.v==='cat',isLay=st.v==='layout',isTree=st.v==='
  legend(w,cm,nb);window.scrollTo(0,0)}
 $('bar').onclick=e=>{const j=e.target.dataset.j;if(j!=null){e.preventDefault();$('u'+j).scrollIntoView()}};
 $('ssel').onchange=()=>{st.s=$('ssel').value;st.f=0;pick()};$('vsel').onchange=()=>{st.v=$('vsel').value;st.f=0;pick()};
-$('csel').onchange=()=>{st.c=$('csel').value;const y=scrollY;render();scrollTo(0,y)};
+$('csel').onchange=()=>{const prev=filesForView(),name=prev[st.f]&&prev[st.f].f;st.c=$('csel').value;
+ const F=filesForView();if(name){const i=F.findIndex(f=>f.f===name);if(i>=0)st.f=i}
+ if(!(st.f<F.length))st.f=0;
+ if(F.length)opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);
+ const y=scrollY;render();scrollTo(0,y)};
 $('fsel').onchange=()=>{st.f=+$('fsel').value;render()};
 $('catTint').onchange=()=>{st.tint=$('catTint').checked;render()};
 $('nest').onchange=()=>{st.nest=$('nest').checked;render()};
@@ -364,7 +393,7 @@ $('layout').onclick=e=>{const el=e.target.closest('[data-fi]');if(!el||!el.datas
  st.s=p.id;const d=NDR.cache[p.id];if(!d)return;
  st.v=sideView(d,side);st.f=+el.dataset.fi;const j=el.dataset.j;
  pick();setTimeout(()=>{const u=$('u'+j);if(u)u.scrollIntoView()},0)};
-$('prev').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=D.views[bv()].length;st.f=(st.f+1)%n;render()};
+$('prev').onclick=()=>{const n=filesForView().length;st.f=(st.f+n-1)%n;render()};$('next').onclick=()=>{const n=filesForView().length;st.f=(st.f+1)%n;render()};
 $('foot').innerHTML='Sources (origin/main): '+M.games.map(g=>`${g.id} <a href="https://github.com/abdulahmad/${g.repo}/tree/${g.sha}">${g.repo}@${g.sha.slice(0,10)}</a> <span title="${g.sha}">${g.sha}</span>`).join(' &middot; ')+'<br>Name maps used: '+M.maps.map(([g,n])=>`${g} (${n} renames)`).join(', ')+'. Matching is by label name plus name_map lineage, weighted by line count. Grey = no match (new code, or a rename no map records).'+(CAT?' Categories (93G/94G) are heuristic.':'');
 // a refresh keeps the hash; a bare URL restores the last stored state (a hash in the URL always wins)
 if(!location.hash.slice(1)){const h=lsGet('ndr.hash');if(h)history.replaceState(null,'',h)}
