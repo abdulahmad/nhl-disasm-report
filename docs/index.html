@@ -217,24 +217,36 @@ const treeOf=(d,sp)=>sp.view==='groups'&&d.treeg?d.treeg:d.tree;
 // or that SNES game's groups). Matching uses fileKey, including the other game's root (so 93S hockey
 // follows 92G hockey.asm). Unmatched modules keep first-ROM order, after the matched ones.
 // Returns the remapped tree plus the routine/file index maps, or null if the order did not change.
-function sortTreeGroups(T,seq){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)return null;
+function sortTreeGroups(T,seq,tid){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)return null;
  const pos={};seq.forEach((k,j)=>{if(!(k in pos))pos[k]=j});
- const bl=T.gb.map((b,i)=>[b,i]).sort((x,y)=>{const px=x[0][2] in pos?pos[x[0][2]]:1e9,py=y[0][2] in pos?pos[y[0][2]]:1e9;return px-py||x[1]-y[1]});
- if(bl.every((x,i)=>x[1]===i))return null;
- const N=T.nodes,s0=T.gb[0][0],s1=T.gb[T.gb.length-1][1],ord=[];for(let i=0;i<s0;i++)ord.push(i);
- for(const [b] of bl)for(let i=b[0];i<b[1];i++)ord.push(i);for(let i=s1;i<N.length;i++)ord.push(i);
+ // Blocks: every top-level entry under the root (RAM file, each module with its areas, data files), in stored order.
+ const N=T.nodes,C=tid&&T.cmp[tid],starts=[];N.forEach((nd,i)=>{if(i&&nd[1]===0&&nd[0]===1)starts.push(i)});if(!starts.length)return null;
+ const rk=[];let kk=0;N.forEach(nd=>{rk.push(nd[1]===1?kk++:-1)});
+ const bl=starts.map((s,i)=>{const e=i+1<starts.length?starts[i+1]:N.length,k=fileKey(N[s][2]);let p=k in pos?pos[k]:null;
+  // No same-key file: place it after the Genesis file most of its routines match (routine-content overlap).
+  if(p==null&&C){const w={};for(let j=s;j<e;j++){const r=rk[j];if(r<0||!C.o[r])continue;for(const fi of C.o[r]){const fk=fileKey(C.files[fi]);if(fk in pos)w[fk]=(w[fk]||0)+1}}
+   let best=null;for(const x in w)if(best==null||w[x]>w[best]||(w[x]===w[best]&&pos[x]<pos[best]))best=x;if(best!=null)p=pos[best]+0.5}
+  return [s,e,i,p==null?1e9:p]});
+ bl.sort((x,y)=>x[3]-y[3]||x[2]-y[2]);
+ if(bl.every((x,i)=>x[2]===i))return null;
+ const ord=[];for(let i=0;i<starts[0];i++)ord.push(i);for(const b of bl)for(let i=b[0];i<b[1];i++)ord.push(i);
  const ok=[],of=[];let k=0,f=0;N.forEach(nd=>{if(nd[1]===1)ok.push(k++);else ok.push(-1);if(nd[1]===0)of.push(f++);else of.push(-1)});
  const kMap=new Array(k),fMap=new Array(f);let nk=0,nf=0;for(const i of ord){if(N[i][1]===1)kMap[ok[i]]=nk++;if(N[i][1]===0)fMap[of[i]]=nf++}
  const perm=(a,m)=>{const o=new Array(a.length);a.forEach((v,i)=>o[m[i]]=v);return o};
  const cmp={};for(const [t,c] of Object.entries(T.cmp))cmp[t]={files:c.files,o:perm(c.o,kMap),r:perm(c.r,kMap),f:perm(c.f,fMap),y:c.y.map(x=>kMap[x]).sort((a,b)=>a-b)};
- return {T:Object.assign({},T,{nodes:ord.map(i=>N[i]),cmp,fk:perm(T.fk,fMap),gb:bl.map(x=>x[0])}),kMap,fMap}}
+ const gpos={};bl.forEach((b,i)=>gpos[b[0]]=i);const gb=T.gb.slice().sort((x,y)=>gpos[x[0]]-gpos[y[0]]);
+ return {T:Object.assign({},T,{nodes:ord.map(i=>N[i]),cmp,fk:perm(T.fk,fMap),gb}),kMap,fMap}}
 function applyIncoming(src,tid,kMap,fMap){if(!kMap||!src.cmp[tid])return src;const ca=src.cmp[tid];
  return Object.assign({},src,{cmp:Object.assign({},src.cmp,{[tid]:Object.assign({},ca,{r:ca.r.map(x=>x<0?x:kMap[x]),f:ca.f.map(x=>x<0?x:fMap[x])})})})}
 function genesisFilesSeq(d,p){return p.view||!d.views.files?[]:seqOf(d.views.files)}
 function paneSeq(d,p){return genesisFilesSeq(d,p)}
-function treePair(ta,pa,tb,pb,da,db){let rb=pb.view==='groups'?sortTreeGroups(tb,paneSeq(da,pa)):null;
+// Genesis pane's tree walk order (pre-order) as matching-file keys; [] for SNES panes. The root's key goes where
+// the root's own code starts (after main/frames/ram in 92G/93G), so an SNES module matching the root lands there.
+function treeSeq(T,d,p){if(!paneSeq(d,p).length||!T||!T.nodes.length)return [];const seq=[],seen={},add=k=>{if(!(k in seen)){seen[k]=1;seq.push(k)}},rk=fileKey(T.nodes[0][2]);
+ T.nodes.forEach((nd,i)=>{if(!i)return;if(nd[1]===0)add(fileKey(nd[2]));else if(nd[0]===1&&nd[1]===1)add(rk)});add(rk);return seq}
+function treePair(ta,pa,tb,pb,da,db){let rb=pb.view==='groups'?sortTreeGroups(tb,treeSeq(ta,da,pa),treeTid(pa)):null;
  if(rb){tb=rb.T;ta=applyIncoming(ta,treeTid(pb),rb.kMap,rb.fMap)}
- const ra=pa.view==='groups'?sortTreeGroups(ta,paneSeq(db,pb)):null;
+ const ra=pa.view==='groups'?sortTreeGroups(ta,treeSeq(tb,db,pb),treeTid(pb)):null;
  if(ra){ta=ra.T;tb=applyIncoming(tb,treeTid(pa),ra.kMap,ra.fMap)}
  return [ta,tb]}
 function drawTree(el,side,T,sp,osp){const N=T.nodes,C=T.cmp[treeTid(osp)]||null,ys=new Set(C?C.y:[]),R=[],nR=[],nF=[],kind=[],col=new Set();let h='',k=0,f=0,nb=0,ny=0;
