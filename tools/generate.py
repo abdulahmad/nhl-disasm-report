@@ -628,6 +628,8 @@ def load_maps(dirs):
                 a, b = (r.get('old_name') or '').strip().lower(), (r.get('name') or '').strip().lower()
             else:
                 continue  # SNES maps: address -> name only, no lineage column
+            if a.startswith('(') or b.startswith('('):
+                continue  # placeholder such as '(raw offset)' or '(new equate)': no predecessor name, not a link
             if a and b and a != b:
                 al.union(a, b); pairs += 1
         used.append((gid, pairs))
