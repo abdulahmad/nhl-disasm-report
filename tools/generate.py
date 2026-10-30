@@ -55,8 +55,10 @@ def read(p):
 
 # Include tree only: equates are listed as routine-like rows there (the RAM files expand).
 # Symbol definitions (`name equ v`, `name = v`, `name set v`, with spaces or tabs, optional `:`) are all
-# listed the same way; only `==` (a comparison) and the rs / macro / register forms are excluded.
-TREE_NOEMIT = re.compile(r'^\s*(?:(rs\.?\w*|macro|equr|reg|rsset|rsreset)\b|==)', re.I)
+# listed the same way, and so are `name rs.b/w/l n` RAM layout lines (the Genesis RAM files are mostly
+# `rs`, the SNES ones `=`; both must be rows or a RAM symbol never matches across platforms).
+# Only `==` (a comparison), the bare rs-counter directives and the macro / register forms are excluded.
+TREE_NOEMIT = re.compile(r'^\s*(?:(rsset|rsreset|macro|equr|reg)\b|==)', re.I)
 
 def label_starts(L, noemit=NOEMIT):
     out = []
