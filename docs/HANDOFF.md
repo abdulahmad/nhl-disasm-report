@@ -4,7 +4,7 @@
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names.
-- Last sources: NHL94SNES `4919d57`, NHLPA93SNES `961fc06`, NHL94Genesis `efaafe0`.
+- Last sources: NHL94SNES `46860a6`, NHLPA93SNES `0329ba6`, NHLPA93Genesis `c2d8bae` (RAM map order alignment and 94S RAM renames).
 
 ## Open
 
