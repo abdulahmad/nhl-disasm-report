@@ -674,6 +674,17 @@ def main():
         data[gid] = g
         meta.append({'id': gid, 'repo': repo, 'plat': plat, 'sha': sha})
     al, used = load_maps(dirs)
+    # 95G re-filed 94's code by subsystem (docs/WHY_95_MOVED.md), so a 95G routine in a different file from its
+    # 94G partner is expected. docs/function_origins.csv names the 94 file each 95G routine came from: a "different
+    # file" whose other side is that file is explained, not a misplacement.
+    origin94 = {}
+    for gid, d in dirs:
+        p = os.path.join(d, 'docs', 'function_origins.csv')
+        if gid == '95G' and os.path.isfile(p):
+            with open(p, newline='', encoding='utf-8') as fh:
+                for r in csv.DictReader(fh):
+                    if r.get('from') and r['from'] != 'new in 95':
+                        origin94.setdefault(r['label'].lower(), file_key(r['from']))
 
     # comparison targets: name -> set(file) indexes
     targets = collections.OrderedDict()
@@ -740,6 +751,15 @@ def main():
             pos = {n: i for i, n in enumerate(names)}
             homes = [nd[4] for nd in nodes if nd[1] == 1]
             y = [k for k, hs in enumerate(hits) if hs and file_key(homes[k]) not in {file_key(h) for h in hs}]
+            e = []
+            if {gid, owner} == {'95G', '94G'}:
+                rn = [nd[2].lower() for nd in nodes if nd[1] == 1]
+                def explained(k):
+                    if gid == '95G':
+                        return origin94.get(rn[k]) in {file_key(h) for h in hits[k]}
+                    return origin94.get(rn[k]) == file_key(homes[k])
+                e = [k for k in y if explained(k)]
+                y = [k for k in y if k not in set(e)]
             # files: first file in the other tree with the same matching-file key (the roots are not matched). A file
             # with no such match falls back to the routines it holds: an SNES bank file holds routines from several
             # src/routines folders, so a Genesis file (main.asm) matches the bank file holding most of the routines of
@@ -783,7 +803,7 @@ def main():
                                 x = ofk[k]
                                 break
                 fr.append(x)
-            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'r': rr, 'f': fr}
+            cmp[oid] = {'files': names, 'o': [[pos[h] for h in hs] for hs in hits], 'y': y, 'e': e, 'r': rr, 'f': fr}
         out = {'nodes': nodes, 'cmp': cmp, 'fk': [file_key(nd[2]) for nd in nodes if nd[1] == 0]}
         if tid.endswith(':groups'):
             out['gb'] = data[gid]['gb']

@@ -326,10 +326,10 @@ names, 249 are 95G names and 556 are its own. Its `docs/align95_plan.md` covers 
 
 | Step | What | Size |
 |---|---|---|
-| D1 | After A3, regenerate 95G's `FILE_ORIGINS.md` / `function_origins.csv` against the current 94G | small |
+| D1 | **Done 2 Nov.** After A3, regenerate 95G's `FILE_ORIGINS.md` / `function_origins.csv` against the current 94G | small |
 | D2 | The 13 fingerprint-matched routines with non-94 names (`rtsskate`, `StatScrollStep`, `PeriodStatsTeam`, `SkipStatColumn`...): take the 94G name, or the 94G local name, where the body is the same | small |
-| D3 | Report pairing for 95G: a 95G subsystem file holds routines from several 94G files, so a 95G yellow vs 94G is expected. Mark it "explained" when `function_origins.csv` names the 94 file, so only real misplacements count | part of the report work |
-| D4 | Extend the merged RAM order to `ram95.asm` / `ram96.asm` (the 92-94 order is done) | medium |
+| D3 | **Done 2 Nov: 580 yellow become 488 explained (tan) and 92 yellow.** Report pairing for 95G: a 95G subsystem file holds routines from several 94G files, so a 95G yellow vs 94G is expected. Mark it "explained" when `function_origins.csv` names the 94 file, so only real misplacements count | part of the report work |
+| D4 | **Checked 2 Nov: nothing to move.** 95G and 96G follow 92G with 0 out of order (`tools/ram_order.py`); only the 93G/94G `rs` layout moves differ. Extend the merged RAM order to `ram95.asm` / `ram96.asm` (the 92-94 order is done) | medium |
 | D5 | 95 features that 94S/94PC/95PC will copy from (season, trade, create, awards) get their names reviewed here first, because 95PC and 95S inherit them | your review |
 | D6 | 96G: finish its naming against 95G (`align95_plan.md` Unsure list), with 95G names winning when the body is the same | medium |
 
