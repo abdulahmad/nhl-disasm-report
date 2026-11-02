@@ -496,9 +496,15 @@ def is_top_data(rp):
     """src/data/<x>.asm directly in data/ (teamdata, frames); the gfx / sound / text / tables files stay leaves."""
     return rp.startswith('data/') and rp.count('/') == 1
 
+def is_root_equ(rp):
+    """An equate file the SNES root includes: the RAM file next to the root, or a src/inc/ file (snes_regs.asm,
+    the hardware registers). Listed with its equates as rows."""
+    return rp.count('/') == 0 or (rp.startswith('inc/') and rp.count('/') == 1)
+
 def tree_snes(src, top):
-    """Banks view. Root file -> its incsrc'd .asm files (inc/ and macros/ skipped) -> for banks/*.asm, each
-    incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file."""
+    """Banks view. Root file -> its incsrc'd .asm files (macros/ skipped) -> for banks/*.asm, each
+    incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file.
+    Root-level equate files (the RAM file, inc/snes_regs.asm) are files with their equates as rows."""
     nodes = []
     nodes.append([0, 0, top, ''])
     for l in read(os.path.join(src, top)):
@@ -506,14 +512,14 @@ def tree_snes(src, top):
         if not m:
             continue
         low = m.group(1).lower().replace('\\', '/')
-        if not low.endswith('.asm') or low.startswith(('inc/', 'macros/')):
+        if not low.endswith('.asm') or low.startswith('macros/'):
             continue
         bp = resolve(src, m.group(1))
         if not bp:
             continue
         brp = os.path.relpath(bp, src).replace('\\', '/')
-        if brp.count('/') == 0:
-            nodes += snes_data_file_nodes(src, bp, 1)  # ram93snes.asm: its equates as rows, as the Genesis RAM files
+        if is_root_equ(brp):
+            nodes += snes_data_file_nodes(src, bp, 1)  # ram93s.asm, inc/snes_regs.asm: equates as rows, as the Genesis RAM files
             continue
         nodes.append([1, 0, brp, '' if low.startswith('banks/') else 'data'])
         if not low.startswith('banks/'):
@@ -537,10 +543,10 @@ def tree_snes_groups(src, top, g):
     one node per folder as in the report's groups view) -> its routines (stem) and their labels.
     Records g['gb'] = [[start, end, module key]] per module block so the page can re-sort modules by the other pane."""
     nodes = [[0, 0, top, '']]
-    for l in read(os.path.join(src, top)):  # root-level files (ram93snes.asm) first, as in the banks tree
+    for l in read(os.path.join(src, top)):  # root-level equate files (inc/snes_regs.asm, ram93s.asm) first, as in the banks tree
         m = INCSRC.match(l)
         bp = resolve(src, m.group(1)) if m else None
-        if bp and m.group(1).lower().endswith('.asm') and os.path.relpath(bp, src).replace('\\', '/').count('/') == 0:
+        if bp and m.group(1).lower().endswith('.asm') and is_root_equ(os.path.relpath(bp, src).replace('\\', '/')):
             nodes += snes_data_file_nodes(src, bp, 1)
     blocks = []
     for grp in g['groups']:
