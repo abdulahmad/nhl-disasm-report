@@ -42,7 +42,7 @@ pre{margin:0;padding:2px 8px 2px 12px;white-space:pre-wrap}.r{border-left:10px s
 <span id=info></span><div class=bar id=bar></div><div id=leg></div></div><div id=tt></div><div id=rom></div><div id=msg></div><div id=body></div><div id=catbox></div><div id=layout><div class=side><h3>A <select id=asel></select></h3><div class=lbar id=lbarA></div></div><div class=side><h3>B <select id=bsel></select></h3><div class=lbar id=lbarB></div></div></div><div id=tree><div id=treeBar><label><input type=checkbox id=tShowR checked> show routines</label><label><input type=checkbox id=tShowL checked> show labels</label><label><input type=checkbox id=tHideM> hide matching routines</label><button id=treeReset>reset align</button><button id=treeExp>expand all</button><button id=treeCol>collapse all</button><div id=treeLeg><b>bold</b> routine = also in the other game, in a matching file (same file name ignoring the 92&ndash;96 year) &middot; <b class=y>bold yellow</b> = in the other game, but in a different file &middot; plain = not in the other game<br><span class=tf style="color:#9ab">&#9662; file.asm</span> = a source file (root, then its includes; for SNES groups, a src/routines folder) &middot; routine <span class=tc>;start of its comment</span> = a routine, in source order with the includes &middot; <span class=tl>.label</span> = a label inside the routine (no comparison) &middot; &#9656;/&#9662; = collapsed / expanded (click the triangle)<br>Click a bold or yellow routine, or a file that has a matching file in the other game, to line it up with its match (on the same row); <b>reset align</b> or a click on the root undoes it. Hover a routine for its full comment and where it is in the other game.</div></div><div id=treeCols><div class=side><h3>A <select id=tasel></select></h3><div id=treeA></div></div><div class=side><h3>B <select id=tbsel></select></h3><div id=treeB></div></div></div></div>
 <footer id=foot></footer>
 <script>
-const M={"categories":{"colors":{"ai":"#1ABC9C","collision":"#E74C3C","data":"#5D6D7E","display":"#16A085","frontend":"#8E44AD","gameloop":"#27AE60","input":"#E67E22","other":"#A04000","players":"#3498DB","puck":"#F1C40F","replay":"#7F8C8D","rules":"#C0392B","save":"#B7950B","season":"#D35400","sound":"#9B59B6","stats":"#2980B9","system":"#8B7355","video":"#4A90D9"},"games":["93G","94G"],"order":["system","video","sound","input","gameloop","ai","players","puck","collision","rules","display","frontend","stats","season","replay","save","data","other"],"placement_rule":["For each source file, compute the dominant category (by total lines) and, within it, the dominant subcategory.","Look at the address neighbourhood: the 3 routines before and after in the same file (ROM order).","Yellow if category matches the file dominant but subcategory differs from both the file dominant subcategory and neighbours, or category is a secondary but sizeable category (>=15% of file lines and >=2 routines).","Red if category differs from the file dominant and from neighbours (isolated foreign routine).","Whole files of one category are fine (no flags). Ignore equate rows (ram*.asm). Low-confidence classifications are capped at yellow (never red)."]},"games":[{"categorised":false,"id":"92G","plat":"genesis","repo":"NHL92Genesis","sha":"9eeb1a1134e6e3d9e1360ee81c690eca512d6c59","units":500,"views":{"files":14}},{"categorised":true,"id":"93G","plat":"genesis","repo":"NHLPA93Genesis","sha":"c2d8bae592c3605e08903cd188e20fea7af0b0d0","units":882,"views":{"files":21}},{"categorised":true,"id":"94G","plat":"genesis","repo":"NHL94Genesis","sha":"25a26cd456865c1d64d0852ca75c01dc149101fc","units":1586,"views":{"files":33}},{"categorised":false,"id":"95G","plat":"genesis","repo":"NHL95Genesis","sha":"b10b1cf67fc5bd079c5e326fea8447f3227b245e","units":2206,"views":{"files":47}},{"categorised":false,"id":"96G","plat":"genesis","repo":"NHL96Genesis","sha":"7105906f0080d942bfb53615cb3a91b389b29b78","units":1776,"views":{"files":89}},{"categorised":false,"id":"93S","plat":"snes","repo":"NHLPA93SNES","sha":"13c884811f420359ad435c6b2b0437c148f926a9","units":508,"views":{"banks":16,"groups":52}},{"categorised":false,"id":"94S","plat":"snes","repo":"NHL94SNES","sha":"646937f3d63e608685e193e4008b84e2234c4409","units":1351,"views":{"banks":32,"groups":18}}],"maps":[["94G",190],["95G",287],["96G",37],["94S",0]],"targets":["92G","93G","94G","95G","96G","93S:groups","93S:banks","94S:groups","94S:banks"]};
+const M={"categories":{"colors":{"ai":"#1ABC9C","collision":"#E74C3C","data":"#5D6D7E","display":"#16A085","frontend":"#8E44AD","gameloop":"#27AE60","input":"#E67E22","other":"#A04000","players":"#3498DB","puck":"#F1C40F","replay":"#7F8C8D","rules":"#C0392B","save":"#B7950B","season":"#D35400","sound":"#9B59B6","stats":"#2980B9","system":"#8B7355","video":"#4A90D9"},"games":["93G","94G"],"order":["system","video","sound","input","gameloop","ai","players","puck","collision","rules","display","frontend","stats","season","replay","save","data","other"],"placement_rule":["For each source file, compute the dominant category (by total lines) and, within it, the dominant subcategory.","Look at the address neighbourhood: the 3 routines before and after in the same file (ROM order).","Yellow if category matches the file dominant but subcategory differs from both the file dominant subcategory and neighbours, or category is a secondary but sizeable category (>=15% of file lines and >=2 routines).","Red if category differs from the file dominant and from neighbours (isolated foreign routine).","Whole files of one category are fine (no flags). Ignore equate rows (ram*.asm). Low-confidence classifications are capped at yellow (never red)."]},"games":[{"categorised":false,"id":"92G","plat":"genesis","repo":"NHL92Genesis","sha":"9eeb1a1134e6e3d9e1360ee81c690eca512d6c59","units":500,"views":{"files":14}},{"categorised":true,"id":"93G","plat":"genesis","repo":"NHLPA93Genesis","sha":"c2d8bae592c3605e08903cd188e20fea7af0b0d0","units":882,"views":{"files":21}},{"categorised":true,"id":"94G","plat":"genesis","repo":"NHL94Genesis","sha":"25a26cd456865c1d64d0852ca75c01dc149101fc","units":1586,"views":{"files":33}},{"categorised":false,"id":"95G","plat":"genesis","repo":"NHL95Genesis","sha":"b10b1cf67fc5bd079c5e326fea8447f3227b245e","units":2206,"views":{"files":47}},{"categorised":false,"id":"96G","plat":"genesis","repo":"NHL96Genesis","sha":"7105906f0080d942bfb53615cb3a91b389b29b78","units":1776,"views":{"files":89}},{"categorised":false,"id":"93S","plat":"snes","repo":"NHLPA93SNES","sha":"13c884811f420359ad435c6b2b0437c148f926a9","units":508,"views":{"banks":16,"groups":52}},{"categorised":false,"id":"94S","plat":"snes","repo":"NHL94SNES","sha":"646937f3d63e608685e193e4008b84e2234c4409","units":1351,"views":{"banks":32,"groups":18}}],"maps":[["93G",209],["94G",190],["95G",287],["96G",37],["93S",16],["94S",0]],"targets":["92G","93G","94G","95G","96G","93S:groups","93S:banks","94S:groups","94S:banks"]};
 const NDR={cache:{},cb:null,pending:{},loaded(d){this.cache[d.id]=d;const q=this.pending[d.id];if(q){delete this.pending[d.id];q.forEach(c=>c(d))}else if(this.cb){const c=this.cb;this.cb=null;c(d)}}};
 const pal=['#4e79a7','#f28e2b','#59a14f','#b07aa1','#76b7b2','#c9a227','#ff9da7','#9c755f','#e15759','#17becf','#8c564b','#bcbd22','#2ca02c','#d62728','#9467bd'];const NEW='#555',NA='#333';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -72,24 +72,16 @@ function fileKey(f){const raw=String(f),s=raw.replace(/\\/g,'/').replace(/\/+$/,
  const m=b.match(/^(.+?)9[2-6](?:snes|s)?(?:_.*)?$/);return m?m[1]:b}
 function seqOf(F){const seq=[],seen={};for(const f of F||[]){const k=fileKey(f.f);if(!(k in seen)){seen[k]=1;seq.push(k)}}return seq}
 // SNES groups view: keep each module's areas under it, re-order the modules to follow `seq` (the comparison
-// game's include order). With T (an SNES groups comparison target), a module with no same-key folder goes right
-// after the folder most of its routines match there, and one with neither stays right after the module it follows
-// in first-ROM order. Without T, unmatched modules keep first-ROM order, after the matched ones.
-function sortGroups(F,seq,T){if(!F||!F.length||!seq||!seq.length)return F;
+// game's include order). Unmatched modules keep first-ROM order, after the matched ones.
+function sortGroups(F,seq){if(!F||!F.length||!seq||!seq.length)return F;
  const pos={};seq.forEach((k,i)=>{if(!(k in pos))pos[k]=i});const blocks=[];
  for(const g of F){if(!(g.d||0))blocks.push({mod:g,kids:[]});else if(blocks.length)blocks[blocks.length-1].kids.push(g);else blocks.push({mod:g,kids:[]})}
- const keyed=blocks.map((b,i)=>{const k=fileKey(b.mod.f);let p=k in pos?pos[k]:null;
-  if(p==null&&T&&T.o){const w={};for(const g of [b.mod,...b.kids])for(const ui of g.u){for(const fi of T.o[ui]||[]){const fk=fileKey(T.files[fi]);if(fk in pos)w[fk]=(w[fk]||0)+1}}
-   let best=null;for(const x in w)if(best==null||w[x]>w[best]||(w[x]===w[best]&&pos[x]<pos[best]))best=x;if(best!=null)p=pos[best]+0.5}
-  return {b,i,k,p}});
- let prev=-1;for(const x of keyed){if(x.p==null)x.p=T?prev:1e9;prev=x.p}
- keyed.sort((x,y)=>x.p-y.p||x.i-y.i);
+ const keyed=blocks.map((b,i)=>({b,i,k:fileKey(b.mod.f)}));
+ keyed.sort((x,y)=>{const px=x.k in pos?pos[x.k]:1e9,py=y.k in pos?pos[y.k]:1e9;return px-py||x.i-y.i});
  if(keyed.every((x,i)=>x.i===i))return F;const out=[];for(const {b} of keyed){out.push(b.mod);for(const k of b.kids)out.push(k)}return out}
-function filesFor(data,view,seq,T){const F=data.views[view]||[];return view==='groups'?sortGroups(F,seq,T):F}
+function filesFor(data,view,seq){const F=data.views[view]||[];return view==='groups'?sortGroups(F,seq):F}
 function genesisSeq(c){if(!c||String(c).includes(':'))return [];const g=M.games.find(x=>x.id===c);return g&&g.plat==='genesis'?(D.targets[c]||{}).seq||[]:[]}
-// An SNES groups comparison (e.g. 94S groups vs 93S:groups): follow that game's routine folder order.
-function snesGroupsTarget(c){return /:groups$/.test(String(c||''))?D.targets[c]||null:null}
-function filesForView(){const T=snesGroupsTarget(st.c);return T?filesFor(D,bv(),T.seq||[],T):filesFor(D,bv(),genesisSeq(st.c))}
+function filesForView(){return filesFor(D,bv(),genesisSeq(st.c))}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
 function viewLabel(v){
@@ -202,9 +194,7 @@ function renderLayout(){$('tree').classList.remove('on');$('rom').innerHTML='';$
  const pa=parseSide(st.a),pb=parseSide(st.b);let left=null,right=null,pending=2;
  const done=()=>{if(--pending)return;$('msg').textContent='';
   const va=sideView(left,st.a),vb=sideView(right,st.b);
-  // Both panes SNES groups: the right pane follows the left pane's routine folder order.
-  const gg=va==='groups'&&vb==='groups',Tb=gg?right.targets[pa.id+':groups']:null;
-  const Fa=filesFor(left,va,genesisFilesSeq(right,pb)),Fb=gg?filesFor(right,vb,seqOf(left.views.groups),Tb):filesFor(right,vb,genesisFilesSeq(left,pa));
+  const Fa=filesFor(left,va,genesisFilesSeq(right,pb)),Fb=filesFor(right,vb,genesisFilesSeq(left,pa));
   const totA=Fa.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+left.units[ui].t.split('\n').length,0),0);
   const totB=Fb.reduce((s,f)=>s+f.u.reduce((x,ui)=>x+right.units[ui].t.split('\n').length,0),0);
   const baseH=Math.max(innerHeight*2.5,Math.min(14000,Math.max(totA,totB)*0.35,8000));
@@ -227,8 +217,7 @@ const treeOf=(d,sp)=>sp.view==='groups'&&d.treeg?d.treeg:d.tree;
 // or that SNES game's groups). Matching uses fileKey, including the other game's root (so 93S hockey
 // follows 92G hockey.asm). Unmatched modules keep first-ROM order, after the matched ones.
 // Returns the remapped tree plus the routine/file index maps, or null if the order did not change.
-// stick (SNES vs SNES): a block with neither stays right after the block it follows in first-ROM order.
-function sortTreeGroups(T,seq,tid,stick){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)return null;
+function sortTreeGroups(T,seq,tid){if(!T||!T.gb||!T.gb.length||!seq||!seq.length)return null;
  const pos={};seq.forEach((k,j)=>{if(!(k in pos))pos[k]=j});
  // Blocks: every top-level entry under the root (RAM file, each module with its areas, data files), in stored order.
  const N=T.nodes,C=tid&&T.cmp[tid],starts=[];N.forEach((nd,i)=>{if(i&&nd[1]===0&&nd[0]===1)starts.push(i)});if(!starts.length)return null;
@@ -237,8 +226,7 @@ function sortTreeGroups(T,seq,tid,stick){if(!T||!T.gb||!T.gb.length||!seq||!seq.
   // No same-key file: place it after the Genesis file most of its routines match (routine-content overlap).
   if(p==null&&C){const w={};for(let j=s;j<e;j++){const r=rk[j];if(r<0||!C.o[r])continue;for(const fi of C.o[r]){const fk=fileKey(C.files[fi]);if(fk in pos)w[fk]=(w[fk]||0)+1}}
    let best=null;for(const x in w)if(best==null||w[x]>w[best]||(w[x]===w[best]&&pos[x]<pos[best]))best=x;if(best!=null)p=pos[best]+0.5}
-  return [s,e,i,p]});
- let prev=-1;for(const b of bl){if(b[3]==null)b[3]=stick?prev:1e9;prev=b[3]}
+  return [s,e,i,p==null?1e9:p]});
  bl.sort((x,y)=>x[3]-y[3]||x[2]-y[2]);
  if(bl.every((x,i)=>x[2]===i))return null;
  const ord=[];for(let i=0;i<starts[0];i++)ord.push(i);for(const b of bl)for(let i=b[0];i<b[1];i++)ord.push(i);
@@ -256,9 +244,7 @@ function paneSeq(d,p){return genesisFilesSeq(d,p)}
 // the root's own code starts (after main/frames/ram in 92G/93G), so an SNES module matching the root lands there.
 function treeSeq(T,d,p){if(!paneSeq(d,p).length||!T||!T.nodes.length)return [];const seq=[],seen={},add=k=>{if(!(k in seen)){seen[k]=1;seq.push(k)}},rk=fileKey(T.nodes[0][2]);
  T.nodes.forEach((nd,i)=>{if(!i)return;if(nd[1]===0)add(fileKey(nd[2]));else if(nd[0]===1&&nd[1]===1)add(rk)});add(rk);return seq}
-// Both panes SNES groups: B follows A's folder order (A keeps first-ROM order).
-function treePair(ta,pa,tb,pb,da,db){const gg=pa.view==='groups'&&pb.view==='groups',sa=gg?(ta.fk||[]):treeSeq(ta,da,pa);
- let rb=pb.view==='groups'?sortTreeGroups(tb,sa,treeTid(pa),gg):null;
+function treePair(ta,pa,tb,pb,da,db){let rb=pb.view==='groups'?sortTreeGroups(tb,treeSeq(ta,da,pa),treeTid(pa)):null;
  if(rb){tb=rb.T;ta=applyIncoming(ta,treeTid(pb),rb.kMap,rb.fMap)}
  const ra=pa.view==='groups'?sortTreeGroups(ta,treeSeq(tb,db,pb),treeTid(pb)):null;
  if(ra){ta=ra.T;tb=applyIncoming(tb,treeTid(pa),ra.kMap,ra.fMap)}

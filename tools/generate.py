@@ -8,6 +8,7 @@ categories (heuristic). Same source SHAs => byte-identical output.
 
   python3 tools/generate.py            # fetch latest main of every source repo, regenerate
   python3 tools/generate.py --offline  # use the cache as is (no network)
+  python3 tools/generate.py --branch claude/project-thread-ggw7zu   # that branch where a repo has it, else main
 """
 import argparse, collections, csv, json, os, re, subprocess, sys
 
@@ -30,7 +31,8 @@ GAMES = [
 def git(*a, cwd=None):
     return subprocess.run(['git', *a], cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
 
-def sync(repo, offline):
+def sync(repo, offline, branch=None):
+    """Cache checkout of one source repo: `branch` when the repo has it on GitHub, else main."""
     d = os.path.join(CACHE, repo)
     url = f'https://github.com/{OWNER}/{repo}.git'
     if not os.path.isdir(os.path.join(d, '.git')):
@@ -38,9 +40,17 @@ def sync(repo, offline):
             sys.exit(f'{repo} not in cache; run without --offline')
         os.makedirs(CACHE, exist_ok=True)
         git('clone', '-q', '--depth', '1', '--branch', 'main', '--single-branch', url, d)
-    elif not offline:
-        # local cache only: fetch main and move the cache's checkout to it. Nothing is ever pushed.
-        git('fetch', '-q', '--depth', '1', 'origin', 'main', cwd=d)
+    if not offline:
+        # local cache only: fetch the branch (or main) and move the cache's checkout to it. Nothing is ever pushed.
+        used = 'main'
+        if branch:
+            try:
+                git('fetch', '-q', '--depth', '1', 'origin', branch, cwd=d)
+                used = branch
+            except subprocess.CalledProcessError:
+                pass
+        if used == 'main':
+            git('fetch', '-q', '--depth', '1', 'origin', 'main', cwd=d)
         git('checkout', '-q', '--detach', 'FETCH_HEAD', cwd=d)
     return d, git('rev-parse', 'HEAD', cwd=d)
 
@@ -621,11 +631,15 @@ class Alias:
 def load_maps(dirs):
     al, used = Alias(), []
     for gid, d in dirs:
-        p = os.path.join(d, 'docs', 'name_map.csv')
-        if not os.path.isfile(p):
+        # docs/name_map.csv, and docs/history/name_map.csv where a repo keeps its rename history there (93S)
+        rows = []
+        for rel in (('docs', 'name_map.csv'), ('docs', 'history', 'name_map.csv')):
+            p = os.path.join(d, *rel)
+            if os.path.isfile(p):
+                with open(p, encoding='utf-8', errors='replace', newline='') as fh:
+                    rows += list(csv.DictReader(fh))
+        if not rows:
             continue
-        with open(p, encoding='utf-8', errors='replace', newline='') as fh:
-            rows = list(csv.DictReader(fh))
         pairs = 0
         for r in rows:
             if 'old' in r and 'new' in r:
@@ -634,7 +648,7 @@ def load_maps(dirs):
                 a, b = (r.get('old_name') or '').strip().lower(), (r.get('name') or '').strip().lower()
             else:
                 continue  # SNES maps: address -> name only, no lineage column
-            if a.startswith('(') or b.startswith('('):
+            if a.startswith('(') or b.startswith('(') or a == 'old':
                 continue  # placeholder such as '(raw offset)' or '(new equate)': no predecessor name, not a link
             if a and b and a != b:
                 al.union(a, b); pairs += 1
@@ -646,10 +660,11 @@ def load_maps(dirs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--offline', action='store_true', help='do not fetch; use .cache/src as is')
+    ap.add_argument('--branch', help='read this branch of each source repo where it exists (else main)')
     a = ap.parse_args()
     meta, data, dirs = [], {}, []
     for gid, repo, plat, top in GAMES:
-        d, sha = sync(repo, a.offline)
+        d, sha = sync(repo, a.offline, a.branch)
         dirs.append((gid, d))
         src = os.path.join(d, 'src')
         g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)

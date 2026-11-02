@@ -6,6 +6,14 @@
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names.
 - Last sources: NHL94SNES `46860a6`, NHLPA93SNES `0329ba6`, NHLPA93Genesis `c2d8bae` (RAM map order alignment and 94S RAM renames).
 
+## Pairing gate
+
+- `tools/gate.sh [branch]` regenerates the report from that branch of each source repo (default `claude/project-thread-ggw7zu`, the alignment branch; a repo without it is read at `main`), runs `tools/test_group_order.py`, then `tools/test_pairs.py`.
+- `tools/test_pairs.py` fails when a row of `tools/known_pairs.csv` stops pairing or a count rises above `tools/baseline.json`: 94S routines not in their 94G file (`94S~94G`), 94S placed unlike 93S where 94G does not explain it (`94S~93S`), 93S routines outside their 93G module (`93S~93G`), 93S `hockey/<area>/` routines whose 94G file is not the area's (`93S-area`), 93S/94S names 94G renamed (`lineage`), and files that still name the 94G files merged on 2026-10-31 (`stale94`). `--list <count>` prints the routines behind a count. `tools/pair_exceptions.csv` holds the deliberate exceptions, each with its reason.
+- After a step lowers a count, run `python3 tools/test_pairs.py --write-baseline` and commit the new baseline with that step. A count may never go up.
+- `--src DIR` checks sibling checkouts instead of `.cache/src` (also scans the PC repos for `stale94` when they are there).
+- `generate.py` also reads `docs/history/name_map.csv` (93S keeps its rename history there).
+
 ## Open
 
 - The report must be regenerated after the NHL94SNES comment pass finishes (see that repo's `docs/HANDOFF.md`; about 1,640 labels were still uncommented).

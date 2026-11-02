@@ -1,0 +1,23 @@
+a_game,a_name,b_game,b_name,note
+93G,checkcoll,93S,checkcoll,collisions (93S hockey area)
+94G,checkcoll,94S,checkcoll,collide94
+93G,asswingd,93S,asswingd,logic assignments
+94G,asswingd,94S,asswingd,logic assignments
+93G,updatepwrplay,93S,updatepwrplay,penalty scoreboard
+94G,updatepwrplay,94S,updatepwrplay,penalty scoreboard
+93G,Penaltylist,93S,Penaltylist,penalty table
+94G,Penaltylist,94S,Penaltylist,penalty table
+93G,getname,93S,getname,player name (setup94)
+94G,getname,94S,getname,player name (setup94)
+93G,ScoutingReport,93S,ScoutingReport,scouting
+94G,ScoutingReport,94S,ScoutingReport,scout94
+94G,GetGoalieCount,94S,GetGoalieCount,94G rename of GoalieCount
+94G,ShootoutWonBy,94S,ShootoutWonBy,shootout94
+94G,PlayerCards,94S,PlayerCards,cards94
+94G,LineEditor,94S,LineEditor,stats94
+94G,setupice,94S,setupice,rink setup
+93S,PWtoBits,94S,PWtoBits,SNES password
+93S,ReadPads,94S,ReadPads,SNES pad read
+93S,SPCUpload,94S,SPCUpload,SNES sound upload
+93S,Fprint,94S,Fprint,print
+94G,TeamList,94S,TeamList,team data

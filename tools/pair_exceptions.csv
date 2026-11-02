@@ -1,0 +1,7 @@
+count,name,reason
+93S~93G,ReadPads,the SNES reads the pads in its own job (93G does it in the Z80 sound file)
+lineage,93S bitstopw,94S saves by password like 93S; 94G renamed it BackupRAM_Save because 94G saves to SRAM
+93S~93G,BitstoPW,the SNES password routine lives with the other password routines (93G keeps it in sram93)
+lineage,93S drawteamblocks,93S follows 93G here; 94G made it a local of PlayoffScreen (94S handles it in step C2)
+lineage,93S setuppausescreen,93S follows 93G here; 94G made it a local of Pausemode (94S handles it in step C2)
+lineage,94S bitstopw,94S saves by password like 93S; 94G renamed it BackupRAM_Save because 94G saves to SRAM
