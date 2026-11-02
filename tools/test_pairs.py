@@ -186,7 +186,9 @@ def main():
         if f94 and year_key(f94) != top:
             items['94S~94G'].append(f'{rel} (94G {f94})')
         if n in s93:
-            m93 = s93[n].split('/')[0]
+            p93 = s93[n].split('/')
+            # 93S hockey/<area>/: since B2 each area is named after one 94G file
+            m93 = AREA_KEY.get(p93[1], p93[1]) if p93[0] == 'hockey' and len(p93) > 2 else p93[0]
             if top != m93 and (not f94 or year_key(f94) == m93):
                 items['94S~93S'].append(f'{rel} (93S {s93[n]})')
     for n, rel in s93.items():

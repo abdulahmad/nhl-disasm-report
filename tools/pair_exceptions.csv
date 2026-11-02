@@ -5,3 +5,9 @@ lineage,93S bitstopw,94S saves by password like 93S; 94G renamed it BackupRAM_Sa
 lineage,93S drawteamblocks,93S follows 93G here; 94G made it a local of PlayoffScreen (94S handles it in step C2)
 lineage,93S setuppausescreen,93S follows 93G here; 94G made it a local of Pausemode (94S handles it in step C2)
 lineage,94S bitstopw,94S saves by password like 93S; 94G renamed it BackupRAM_Save because 94G saves to SRAM
+lineage,94S drawteamblocks,14 callers in 94S: a shared routine, not foldable into PlayoffScreen as 94G's local (step C2)
+lineage,94S setuppausescreen,5 callers in 94S: a shared routine, not foldable into Pausemode as 94G's local (step C2)
+94S~93S,QueueTextDMA,SNES-only text DMA queue; 94S keeps it with the DMA helpers in middle (94G DoDMA is in middle94; 93S has it under video/text)
+94S~93S,marktexthi,SNES-only text DMA queue; 94S keeps it with the DMA helpers in middle (94G DoDMA is in middle94; 93S has it under video/text)
+94S~93S,marktextlo,SNES-only text DMA queue; 94S keeps it with the DMA helpers in middle (94G DoDMA is in middle94; 93S has it under video/text)
+94S~93S,Fprint,94G's version is Fprintsmall in penalty94 (93S keeps Fprint in print)
