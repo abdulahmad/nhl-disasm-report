@@ -10,7 +10,7 @@ Banks targets must not be used as a groups-sort key (empty overlap is fine).
 import json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOCS = os.path.join(ROOT, 'docs', 'data')
+DOCS = os.environ.get('NDR_DATA') or os.path.join(ROOT, 'docs', 'data')
 SNES = ('93S', '94S')
 GENESIS = ('92G', '93G', '94G', '95G', '96G')
 

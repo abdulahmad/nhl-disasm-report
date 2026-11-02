@@ -661,7 +661,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--offline', action='store_true', help='do not fetch; use .cache/src as is')
     ap.add_argument('--branch', help='read this branch of each source repo where it exists (else main)')
+    ap.add_argument('--docs', help='output folder (default docs/; the alignment branch view is docs/branch/)')
     a = ap.parse_args()
+    global DOCS
+    if a.docs:
+        DOCS = os.path.abspath(a.docs)
+    os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
+    branch_view = os.path.abspath(DOCS) != os.path.abspath(os.path.join(ROOT, 'docs'))
     meta, data, dirs = [], {}, []
     for gid, repo, plat, top in GAMES:
         d, sha = sync(repo, a.offline, a.branch)
@@ -900,7 +906,9 @@ def main():
         for m in meta:
             m.setdefault('categorised', False)
 
-    manifest = {'games': meta, 'targets': list(targets), 'maps': used, 'categories': cat_meta}
+    manifest = {'games': meta, 'targets': list(targets), 'maps': used, 'categories': cat_meta,
+                'source': {'branch': a.branch or 'main', 'view': 'branch' if branch_view else 'main',
+                           'other': '../' if branch_view else 'branch/'}}
     tpl = open(os.path.join(ROOT, 'tools', 'template.html'), encoding='utf-8').read()
     html = tpl.replace('/*MANIFEST*/null', json.dumps(manifest, sort_keys=True, separators=(',', ':')))
     with open(os.path.join(DOCS, 'index.html'), 'w', encoding='utf-8', newline='\n') as fh:

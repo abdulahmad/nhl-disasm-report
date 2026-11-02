@@ -23,6 +23,8 @@ Pick a **subject** game, a **view**, and a **comparison** game.
 
 - **Categories** (`v=cat` in the URL hash; 93G and 94G only for now): a sortable, filterable table of every code routine with a heuristic category and subcategory, confidence, and a placement flag (yellow / red) when the routine looks out of place in its source file. Per-category totals, per-file flag counts and top offenders sit above the table. Click a row to jump to that routine in the file view. Other subject games show "not categorised yet". On a whole-ROM view for a categorised game, an optional **tint ROM by category** checkbox colours the bar by category instead of by comparison match.
 
+**Source picker.** `docs/` shows every repo at `main`; `docs/branch/` shows the alignment branch `claude/project-thread-ggw7zu` where a repo has it, else main. The Source picker at the top left switches between them and keeps the view in the URL hash. `tools/gate.sh` builds both.
+
 **Placement rule (deterministic).** For each source file, the dominant category (by total lines) and its dominant subcategory are computed. A routine is **yellow** if its category matches the file dominant but its subcategory differs from both that dominant subcategory and its ±3 neighbours in the file, or if its category is a secondary but sizeable share of the file (≥15% of lines and ≥2 routines). It is **red** if its category differs from both the file dominant and its neighbours (isolated foreign routine). Whole single-category files are unflagged; RAM/equate files are ignored; low-confidence hits are capped at yellow. The hierarchy (colours, file defaults, placement knobs) lives in `tools/categories.json` and is editable; the classifier is `tools/classify_routines.js` (Node), invoked by `generate.py`.
 
 - **Layout** (`v=layout&a=93G&b=94G` in the URL hash): two games' whole-ROM layouts side by side. No origin comparison — each file band is coloured by a stable hash of the file stem with the game year suffix stripped (so `stats93` / `stats94` share a colour). Nesting indentation and parent brackets are on (same as the ROM view's nesting mode). Routines are subtle subdivisions within each file band. Hover for file, range, depth and routine; click opens that file in the file view for that game. Each side has its own game selector (SNES offers banks or groups). A groups side is re-sorted to the other side's include order, same rule as the groups file view. Bar height scales with line count; **Normalise heights** (`&norm=1`) makes both bars the same height.
@@ -66,6 +68,7 @@ The footer lists the commit SHA of every source repo used.
 ```sh
 python3 tools/generate.py            # fetch origin/main of every source repo into .cache/src, write docs/
 python3 tools/generate.py --offline  # reuse .cache/src as it is
+python3 tools/generate.py --branch claude/project-thread-ggw7zu --docs docs/branch   # the alignment branch view
 ```
 
 Python 3 stdlib, `git`, and `node` (for `tools/classify_routines.js`) only. The source repos are shallow-cloned into `.cache/src` (gitignored) and are only read: nothing is committed or pushed to them. Output: `docs/index.html` plus one `docs/data/<id>.js` per subject game, loaded on demand (a script tag, so the page also works from `file://`). The same source SHAs give byte-identical output: iteration is sorted and the only "version" data is the SHAs.
