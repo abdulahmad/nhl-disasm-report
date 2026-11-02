@@ -4,6 +4,8 @@
 Reads docs/data/*.js (run generate.py first). 93S and 94S vs 92G/93G/94G/95G/96G:
 matched modules follow that game's `seq`; unmatched keep first-ROM order after them.
 Banks targets must not be used as a groups-sort key (empty overlap is fine).
+94S vs 93S:groups: the 93S routine folder order is the seq, and the shared folders follow it
+(the page also places 94S-only folders, which this check does not model).
 """
 import json, os, re, sys
 
@@ -67,9 +69,18 @@ def main():
                     failed += 1
         if [b['f'] for b in d['views']['banks']] != bank:
             print(f'FAIL {sid}: banks view mutated'); failed += 1
+    d = load('94S')
+    seq = (d['targets'].get('93S:groups') or {}).get('seq') or []
+    want = modules(load('93S')['views']['groups'])
+    stored = modules(d['views']['groups'])
+    shared = [k for k in sort_modules(stored, seq) if k in set(seq)]
+    ok = seq == want and shared == [k for k in want if k in set(stored)]
+    print(f'{"OK  " if ok else "FAIL"} 94S vs 93S:groups: shared {shared}')
+    if not ok:
+        print(f'      expected seq {want}'); failed += 1
     if failed:
         print(f'{failed} failure(s)'); sys.exit(1)
-    print('all 93S/94S × Genesis groups orders OK')
+    print('all 93S/94S × Genesis and 94S × 93S groups orders OK')
 
 if __name__ == '__main__':
     main()
