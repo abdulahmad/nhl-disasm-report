@@ -120,12 +120,7 @@
       "playback",
       "med"
     ],
-    "assign94.asm": [
-      "ai",
-      "assignments",
-      "high"
-    ],
-    "video94.asm": [
+    "middle94.asm": [
       "video",
       "VDP/DMA",
       "med"
@@ -140,15 +135,10 @@
       "player-player",
       "med"
     ],
-    "display94.asm": [
+    "video94.asm": [
       "display",
       "scoreboard/clock",
       "med"
-    ],
-    "attract94.asm": [
-      "frontend",
-      "attract/splash",
-      "high"
     ],
     "sram94.asm": [
       "save",

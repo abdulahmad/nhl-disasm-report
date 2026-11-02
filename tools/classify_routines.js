@@ -209,20 +209,14 @@ function classifyOne(name, file, text) {
   if (/^hockey9[34]\.asm$/i.test(file)) {
     return { category: "gameloop", subcategory: "frame loop", confidence: "low", why: "hockey file fallback" };
   }
-  if (/^logic9[34]\.asm$/i.test(file) || file === "input94.asm") {
+  if (/^logic9[34]\.asm$/i.test(file)) {
     return { category: "input", subcategory: "controllers", confidence: "low", why: "logic/input file fallback" };
-  }
-  if (file === "checks94.asm") {
-    return { category: "players", subcategory: "checking", confidence: "low", why: "checks file fallback" };
   }
   if (file === "middle93.asm") {
     return { category: "video", subcategory: "VDP/DMA", confidence: "low", why: "middle file fallback" };
   }
   if (file === "setup94.asm") {
     return { category: "display", subcategory: "rink scroll", confidence: "low", why: "setup file fallback" };
-  }
-  if (file === "data94.asm") {
-    return { category: "data", subcategory: "strings", confidence: "low", why: "data file fallback" };
   }
   if (/^stats9[34]\.asm$/i.test(file)) {
     return { category: "stats", subcategory: "game/period stats", confidence: "low", why: "stats file fallback" };
@@ -258,14 +252,6 @@ function classifyByFileContext(n, file, comment, body) {
   }
   if (file === "fourway94.asm") {
     return { category: "input", subcategory: "multitap", confidence: "high", why: "fourway file" };
-  }
-  if (file === "attract94.asm") {
-    if (/Goalie/i.test(n)) return { category: "frontend", subcategory: "team select", confidence: "med", why: "goalie pick" };
-    if (/option|Option|VBlank_SetOptions|setoptions/i.test(n))
-      return { category: "frontend", subcategory: "options/setup", confidence: "med", why: "options in attract" };
-    if (/Playoff|Matchup|Bitmap|Roster/i.test(n))
-      return { category: "season", subcategory: "playoffs", confidence: "med", why: "matchup in attract" };
-    return { category: "frontend", subcategory: "attract/splash", confidence: "high", why: "attract file" };
   }
   if (file === "records94.asm") {
     return { category: "stats", subcategory: "records/name entry", confidence: "high", why: "records file" };
@@ -337,8 +323,16 @@ function classifyByFileContext(n, file, comment, body) {
     return { category: "replay", subcategory: "playback", confidence: "high", why: "replay file" };
   }
 
-  // input94 has puck/shot/pass too
-  if (file === "input94.asm" || file === "logic93.asm") {
+  // logic94 holds input, assignments and checks (one file since 2026-10-31); logic93 is its 93G file
+  if (file === "logic94.asm") {
+    if (/^(updateplayers|updateanim|freezewindow|checkwindow)$/i.test(n))
+      return { category: "players", subcategory: "skating", confidence: "high", why: "player update" };
+    if (/pass|Pass/i.test(n)) return { category: "puck", subcategory: "passing", confidence: "high", why: "pass routine" };
+    if (/shot|Shot|doshot/i.test(n)) return { category: "puck", subcategory: "shooting", confidence: "high", why: "shot routine" };
+    if (/offside|icing/i.test(n + comment)) return { category: "rules", subcategory: "offsides/icing", confidence: "high", why: "offsides/icing" };
+    if (/^ass|bench|stanley/i.test(n)) return { category: "ai", subcategory: "assignments", confidence: "high", why: "assignment in logic" };
+  }
+  if (file === "logic93.asm") {
     if (/pass|Pass/i.test(n)) return { category: "puck", subcategory: "passing", confidence: "high", why: "pass routine" };
     if (/shot|Shot|doshot/i.test(n)) return { category: "puck", subcategory: "shooting", confidence: "high", why: "shot routine" };
     if (/ass|bench|penalty|faceoff|fight|goalie|def|stanley|score/i.test(n))
@@ -352,8 +346,8 @@ function classifyByFileContext(n, file, comment, body) {
     return { category: "input", subcategory: "controllers", confidence: "med", why: "input/logic file" };
   }
 
-  // checks94 - pre-display checks, collisions, AI-ish
-  if (file === "checks94.asm") {
+  // the rest of logic94: checks, collisions, AI-ish
+  if (file === "logic94.asm") {
     if (/offside|icing/i.test(n + comment)) return { category: "rules", subcategory: "offsides/icing", confidence: "high", why: "offsides/icing" };
     if (/goal/i.test(n)) return { category: "collision", subcategory: "goals", confidence: "med", why: "goal check" };
     if (/puck/i.test(n)) return { category: "puck", subcategory: "movement", confidence: "med", why: "puck check" };
@@ -385,7 +379,7 @@ function classifyByFileContext(n, file, comment, body) {
   }
 
   // display/video93
-  if (file === "display94.asm" || file === "video93.asm") {
+  if (file === "video94.asm" || file === "video93.asm") {
     if (/VBlank|IRQ|vb2/i.test(n)) return { category: "system", subcategory: "interrupts", confidence: "high", why: "vblank handler" };
     if (/DMA|DumpSprite|setvideo|SetScroll/i.test(n)) return { category: "video", subcategory: "VDP/DMA", confidence: "high", why: "vdp in display" };
     if (/scroll|Camera/i.test(n)) return { category: "display", subcategory: "rink scroll", confidence: "high", why: "scroll" };
@@ -411,20 +405,43 @@ function classifyByFileContext(n, file, comment, body) {
     return { category: "video", subcategory: "VDP/DMA", confidence: "low", why: "middle fallback" };
   }
 
-  // video94 is middle-like in 94
-  if (file === "video94.asm") {
+  // middle94 (the old video94)
+  if (file === "middle94.asm") {
     if (/DMA|Vram|Fill|WaitDMA|Vmaddr|dobitmap|Decompress|Opcode_/i.test(n))
       return { category: "video", subcategory: "VDP/DMA", confidence: "high", why: "dma" };
     if (/fade|palette|CRAM|forceblack|remap/i.test(n))
       return { category: "video", subcategory: "palettes/fades", confidence: "high", why: "palette" };
     if (/Joy|joy|input|nodiag|waitjoy|orjoy|ProcessInput|ReadJoy/i.test(n))
-      return { category: "input", subcategory: "controllers", confidence: "high", why: "joy in video94" };
+      return { category: "input", subcategory: "controllers", confidence: "high", why: "joy in middle94" };
     if (/sfx|song/i.test(n)) return { category: "sound", subcategory: /song/i.test(n) ? "music" : "sfx", confidence: "high", why: "sound helper" };
     if (/random|sroot|waitx|Unpack|Weighted/i.test(n))
       return { category: "system", subcategory: "memory clears", confidence: "low", why: "utility" };
-    return { category: "video", subcategory: "VDP/DMA", confidence: "low", why: "video94 fallback" };
+    return { category: "video", subcategory: "VDP/DMA", confidence: "low", why: "middle94 fallback" };
   }
 
+  // setup94 also holds the menu data and the EA screen (since 2026-10-31)
+  if (file === "setup94.asm") {
+    if (/Pass|Password|EncodePW|ReadPass|WritePass|ClrPass|PushBits/i.test(n))
+      return { category: "save", subcategory: "passwords", confidence: "high", why: "password" };
+    if (/Playoff|maketree|ContinuePlayoffs|NewPO|ResolveGames|AddPlayoff/i.test(n))
+      return { category: "season", subcategory: "playoffs", confidence: "high", why: "playoff data/code" };
+    if (/Star|InjuryBox|GoalBox|PenaltyShotBox|box$/i.test(n))
+      return { category: "display", subcategory: "overlays/highlights", confidence: "high", why: "overlay box" };
+    if (/Menu|menu|FigureJoy|InitializeGame/i.test(n))
+      return { category: "frontend", subcategory: "menu engine", confidence: "med", why: "menu data" };
+    if (/GetPlayerName|getname|FormatPlayer|GetTeam/i.test(n))
+      return { category: "data", subcategory: "strings", confidence: "med", why: "name format" };
+    if (/Txt$|Text|Table|Tbl/i.test(n)) return { category: "data", subcategory: "strings", confidence: "high", why: "string/table" };
+  }
+
+  if (file === "setup94.asm") {
+    if (/Goalie/i.test(n)) return { category: "frontend", subcategory: "team select", confidence: "med", why: "goalie pick" };
+    if (/option|Option|VBlank_SetOptions|setoptions/i.test(n))
+      return { category: "frontend", subcategory: "options/setup", confidence: "med", why: "options in attract" };
+    if (/Playoff|Matchup|Bitmap/i.test(n))
+      return { category: "season", subcategory: "playoffs", confidence: "med", why: "matchup in attract" };
+    if (/EASports|Attract|Splash/i.test(n)) return { category: "frontend", subcategory: "attract/splash", confidence: "high", why: "attract screen" };
+  }
   // setup94
   if (file === "setup94.asm") {
     if (/playoff|Playoff|Series|TreeArrow|DrawTeamBlocks/i.test(n))
@@ -437,22 +454,6 @@ function classifyByFileContext(n, file, comment, body) {
     if (/ice|rink|palette|Tiles|Map|sprites|SprSort|resetpl|clearTeam|setteams|InitTeam|setplayercolors/i.test(n))
       return { category: "display", subcategory: "rink scroll", confidence: "med", why: "ice/setup" };
     return { category: "display", subcategory: "rink scroll", confidence: "low", why: "setup fallback" };
-  }
-
-  // data94
-  if (file === "data94.asm") {
-    if (/Pass|Password|EncodePW|ReadPass|WritePass|ClrPass|PushBits/i.test(n))
-      return { category: "save", subcategory: "passwords", confidence: "high", why: "password" };
-    if (/Playoff|maketree|ContinuePlayoffs|NewPO|ResolveGames|AddPlayoff/i.test(n))
-      return { category: "season", subcategory: "playoffs", confidence: "high", why: "playoff data/code" };
-    if (/Star|InjuryBox|GoalBox|PenaltyShotBox|box$/i.test(n))
-      return { category: "display", subcategory: "overlays/highlights", confidence: "high", why: "overlay box" };
-    if (/Menu|menu|FigureJoy|InitializeGame/i.test(n))
-      return { category: "frontend", subcategory: "menu engine", confidence: "med", why: "menu data" };
-    if (/GetPlayerName|getname|FormatPlayer|GetTeam/i.test(n))
-      return { category: "data", subcategory: "strings", confidence: "med", why: "name format" };
-    if (/Txt$|Text|Table|Tbl/i.test(n)) return { category: "data", subcategory: "strings", confidence: "high", why: "string/table" };
-    return { category: "data", subcategory: "strings", confidence: "low", why: "data94 fallback" };
   }
 
   // stats files
@@ -518,10 +519,6 @@ function classifyByFileContext(n, file, comment, body) {
     return { category: "stats", subcategory: "player cards", confidence: "high", why: "cards file" };
   }
 
-  // assign94
-  if (file === "assign94.asm") {
-    return { category: "ai", subcategory: "assignments", confidence: "high", why: "assign file" };
-  }
 
   // onetimer
   if (file === "onetimer94.asm") {

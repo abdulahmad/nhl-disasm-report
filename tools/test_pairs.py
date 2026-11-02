@@ -139,10 +139,11 @@ def stale_files(dirs):
             except OSError:
                 continue
             if STALE94.search(s):
-                # 94G's own name map and history keep the old names on purpose
+                # 94G's own name map and segment-matching history (SEGMENT_AGENT.md) keep the old names on purpose
                 # name maps, rules and the plan name the old files on purpose
                 if rp in ('docs/name_map.csv', 'docs/RULES.md') or rp.startswith('docs/ALIGNMENT') \
-                        or (gid == 'report' and rp == 'tools/test_pairs.py'):
+                        or (gid == 'report' and rp == 'tools/test_pairs.py') \
+                        or (gid == '94G' and rp == 'SEGMENT_AGENT.md'):
                     continue
                 hits.append(f'{gid}:{rp}')
     return hits
