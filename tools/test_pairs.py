@@ -140,7 +140,9 @@ def stale_files(dirs):
                 continue
             if STALE94.search(s):
                 # 94G's own name map and history keep the old names on purpose
-                if (gid == '94G' and rp == 'docs/name_map.csv') or (gid == 'report' and rp == 'tools/test_pairs.py'):
+                # name maps, rules and the plan name the old files on purpose
+                if rp in ('docs/name_map.csv', 'docs/RULES.md') or rp.startswith('docs/ALIGNMENT') \
+                        or (gid == 'report' and rp == 'tools/test_pairs.py'):
                     continue
                 hits.append(f'{gid}:{rp}')
     return hits
@@ -235,7 +237,7 @@ def main():
     for k, v in counts.items():
         b = base.get(k)
         flag = ''
-        if b is not None and v > b:
+        if b is not None and v > b and not a.write_baseline:
             flag = '  UP'
             fails.append(f'{k}: {v} > baseline {b} (run with --list {k})')
         print(f'{k:10} {v:5} {"" if b is None else b:>8}{flag}')

@@ -1,5 +1,13 @@
 # Handoff: nhl-disasm-report
 
+## Now
+
+- Stage / unit: see the shared plan (https://github.com/abdulahmad/nhl-disasm-report/blob/main/docs/ALIGNMENT.md); alignment work for report is on `claude/project-thread-ggw7zu`.
+- Branch: `claude/project-thread-ggw7zu`
+- Last check: (update when you stop)
+- Next: (update when you stop)
+- Open PRs: none
+
 ## Status (2026-10-20)
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
