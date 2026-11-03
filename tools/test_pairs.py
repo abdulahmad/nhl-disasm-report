@@ -14,6 +14,9 @@ Counts (each is a list of routines, printed with --list):
   93S-area  a 93S routines/hockey/<area>/ routine whose 94G file is not the one the area is named after
   lineage   a 93S or 94S name that 94G renamed (94G docs/name_map.csv old -> new) while 94G has the new name
   stale94   a text file in any repo that still names a 94G file that no longer exists (checks94, input94, ...)
+  95S~95G   a 95S routine file whose name is a 95G label, in a 95S folder that is not that 95G file (95S mirrors 95G:
+            routines/engine/collide/ is engine/collide95.asm, routines/hockey/ is hockey95.asm)
+  95S~94S   a 95S routine with no 95G partner that is also a 94S routine, in a different top folder from 94S
 Lines in tools/pair_exceptions.csv (count,name,reason) are left out of a count on purpose. For lineage the name is
 '<game> <old name>', for the others the routine file stem.
 
@@ -67,6 +70,31 @@ def genesis_symbols(d):
             if m:
                 out.add(m.group(1).lower())
     return out
+
+def genesis95_labels(d):
+    """lowercase label -> 95G file key ('engine/collide', 'front/season', 'hockey'); sega/, sound/ and the RAM file
+    are left out (SNES jobs follow 94S, not 95G)."""
+    out = {}
+    for p in sorted(glob.glob(os.path.join(d, 'src', '**', '*.asm'), recursive=True)):
+        rel = os.path.relpath(p, os.path.join(d, 'src')).replace('\\', '/')
+        parts = rel.split('/')
+        if (len(parts) == 2 and parts[0] not in ('engine', 'front')) or len(parts) > 2 or parts[-1].lower().startswith('ram'):
+            continue
+        key = '/'.join(parts[:-1] + [year_key(parts[-1])])
+        for line in open(p, encoding='latin-1'):
+            m = re.match(r'^([A-Za-z_]\w*)\b(.*)', line)
+            if not m:
+                continue
+            rest = m.group(2).lstrip(': \t').lower()
+            if re.match(r'(equ|=|rs|set|macro|equr|reg)\b', rest) or rest.startswith('='):
+                continue
+            out.setdefault(m.group(1).lower(), key)
+    return out
+
+def snes95_key(rel):
+    """95S routine path below src/routines -> its 95G file key (two parts under engine/ and front/, else one)."""
+    parts = rel.split('/')
+    return '/'.join(parts[:2]) if parts[0] in ('engine', 'front') and len(parts) > 2 else parts[0]
 
 def snes_routines(d):
     """lowercase routine stem -> path below src/routines (one routine per file)."""
@@ -179,7 +207,16 @@ def main():
         for r in csv.DictReader(open(p, encoding='utf-8', newline='')):
             exc[r['count'].strip()].add(r['name'].strip().lower())
 
-    items = collections.OrderedDict((k, []) for k in ('94S~94G', '94S~93S', '93S~93G', '93S-area', 'lineage', 'stale94'))
+    items = collections.OrderedDict((k, []) for k in ('94S~94G', '94S~93S', '93S~93G', '93S-area', 'lineage', 'stale94',
+                                                      '95S~95G', '95S~94S'))
+    if '95S' in dirs and '95G' in dirs:
+        g95, s95 = genesis95_labels(dirs['95G']), snes_routines(dirs['95S'])
+        for n, rel in s95.items():
+            f95 = lookup(g95, n)
+            if f95 and f95 != snes95_key(rel):
+                items['95S~95G'].append(f'{rel} (95G {f95})')
+            elif not f95 and n in s94 and s94[n].split('/')[0] != rel.split('/')[0]:
+                items['95S~94S'].append(f'{rel} (94S {s94[n]})')
     for n, rel in s94.items():
         top = rel.split('/')[0]
         f94 = lookup(g94, n)

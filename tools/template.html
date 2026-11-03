@@ -68,7 +68,8 @@ function stemKey(f){let s=String(f).replace(/\\/g,'/').replace(/\/+$/,'');const 
 // Matching-file key (same rule as generate.py file_key): last path part, no extension, cut at the game year;
 // an SNES routines/<module>/ folder (and its areas) is the module name.
 function fileKey(f){const raw=String(f),s=raw.replace(/\\/g,'/').replace(/\/+$/,'');let parts=s.split('/');
- if(parts[0]==='routines'&&parts.length>1)parts=parts.slice(0,2);let b=parts[parts.length-1];
+ if(parts[0]==='routines'&&parts.length>2&&(parts[1]==='engine'||parts[1]==='front'))parts=parts.slice(0,3);
+ else if(parts[0]==='routines'&&parts.length>1)parts=parts.slice(0,2);let b=parts[parts.length-1];
  if(!/[/\\]$/.test(raw)){const d=b.lastIndexOf('.');if(d>0)b=b.slice(0,d)}b=b.toLowerCase();
  const m=b.match(/^(.+?)9[2-6](?:snes|s)?(?:_.*)?$/);return m?m[1]:b}
 function seqOf(F){const seq=[],seen={};for(const f of F||[]){const k=fileKey(f.f);if(!(k in seen)){seen[k]=1;seq.push(k)}}return seq}

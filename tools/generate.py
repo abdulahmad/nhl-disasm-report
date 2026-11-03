@@ -26,6 +26,7 @@ GAMES = [
     ('96G', 'NHL96Genesis', 'genesis', 'nhl96.asm'),
     ('93S', 'NHLPA93SNES', 'snes', 'nhlpa93snes.asm'),
     ('94S', 'NHL94SNES', 'snes', 'nhl94snes.asm'),
+    ('95S', 'NHL95SNES', 'snes', 'nhl95snes.asm'),
     ('95P', 'NHL95PC', 'pc', 'segments.txt'),
 ]
 
@@ -264,6 +265,13 @@ def genesis(src, top, docr):
 
 
 INCSRC = re.compile(r'^\s*incsrc\s+"([^"]+)"', re.I)
+# A 4 KB segment file at the source root (bankC0_8000.asm): the layout of an SNES repo before its banks/ and routines/
+# exist (95S). Read as a bank whose global labels are the routines.
+SEGMENT = re.compile(r'^bank[0-9A-Fa-f]{2}_[0-9A-Fa-f]{4}\.asm$')
+
+def is_bank(rel):
+    rel = rel.replace('\\', '/')
+    return rel.startswith('banks/') or bool(SEGMENT.match(rel))
 
 def snes(src, top):
     """Two views: routine groups (src/routines/<group>/*.asm) and banks (src/banks/*.asm include lists).
@@ -290,11 +298,32 @@ def snes(src, top):
     banks = []
     for l in read(os.path.join(src, top)):
         m = INCSRC.match(l)
-        if m and m.group(1).replace('\\', '/').startswith('banks/'):
+        if m and is_bank(m.group(1)):
             bp = resolve(src, m.group(1))
             if not bp:
                 continue
             ids, pend, orgs = [], [], []
+            if SEGMENT.match(m.group(1)):
+                # segment layout: each global label starts a routine unit (named by the label) in the segment file;
+                # the lines before the first label are an inline unit
+                L = read(bp)
+                rp = os.path.relpath(bp, src).replace('\\', '/')
+                orgs = [int(mo.group(1), 16) for mo in (re.match(r'\s*org\s+\$([0-9A-Fa-f]+)', x, re.I) for x in L) if mo]
+                st = label_starts(L)
+                cuts = [0] + [i for i, _ in st] + [len(L)]
+                for k in range(len(cuts) - 1):
+                    chunk = L[cuts[k]:cuts[k + 1]]
+                    if k == 0:
+                        if any(x.strip() and not x.strip().startswith(';') for x in chunk):
+                            units.append(dict(unit('(inline in %s)' % os.path.basename(bp), [], chunk, 'inline'), p=rp))
+                            ids.append(len(units) - 1)
+                        continue
+                    name = st[k - 1][1]
+                    units.append(dict(unit(name, [name], chunk, 'routine'), p=rp))
+                    ids.append(len(units) - 1)
+                banks.append({'f': rp, 'a': min(orgs) if orgs else None, 'e': (min(orgs) | 0xFFF) if orgs else None,
+                              'd': 0, 'r': 'segment org line' if orgs else None, 'u': ids})
+                continue
             def flush():
                 body = [x for x in pend if x.strip() and not x.strip().startswith(';')]
                 if body:
@@ -636,7 +665,9 @@ def file_key(f):
     so stats93 / stats94, logic95 / logic96_ass, SNES teamdata93s / frames94s / ram93snes and routines/logic/ all give 'logic' / 'stats' / 'teamdata' / 'frames'.
     An SNES folder below the module (routines/hockey/collisions/) gives the module key ('hockey'), so every area matches the Genesis file of its module."""
     parts = f.rstrip('/').split('/')
-    if parts[0] == 'routines' and len(parts) > 1:
+    if parts[0] == 'routines' and len(parts) > 2 and parts[1] in ('engine', 'front'):
+        parts = parts[:3]       # 95S mirrors 95G's engine/ and front/ groups: routines/engine/collide/ is collide95
+    elif parts[0] == 'routines' and len(parts) > 1:
         parts = parts[:2]       # SNES routine folders: the folder under routines (the 93G module) is the file; the areas below it only nest
     b = parts[-1]
     if not f.endswith('/') and len(parts) == len(f.rstrip('/').split('/')):
