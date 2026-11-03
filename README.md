@@ -1,5 +1,7 @@
 # NHL disassembly origin report
 
+> **Picking up the Code Cleanup project?** Start with [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).
+
 Static report (GitHub Pages: https://abdulahmad.github.io/nhl-disasm-report/) that shows, routine by routine, where code in one NHL disassembly came from in another:
 
 | id | repo | platform |

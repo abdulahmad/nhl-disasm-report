@@ -1,0 +1,422 @@
+function,pc_file_now,file_95g,file_94g,folder_94s,proposed_95g_file,why
+FadeOutPalCycle,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro_scroll,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro_frameloop,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro_end,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro_popebp,cseg01/engine/init.asm,,,,,next to ?
+PreGameIntro_popx,cseg01/engine/init.asm,,,,,next to ?
+StartPreGame,cseg01/engine/init.asm,,,,,next to ?
+ThreeStarsLoop,cseg01/engine/init.asm,,,,,next to ?
+ThreeStarsLoop_tick,cseg01/engine/init.asm,,,,,next to ?
+assintrostand,cseg01/engine/logic.asm,,,,,next to ?
+assintroline,cseg01/engine/logic.asm,,,,,next to ?
+AddStar,cseg01/engine/logic.asm,,,,,next to ?
+StarEligible,cseg01/engine/logic.asm,,,,,next to ?
+StarCompare,cseg01/engine/logic.asm,,,,,next to ?
+PickThreeStars,cseg01/engine/logic.asm,,,,,next to ?
+StartThreeStars,cseg01/engine/logic.asm,,,,,next to ?
+MoveInDir,cseg01/engine/logic.asm,,,,,next to ?
+SteerToTarget,cseg01/engine/logic.asm,,,,,next to ?
+assstarskate,cseg01/engine/logic.asm,,,,,next to ?
+assthreestars,cseg01/engine/logic.asm,,,,,next to ?
+assboxenter,cseg01/engine/logic.asm,,,,,next to ?
+assbenchside,cseg01/engine/logic.asm,,,,,next to ?
+assdefo,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assdefd,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+asswingd,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+asswingd_skate0,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asswingd
+asswingd_skateto,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asswingd
+asswingo,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+asswingo_evade,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asswingo
+asscenterd,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+asscentero,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+donothing,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assstanley,cseg01/engine/logic.asm,,logic94.asm,routines/logic/assignments/,engine/logic95.asm,"94G name, not in 95G; next to donothing"
+assscore,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+asseben,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assleaveice,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asseben
+asspenalty,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assdopen,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assepen,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assbench,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+GoalieToPuckVec,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to assbench
+AdjustFacingDirection,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/skating/,engine/logic95.asm,95G name
+assgoalietopuck,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+ClampYPosition,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,,engine/logic95.asm,95G name
+assgoalie,cseg01/engine/logic.asm,,logic94.asm,routines/logic/assignments/,engine/logic95.asm,"94G name, not in 95G; next to ClampYPosition"
+assgoalie_popebp,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to ClampYPosition
+CountPuckThreat,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to ClampYPosition
+asspuckc,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+sub_4C8BD,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asspuckc
+asspuckc_chkdir,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to asspuckc
+assnearest,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assshoot,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assshoot_ret,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to assshoot
+assfaceoff,cseg01/engine/logic.asm,engine/faceoff95.asm,logic94.asm,routines/logic/assignments/,engine/faceoff95.asm,95G name
+assexit,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+assfaceoffpl,cseg01/engine/logic.asm,engine/faceoff95.asm,logic94.asm,routines/logic/assignments/,engine/faceoff95.asm,95G name
+pucknorm_body,cseg01/engine/logic.asm,,,,engine/faceoff95.asm,next to assfaceoffpl
+pucknorm,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+pucknothing,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to pucknorm
+puckunflip,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+RequestLineChange,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckunflip
+SetLCmode,cseg01/engine/logic.asm,engine/lines95.asm,logic94.asm,routines/logic/lines/,engine/lines95.asm,95G name
+StartFaceoffLineChange,cseg01/engine/logic.asm,engine/faceoff95.asm,logic94.asm,,engine/faceoff95.asm,95G name
+Endfaceoff,cseg01/engine/logic.asm,engine/faceoff95.asm,logic94.asm,routines/logic/puck/,engine/faceoff95.asm,95G name
+a2offsides,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/offsides/,engine/logic95.asm,95G name
+ChkTwoLinePass,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to a2offsides
+a2touchpuck,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+puckflip,cseg01/engine/logic.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+assrefatdot,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assreffollow,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+SkateToSpot,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+CrowdOnStoppage,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assrefwhistle,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+ass_replace_popx,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+ass_popx,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+ass_skate_temp34,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assrefsignal,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assrefgoalpa,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assrefdrop,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+assrefgoalline,cseg01/engine/logic.asm,,,,engine/logic95.asm,next to puckflip
+rtss,cseg01/engine/logic.asm,engine/input95.asm,logic94.asm,,engine/input95.asm,95G name
+NextPathPoint,cseg01/engine/logic.asm,front/shootout95.asm,title94.asm,,front/shootout95.asm,95G name
+StartShootoutPath,cseg01/engine/logic.asm,front/shootout95.asm,title94.asm,,front/shootout95.asm,95G name
+asspenshooter,cseg01/engine/logic.asm,,,,front/shootout95.asm,next to StartShootoutPath
+joyq_pop,cseg01/engine/input.asm,,,,front/shootout95.asm,next to StartShootoutPath
+joyq_flush,cseg01/engine/input.asm,,,,front/shootout95.asm,next to StartShootoutPath
+joyq_peek,cseg01/engine/input.asm,,,,front/shootout95.asm,next to StartShootoutPath
+lineinput,cseg01/engine/input.asm,engine/lines95.asm,logic94.asm,routines/logic/lines/,engine/lines95.asm,95G name
+faceoffinput,cseg01/engine/input.asm,engine/input95.asm,logic94.asm,routines/logic/controls/,engine/input95.asm,95G name
+Acheck,cseg01/engine/input.asm,control95.asm,logic94.asm,,control95.asm,95G name
+CanBlockShot,cseg01/engine/input.asm,,,,control95.asm,next to Acheck
+CanBlockShot_ret6,cseg01/engine/input.asm,,,,control95.asm,next to Acheck
+CanBlockShot_ret5,cseg01/engine/input.asm,,,,control95.asm,next to Acheck
+OppInReach,cseg01/engine/input.asm,,,,control95.asm,next to Acheck
+Holdplayer,cseg01/engine/input.asm,control95.asm,logic94.asm,routines/logic/controls/,control95.asm,95G name
+lcselect,cseg01/engine/input.asm,,,,control95.asm,next to Holdplayer
+doinput,cseg01/engine/input.asm,engine/input95.asm,logic94.asm,routines/logic/controls/,engine/input95.asm,95G name
+getlchoice,cseg01/engine/input.asm,engine/lines95.asm,logic94.asm,routines/logic/lines/,engine/lines95.asm,95G name
+lcfound,cseg01/engine/input.asm,engine/lines95.asm,logic94.asm,routines/logic/lines/,engine/lines95.asm,95G name
+ReadJoy1,cseg01/engine/input.asm,engine/video95.asm,middle94.asm,routines/middle/input/,engine/video95.asm,95G name
+Readjoy_tail,cseg01/engine/input.asm,,,,engine/video95.asm,next to ReadJoy1
+ReadJoy2,cseg01/engine/input.asm,engine/video95.asm,middle94.asm,,engine/video95.asm,95G name
+CenterMouse,cseg01/engine/input.asm,,,,engine/video95.asm,next to ReadJoy2
+PassCompleted,cseg01/engine/faceoff.asm,,,,engine/video95.asm,next to ReadJoy2
+assonetimer,cseg01/engine/faceoff.asm,engine/logic95.asm,onetimer94.asm,,engine/logic95.asm,95G name
+OneTimerChk,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to assonetimer
+asspassrec,cseg01/engine/faceoff.asm,engine/logic95.asm,logic94.asm,routines/logic/assignments/,engine/logic95.asm,95G name
+SetPenaltyStrength,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+TakePlayerFromBox,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+TakePlayerFromBox_ret6,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+TakePlayerFromBox_ret5,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+PenShotStart,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+ForceStartLineup,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+PenShotAssign,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+AllInPlace,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+assleavebox,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to asspassrec
+puckfaceoff,cseg01/engine/faceoff.asm,engine/faceoff95.asm,logic94.asm,routines/logic/puck/,engine/faceoff95.asm,95G name
+puckfaceoff2,cseg01/engine/faceoff.asm,engine/faceoff95.asm,logic94.asm,routines/logic/puck/,engine/faceoff95.asm,95G name
+assbenchwait,cseg01/engine/faceoff.asm,,,,engine/faceoff95.asm,next to puckfaceoff2
+asstakeposition,cseg01/engine/faceoff.asm,,,,engine/faceoff95.asm,next to puckfaceoff2
+check4bench,cseg01/engine/faceoff.asm,engine/logic95.asm,logic94.asm,routines/logic/computer/,engine/logic95.asm,95G name
+asspsclear,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to check4bench
+assrefpenshot,cseg01/engine/faceoff.asm,,,,engine/logic95.asm,next to check4bench
+ToFixed,cseg01/engine/collide.asm,,,,engine/logic95.asm,next to check4bench
+Sweepcheck,cseg01/engine/collide.asm,engine/collide95.asm,logic94.asm,routines/logic/controls/,engine/collide95.asm,95G name
+burst,cseg01/engine/collide.asm,control95.asm,logic94.asm,routines/logic/skating/,control95.asm,95G name
+BlockShotDive,cseg01/engine/collide.asm,,,,control95.asm,next to burst
+TryBlockShot,cseg01/engine/collide.asm,,,,control95.asm,next to burst
+check4check,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/computer/,engine/logic95.asm,95G name
+checkagr,cseg01/engine/collide.asm,engine/penalty95.asm,collide94.asm,routines/collide/,engine/penalty95.asm,95G name
+FacingBoards,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to checkagr
+checkcheck,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkgoalp,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkint,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkob,cseg01/engine/collide.asm,engine/penalty95.asm,logic94.asm,routines/logic/offsides/,engine/penalty95.asm,95G name
+checkob_ret5a,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to checkob
+checkob_ret5,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to checkob
+SkillForAnim,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to checkob
+ChkDelayedOffside,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to checkob
+checkpuckcoll_ccx,cseg01/engine/collide.asm,,,routines/collide/,engine/penalty95.asm,next to checkob
+checkpuckcoll,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+CheckBump,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,,engine/collide95.asm,95G name
+GetLowestPen,cseg01/engine/collide.asm,front/injury95.asm,penalty94.asm,routines/penalty/penalties/,front/injury95.asm,95G name
+chk4lc,cseg01/engine/collide.asm,engine/lines95.asm,logic94.asm,routines/logic/computer/,engine/lines95.asm,95G name
+chk4lc_shoot,cseg01/engine/collide.asm,,,,engine/lines95.asm,next to chk4lc
+PassLaneChk,cseg01/engine/collide.asm,,,,engine/lines95.asm,next to chk4lc
+PassLaneChk_ret5a,cseg01/engine/collide.asm,,,,engine/lines95.asm,next to chk4lc
+PassLaneChk_ret5,cseg01/engine/collide.asm,,,,engine/lines95.asm,next to chk4lc
+ScatterPass,cseg01/engine/collide.asm,,,,engine/lines95.asm,next to chk4lc
+dopass,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/puck/,engine/input95.asm,95G name
+dopass_ret6,cseg01/engine/collide.asm,,,,engine/input95.asm,next to dopass
+passmode,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/controls/,engine/input95.asm,95G name
+setpassmode,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/,engine/input95.asm,95G name
+passtoa0,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,,engine/input95.asm,95G name
+chk4pass,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+chk4shot,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+CompShoot,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/puck/,engine/input95.asm,95G name
+ChkOffsides,cseg01/engine/collide.asm,engine/penalty95.asm,logic94.asm,routines/logic/offsides/,engine/penalty95.asm,95G name
+MarkTwoLinePlayers,cseg01/engine/collide.asm,,,,engine/penalty95.asm,next to ChkOffsides
+ChkShotStat,cseg01/engine/collide.asm,engine/lines95.asm,penalty94.asm,routines/penalty/shotstats/,engine/lines95.asm,95G name
+setInjuryType,cseg01/engine/collide.asm,front/injury95.asm,collide94.asm,routines/collide/,front/injury95.asm,95G name
+NetCollide,cseg01/engine/collide.asm,,,,front/injury95.asm,next to setInjuryType
+FallDown,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+Bcheck,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+holdcheck,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+puckbody,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+PuckIChk,cseg01/engine/collide.asm,engine/penalty95.asm,logic94.asm,routines/logic/offsides/,engine/penalty95.asm,95G name
+puckshadow,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+puckglue,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+puckgoalie,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+puckstick,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+SetShotMode,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/controls/,engine/input95.asm,95G name
+ShotMode,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/controls/,engine/input95.asm,95G name
+Findhittype,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/skating/,engine/input95.asm,95G name
+deflect,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+shotdiradj,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/puck/,engine/input95.asm,95G name
+doshot,cseg01/engine/collide.asm,engine/input95.asm,logic94.asm,routines/logic/puck/,engine/input95.asm,95G name
+newcheck,cseg01/engine/collide.asm,sound/sound95.asm,collide94.asm,,sound/sound95.asm,95G name
+checkcoll,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkwallcoll,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkgoal,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+wallcoll,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+wallcollb,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkplcoll,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,routines/collide/,engine/collide95.asm,95G name
+checkcx,cseg01/engine/collide.asm,engine/collide95.asm,collide94.asm,,engine/collide95.asm,95G name
+CPgoalie,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/computer/,engine/logic95.asm,95G name
+ChkGoalies,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/computer/,engine/logic95.asm,95G name
+ReturnGoalies,cseg01/engine/collide.asm,engine/logic95.asm,logic94.asm,routines/logic/computer/,engine/logic95.asm,95G name
+ChkPullGoalieLate,cseg01/engine/collide.asm,,,,engine/logic95.asm,next to ReturnGoalies
+SndLoadFile,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+sndcb_addesp8_x,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+SndLoadFile2,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+Crowd_Noise,cseg01/engine/sound.asm,,crowd94.asm,routines/crowd/,engine/logic95.asm,"94G name, not in 95G; next to ReturnGoalies"
+CrowdNoiseOff,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+CrowdFadeOut,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+CrowdNoiseReset,cseg01/engine/sound.asm,,,,engine/logic95.asm,next to ReturnGoalies
+sfx,cseg01/engine/sound.asm,sound/sound95.asm,middle94.asm,,sound/sound95.asm,95G name
+FreeDigiSample,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+StopDigiSample,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PlayDigiSample,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+WaitDigiSample,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PlayCrowdSample,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PlayCrowdSample_ret,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaOneMinuteLeft,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaSpeechBusy,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaGoal,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPlayerNumber,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPenalty,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPenaltyShot,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaTonightIntro,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+nullsub_5,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaScoringPeriod,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaNhlIntro,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaGoodnight,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaLineups,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaElseNhl,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaHighlightIntro,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPlayoffResult,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPlayoffTonight,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaOpenBank,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+PaPreloadClips,cseg01/engine/sound.asm,,,,sound/sound95.asm,next to sfx
+SetSPA,cseg01/engine/hockey.asm,engine/skate95.asm,logic94.asm,routines/logic/animation/,engine/skate95.asm,95G name
+SprSort_loop,cseg01/engine/hockey.asm,,,,engine/skate95.asm,next to SetSPA
+SprSort_test,cseg01/engine/hockey.asm,,,,engine/skate95.asm,next to SetSPA
+changeplayer,cseg01/engine/hockey.asm,,logic94.asm,,engine/skate95.asm,"94G name, not in 95G; next to SetSPA"
+changeplayer_ret5,cseg01/engine/hockey.asm,,,,engine/skate95.asm,next to SetSPA
+restorepl,cseg01/engine/hockey.asm,control95.asm,logic94.asm,,control95.asm,95G name
+AvgCline,cseg01/engine/hockey.asm,engine/lines95.asm,penalty94.asm,routines/penalty/energy/,engine/lines95.asm,95G name
+CompLine,cseg01/engine/hockey.asm,engine/lines95.asm,logic94.asm,routines/logic/lines/,engine/lines95.asm,95G name
+getlinee_pp,cseg01/engine/hockey.asm,,,,engine/lines95.asm,next to CompLine
+getlinee_sum,cseg01/engine/hockey.asm,,,,engine/lines95.asm,next to CompLine
+TeamLineEnergy,cseg01/engine/hockey.asm,,,,engine/lines95.asm,next to CompLine
+getlinee,cseg01/engine/hockey.asm,engine/lines95.asm,penalty94.asm,routines/penalty/energy/,engine/lines95.asm,95G name
+findpc,cseg01/engine/hockey.asm,engine/logic95.asm,logic94.asm,routines/logic/puck/,engine/logic95.asm,95G name
+findpc_ret6,cseg01/engine/hockey.asm,,,,engine/logic95.asm,next to findpc
+findpc_ret5,cseg01/engine/hockey.asm,,,,engine/logic95.asm,next to findpc
+GetHot,cseg01/engine/hockey.asm,engine/middle95.asm,logic94.asm,routines/logic/animation/,engine/middle95.asm,95G name
+GetHotStick,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+GetHotOrStick,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+SetCoachMode,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+InitCoachModes,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+UpdateCoachModes,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+PenTeamScored,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to GetHot
+Goal,cseg01/engine/hockey.asm,engine/goal95.asm,collide94.asm,routines/collide/,engine/goal95.asm,95G name
+GiveControl,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to Goal
+Setplass,cseg01/engine/hockey.asm,engine/logic95.asm,collide94.asm,routines/collide/,engine/logic95.asm,95G name
+setplayer,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+reenergizeteam,cseg01/engine/hockey.asm,engine/middle95.asm,penalty94.asm,routines/penalty/energy/,engine/middle95.asm,95G name
+clearteams,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to reenergizeteam
+restoreteams,cseg01/engine/hockey.asm,engine/players95.asm,hockey94.asm,routines/hockey/,engine/players95.asm,95G name
+GetPeriodTime,cseg01/engine/hockey.asm,engine/middle95.asm,hockey94.asm,routines/hockey/,engine/middle95.asm,95G name
+ResetClock,cseg01/engine/hockey.asm,engine/middle95.asm,hockey94.asm,routines/hockey/,engine/middle95.asm,95G name
+ClearSortCords,cseg01/engine/hockey.asm,,,,engine/middle95.asm,next to ResetClock
+defaultsprites_0,cseg01/engine/hockey.asm,display95.asm,setup94.asm,routines/setup/,display95.asm,95G name
+TryAddPlayerToList,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+SetPlList,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+setpersonel,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+StartPer,cseg01/engine/hockey.asm,hockey95.asm,hockey94.asm,routines/hockey/,hockey95.asm,95G name
+DoGameFrame,cseg01/engine/hockey.asm,hockey95.asm,hockey94.asm,routines/hockey/,hockey95.asm,95G name
+RestoreBenchEnergy,cseg01/engine/hockey.asm,engine/middle95.asm,hockey94.asm,routines/hockey/,engine/middle95.asm,95G name
+updatecrowdf,cseg01/engine/hockey.asm,front/crowd95.asm,hockey94.asm,routines/hockey/,front/crowd95.asm,95G name
+periodicevents,cseg01/engine/hockey.asm,,hockey94.asm,routines/hockey/,front/crowd95.asm,"94G name, not in 95G; next to updatecrowdf"
+updateplayers,cseg01/engine/hockey.asm,hockey95.asm,logic94.asm,routines/logic/players/,hockey95.asm,95G name
+updateanim,cseg01/engine/hockey.asm,display95.asm,logic94.asm,routines/logic/display/,display95.asm,95G name
+freezewindow,cseg01/engine/hockey.asm,engine/goal95.asm,logic94.asm,routines/logic/collisions/,engine/goal95.asm,95G name
+cleargamevars,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to freezewindow
+DrawRinkOverlays,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to freezewindow
+setupice,cseg01/engine/hockey.asm,engine/middle95.asm,setup94.asm,routines/setup/,engine/middle95.asm,95G name
+clockcont_0,cseg01/engine/hockey.asm,engine/goal95.asm,hockey94.asm,routines/hockey/,engine/goal95.asm,95G name
+ClockTick,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to clockcont_0
+SprSortVert,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to clockcont_0
+SprSort,cseg01/engine/hockey.asm,display95.asm,setup94.asm,routines/setup/,display95.asm,95G name
+GameOver,cseg01/engine/hockey.asm,engine/goal95.asm,setup94.asm,routines/setup/,engine/goal95.asm,95G name
+SetExitGame,cseg01/engine/hockey.asm,,,,engine/goal95.asm,next to GameOver
+SetupTeamForIntermission,cseg01/engine/hockey.asm,engine/lines95.asm,penalty94.asm,routines/penalty/energy/,engine/lines95.asm,95G name
+Intermission,cseg01/engine/hockey.asm,hockey95.asm,penalty94.asm,routines/penalty/ticker/,hockey95.asm,95G name
+PeriodOver_sp,cseg01/engine/hockey.asm,hockey95.asm,setup94.asm,,hockey95.asm,95G name
+PeriodOver,cseg01/engine/hockey.asm,engine/goal95.asm,setup94.asm,routines/setup/,engine/goal95.asm,95G name
+ResetBench,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+resetplstuff,cseg01/engine/hockey.asm,engine/players95.asm,setup94.asm,routines/setup/,engine/players95.asm,95G name
+StartGame,cseg01/engine/hockey.asm,hockey95.asm,hockey94.asm,routines/hockey/,hockey95.asm,95G name
+forceteams,cseg01/engine/hockey.asm,,,,hockey95.asm,next to StartGame
+forcepldata,cseg01/engine/hockey.asm,engine/players95.asm,collide94.asm,routines/collide/,engine/players95.asm,95G name
+doplayeracc,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,routines/logic/skating/,engine/skate95.asm,95G name
+EvadePlayers,cseg01/engine/skate.asm,,,,engine/skate95.asm,next to doplayeracc
+EvadePlayers_popebp,cseg01/engine/skate.asm,,,,engine/skate95.asm,next to doplayeracc
+EvadePlayers_popedi,cseg01/engine/skate.asm,,,,engine/skate95.asm,next to doplayeracc
+EvadePC,cseg01/engine/skate.asm,engine/logic95.asm,logic94.asm,routines/logic/skating/,engine/logic95.asm,95G name
+EvadePC_x,cseg01/engine/skate.asm,,,,engine/logic95.asm,next to EvadePC
+skateto,cseg01/engine/skate.asm,engine/logic95.asm,logic94.asm,routines/logic/skating/,engine/logic95.asm,95G name
+skatetopuck,cseg01/engine/skate.asm,engine/logic95.asm,logic94.asm,routines/logic/skating/,engine/logic95.asm,95G name
+playeracc,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,routines/logic/skating/,engine/skate95.asm,95G name
+avdgoal_box,cseg01/engine/skate.asm,,,,engine/skate95.asm,next to playeracc
+avdgoal_jt,cseg01/engine/skate.asm,,,,engine/skate95.asm,next to playeracc
+avdgoal,cseg01/engine/skate.asm,engine/logic95.asm,logic94.asm,routines/logic/skating/,engine/logic95.asm,95G name
+dostop,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,routines/logic/skating/,engine/skate95.asm,95G name
+stopna,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,,engine/skate95.asm,95G name
+goalieacc,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,routines/logic/skating/,engine/skate95.asm,95G name
+noturn0,cseg01/engine/skate.asm,engine/skate95.asm,logic94.asm,routines/logic/skating/,engine/skate95.asm,95G name
+SetRinkObject,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+SetBoxDoorObject,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+DecayCrowdLevel,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+sfxslots_popx,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+DrawRinkObjects,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+QueueDeferredCall,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+RunDeferredCalls,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+fileio_popebpx,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+AppendGSumRecord,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+FlushGSumQueue,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+ReadGSumHeader,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+fileio_tail_a,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+fileio_tail_b,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+fileio_tail_c,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+ReadGSumTail,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+WriteGSumHeader,cseg01/engine/penalty.asm,,,,engine/skate95.asm,next to noturn0
+FormatPlayerName,cseg01/engine/penalty.asm,engine/middle95.asm,setup94.asm,,engine/middle95.asm,95G name
+BuildEventLines,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+PostGoalEvent,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+PostPenaltyEvent,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+PostInjuryEvent,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+NullCallback0C,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+ChkScorerMilestone,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+QueueGoalieNote,cseg01/engine/penalty.asm,,,,engine/middle95.asm,next to FormatPlayerName
+GetPeriodTimeRemaining,cseg01/engine/penalty.asm,engine/middle95.asm,collide94.asm,routines/collide/,engine/middle95.asm,95G name
+AddPenalty,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+AddPenalty2,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+SetPA,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+InProgress,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+InProgress_popebp,cseg01/engine/penalty.asm,,,,engine/penalty95.asm,next to InProgress
+InProgress_popx,cseg01/engine/penalty.asm,,,,engine/penalty95.asm,next to InProgress
+chkprogress_go,cseg01/engine/penalty.asm,,,,engine/penalty95.asm,next to InProgress
+chkprogress_x,cseg01/engine/penalty.asm,,,,engine/penalty95.asm,next to InProgress
+Stop4Pen,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+checkfornewpen,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+releasepl,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+chkatop,cseg01/engine/penalty.asm,engine/lines95.asm,penalty94.asm,routines/penalty/shotstats/,engine/lines95.asm,95G name
+updatepentime_ut_chk,cseg01/engine/penalty.asm,,,,engine/lines95.asm,next to chkatop
+updatepentime_ut,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,,engine/penalty95.asm,95G name
+updatePPTeamTime,cseg01/engine/penalty.asm,engine/lines95.asm,period94.asm,routines/period/,engine/lines95.asm,95G name
+updatepentime,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+PenaltyManager,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+chkprogress,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+UpdatePowerPlayFlags,cseg01/engine/penalty.asm,,,,engine/penalty95.asm,next to chkprogress
+ClearPenaltyBuffer,cseg01/engine/penalty.asm,engine/penalty95.asm,penalty94.asm,routines/penalty/penalties/,engine/penalty95.asm,95G name
+PenGoalStuff,cseg01/engine/penalty.asm,engine/goal95.asm,penalty94.asm,routines/penalty/penalties/,engine/goal95.asm,95G name
+SetupPenaltyShot,cseg01/engine/penalty.asm,front/shootout95.asm,collide94.asm,routines/collide/,front/shootout95.asm,95G name
+ShotLaneOpen,cseg01/engine/penalty.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+QuickShotChk,cseg01/engine/penalty.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+CountShotOnGoal,cseg01/engine/penalty.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+StartPenaltyShot,cseg01/engine/penalty.asm,,,routines/logic/,front/shootout95.asm,next to SetupPenaltyShot
+EndPenaltyShot,cseg01/engine/penalty.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+SortPlayersByPos,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+SortNonDefPlayers,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+BuildDefaultLines,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+lines_popx,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+CanFillLineSlot,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+lines_addesp10_x,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+FillDressedSlots,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+PickForLineSlot,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+lines_popx2,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+PickGoalie,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+PickExtraSkater,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+RefillLineSlots,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+RemoveFromLines,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+SetupTeamLines,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+NormalizeDressFlags,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+CanRemovePlayer,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+DitherRect,cseg01/engine/video.asm,,,,front/shootout95.asm,next to SetupPenaltyShot
+checkwindow,cseg01/engine/video.asm,engine/goal95.asm,logic94.asm,routines/logic/collisions/,engine/goal95.asm,95G name
+checkwindow_popebp,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+checkwindow_popx,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+LoadTeamPPV,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+DrawTextOverlay,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+CloseTextOverlay,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+UpdateTextOverlay,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+DrawCallBanner,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+ShowGoalieBanner,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+SetTeamGoalie,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+LoadTeamPalette,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+ReplayRecordReset,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+ReplayFirstFrame,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+ReplayPrevFrame,cseg01/engine/video.asm,,,,engine/goal95.asm,next to checkwindow
+updatereplay,cseg01/engine/video.asm,engine/replay95.asm,replay94.asm,routines/replay/,engine/replay95.asm,95G name
+ReplayStep,cseg01/engine/video.asm,,,,engine/replay95.asm,next to updatereplay
+ReplayStep_popx,cseg01/engine/video.asm,,,,engine/replay95.asm,next to updatereplay
+DrawRinkSideObjects,cseg01/engine/video.asm,,,,engine/replay95.asm,next to updatereplay
+StartHL2,cseg01/engine/frame.asm,,penalty94.asm,,engine/replay95.asm,"94G name, not in 95G; next to updatereplay"
+LoadRockMusic,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+LoadRockMusic_ret,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+FreeRockMusic,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+DrawGadgetByType,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+GadgetStub0,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+sub_7E03F,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+bothneitherstrs,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+DrawGadgetButton,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+DrawGadgetButton_ret,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+InstantReplay,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+GadgetHitTest,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+PickNearestPlayer,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplayControlLoop,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight_jt,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight_n0,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight_n2,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight_n1,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+ReplaySaveHilight_n3,cseg01/engine/replay.asm,,,,engine/replay95.asm,next to updatereplay
+PlayMVI,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C1B7,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+SelectScreenBM,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+SelectScreenBM_set,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+SelectRinkBM,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C1F7,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C202,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C20D,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C218,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+stub_8C223,cseg01/engine/asm_helpers.asm,,,,engine/replay95.asm,next to updatereplay
+randomd0,cseg01/engine/asm_helpers.asm,engine/middle95.asm,middle94.asm,routines/middle/math/,engine/middle95.asm,95G name
+vgacopy_bg,cseg01/engine/asm_helpers.asm,,,,engine/middle95.asm,next to randomd0
+vtoa,cseg01/engine/asm_helpers.asm,engine/middle95.asm,logic94.asm,routines/logic/skating/,engine/middle95.asm,95G name
+SaveSS,cseg01/engine/asm_helpers.asm,,,,engine/middle95.asm,next to vtoa
