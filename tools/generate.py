@@ -97,13 +97,15 @@ def resolve(base, rel):
         cur = nxt
     return cur if os.path.isfile(cur) else None
 
-def resolve_inc(src, rel):
-    """An include from the Genesis top-level file. 93G-96G include the team data as the build's copy
-    (`..\\output\\obj\\teamdata94.asm`, `..\\output\\obj\\names\\teamdata95.asm`: the same file with the real
-    player names put back), which is not in the repo. Fall back to the source copy in src/ by file name."""
-    q = resolve(src, rel)
+def resolve_inc(src, rel, base=None):
+    """An include from base (default src). The team data is included as the build's copy with the real player
+    names, which is not in the repo: 93G-96G `..\\output\\obj\\teamdata94.asm` / `..\\output\\obj\\names\\teamdata95.asm`,
+    93S `../../output/retail/obj/teamdata93s.asm`, 94S `../../output/names/teamdata94s.asm`. Fall back to the
+    source copy of the same file name (placeholder names, same layout) in src/, then src/data/."""
+    q = resolve(base or src, rel)
     if q is None and '/output/' in '/' + rel.replace('\\', '/').lower():
-        q = resolve(src, rel.replace('\\', '/').rsplit('/', 1)[-1])
+        name = rel.replace('\\', '/').rsplit('/', 1)[-1]
+        q = resolve(src, name) or resolve(src, 'data/' + name)
     return q
 
 def unit(name, names, lines, kind):
@@ -346,7 +348,7 @@ def snes(src, top):
                 if mo:
                     orgs.append(int(mo.group(1), 16))
                 mm = INCSRC.match(bl)
-                q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+                q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
                 if q:
                     flush(); ids.append(file_unit(q))
                 else:
@@ -622,7 +624,7 @@ def tree_snes(src, top):
             continue
         for bl in read(bp):
             mm = INCSRC.match(bl)
-            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
             if not q:
                 continue
             rp = os.path.relpath(q, src).replace('\\', '/')
@@ -664,7 +666,7 @@ def tree_snes_groups(src, top, g):
         bp = resolve(src, m.group(1))
         for bl in read(bp) if bp else []:
             mm = INCSRC.match(bl)
-            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
             if q and is_top_data(os.path.relpath(q, src).replace('\\', '/')):
                 nodes += snes_data_file_nodes(src, q, 1)
     return nodes

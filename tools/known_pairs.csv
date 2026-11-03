@@ -284,7 +284,7 @@ a_game,a_name,b_game,b_name,note
 95G,GamesToday,95S,GamesToday,95G front/season
 95G,GetForwardCount,95S,GetForwardCount,95G engine/middle
 94S,GetForwardCount,95S,GetForwardCount,94S routines/stats/GetForwardCount.asm
-94S,GetFrameHot,95S,GetFrameHot,94S routines/logic/GetFrameHot.asm
+94S,GetFrameHot,95S,GetHot,94S routines/logic/GetFrameHot.asm
 95G,getlchoice,95S,getlchoice,95G engine/lines
 94S,getlchoice,95S,getlchoice,94S routines/logic/lines/getlchoice.asm
 95G,getlinee,95S,getlinee,95G engine/lines
