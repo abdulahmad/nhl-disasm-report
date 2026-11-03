@@ -477,7 +477,7 @@ a_game,a_name,b_game,b_name,note
 94S,puckstick,95S,puckstick,94S routines/collide/puckstick.asm
 95G,PushNumber,95S,PushNumber,95G engine/middle
 94S,PushNumber,95S,PushNumber,94S routines/print/PushNumber.asm
-94S,PushNumberWrap,95S,PushNumberWrap,94S routines/middle/PushNumberWrap.asm
+94S,PushNumberWrap,95S,PushNumberWidth,94S routines/middle/PushNumberWrap.asm
 95G,PushRef,95S,PushRef,95G engine/penalty
 94S,PushRef,95S,PushRef,94S routines/penalty/penalties/PushRef.asm
 95G,PushTime,95S,PushTime,95G engine/middle
@@ -540,7 +540,6 @@ a_game,a_name,b_game,b_name,note
 95G,ScanVezina,95S,ScanVezina,95G front/awards
 95G,ScoutingReport,95S,ScoutingReport,95G front/scout
 94S,ScoutingReport,95S,ScoutingReport,94S routines/scout/ScoutingReport.asm
-94S,ScreenOn,95S,ScreenOn,94S routines/video/ScreenOn.asm
 95G,sctab,95S,sctab,95G engine/faceoff
 95G,SeasonAwards,95S,SeasonAwards,95G front/awards
 95G,SeasonGameOver,95S,SeasonGameOver,95G front/season
@@ -713,10 +712,42 @@ a_game,a_name,b_game,b_name,note
 94S,WaitFrames_Inc,95S,WaitFrames_Inc,94S routines/video/WaitFrames_Inc.asm
 94S,WaitNoButtons,95S,WaitNoButtons,94S routines/middle/WaitNoButtons.asm
 94S,WaitPadsRelease,95S,WaitPadsRelease,94S routines/middle/WaitPadsRelease.asm
-94S,waitxsr,95S,waitxsr,94S routines/middle/util/waitxsr.asm
+94S,waitxsr,95S,waitx,94S routines/middle/util/waitxsr.asm
 95G,wallcoll,95S,wallcoll,95G engine/collide
 94S,wallcoll,95S,wallcoll,94S routines/collide/wallcoll.asm
 95G,wallcollb,95S,wallcollb,95G engine/collide
 94S,wallcollb,95S,wallcollb,94S routines/collide/wallcollb.asm
 95G,Washington,95S,Washington,95G teamdata
 95G,Winnipeg,95S,Winnipeg,95G teamdata
+95G,AttribStatus,95S,AttribStatus,95S naming pass: engine/setup95.asm
+95G,AttribHanded,95S,AttribHanded,95S naming pass: engine/setup95.asm
+95G,AttribWeight,95S,AttribWeight,95S naming pass: engine/setup95.asm
+95G,PeriodStatsTeam,95S,PeriodStatsTeam,95S naming pass: front/stats95.asm
+95G,AssignTeam,95S,AssignTeam,95S naming pass: engine/goal95.asm
+95G,rtsgoal,95S,rtsgoal,95S naming pass: engine/goal95.asm
+95G,updatePPTeamTime,95S,updatePPTeamTime,95S naming pass: engine/lines95.asm
+95G,passtoa0,95S,passtoa0,95S naming pass: engine/input95.asm
+95G,CheckBump,95S,CheckBump,95S naming pass: engine/collide95.asm
+95G,CCStart,95S,CCStart,95S naming pass: engine/collide95.asm
+95G,checkcx,95S,checkcx,95S naming pass: engine/collide95.asm
+95G,puckunflip,95S,puckunflip,95S naming pass: engine/logic95.asm
+94S,StartDumpIn,95S,StartDumpIn,95S naming pass: routines/logic/StartDumpIn.asm
+94S,marktextlo,95S,marktextlo,95S naming pass: routines/middle/text/marktextlo.asm
+94S,marktexthi,95S,marktexthi,95S naming pass: routines/middle/text/marktexthi.asm
+95G,PushNumberWidth,95S,PushNumberWidth,95S naming pass: engine/middle95.asm
+95G,ConvertByteToDigits,95S,ConvertByteToDigits,95S naming pass: engine/middle95.asm
+95G,waitx,95S,waitx,95S naming pass: engine/middle95.asm
+95G,remap,95S,remap,95S naming pass: engine/video95.asm
+94S,FadeIn,95S,FadeIn,95S naming pass: routines/video/FadeIn.asm
+95G,GetGoalieCount,95S,GetGoalieCount,95S naming pass: engine/middle95.asm
+95G,seta2,95S,seta2,95S naming pass: engine/pause95.asm
+95G,TimeoutMenu,95S,TimeoutMenu,95S naming pass: engine/pause95.asm
+95G,ManualGoalieMenu,95S,ManualGoalieMenu,95S naming pass: engine/pause95.asm
+95G,Pausemode_go,95S,Pausemode_go,95S naming pass: engine/pause95.asm
+95G,StatsReport,95S,StatsReport,95S naming pass: front/stats95.asm
+95G,PeriodStatsScreen,95S,PeriodStatsScreen,95S naming pass: front/stats95.asm
+95G,PlayerStatsScreen,95S,PlayerStatsScreen,95S naming pass: front/stats95.asm
+95G,PenaltySummaryScreen,95S,PenaltySummaryScreen,95S naming pass: front/summary95.asm
+95G,ScoringSummaryScreen,95S,ScoringSummaryScreen,95S naming pass: front/summary95.asm
+95G,TeamRosterScreen,95S,TeamRosterScreen,95S naming pass: engine/setup95.asm
+95G,LineEditor,95S,LineEditor,95S naming pass: front/stats95.asm

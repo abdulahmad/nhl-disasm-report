@@ -13,3 +13,4 @@ lineage,94S setuppausescreen,5 callers in 94S: a shared routine, not foldable in
 94S~93S,Fprint,94G's version is Fprintsmall in penalty94 (93S keeps Fprint in print)
 95S~94S,ReadPads,pads family: 95G reads the pads in control95 (setpads / burst); 95S rules place the pad routines there
 95S~94S,WaitPadsRelease,pads family: 95G reads the pads in control95 (setpads / burst); 95S rules place the pad routines there
+94S~94G,PushNumberWrap,the 95S name map links it to 94G PushNumberWidth (print94); 94S keeps its own name and folder until the 94S naming pass takes it up
