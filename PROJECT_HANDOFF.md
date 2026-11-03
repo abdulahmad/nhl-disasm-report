@@ -54,8 +54,8 @@ There are two project branches, one per workstream. Both are right; they hold di
 | `sdl2-port` | SDL2 ports | NHL94PC, NHL95PC |
 
 So: continue alignment work on `ggw7zu`, C ports work on `4gad59`. A repo without the branch is read at `main` by the
-report's gate. Other `claude/project-thread-*` branches are older or single-task threads. This page itself was written
-on `claude/project-thread-qq2fat`.
+report's gate. Other `claude/project-thread-*` branches are older or single-task threads. This page lives on `ggw7zu`
+in nhl-disasm-report.
 
 ## 5. Workstreams and status
 
@@ -105,7 +105,7 @@ widen scope. Subagents run only when Abdul, an AGENTS.md or a skill asks for the
 1. This page, then [HARNESS.md](docs/project/HARNESS.md) (how the project is run).
 2. The handoff for your workstream: [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md), [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), or the repo's `docs/HANDOFF.md` (NHL95PC: `HANDOFF.md`).
 3. In the repo you touch, on its project branch: `AGENTS.md`, then `docs/RULES.md` (read before every unit).
-4. For this report: [README.md](README.md) and, on `ggw7zu`, `docs/HANDOFF.md` and `docs/ALIGNMENT.md` (the approved all-games plan).
+4. For this report: [README.md](README.md), [docs/HANDOFF.md](docs/HANDOFF.md) and [docs/ALIGNMENT.md](docs/ALIGNMENT.md) (the approved all-games plan).
 
 Known trap: several repos' `HANDOFF.md` link to `docs/ALIGNMENT.md` on this repo's `main`; it only exists on `ggw7zu`
 (and as [docs/project/alignment_plan_all_games.md](docs/project/alignment_plan_all_games.md)).
