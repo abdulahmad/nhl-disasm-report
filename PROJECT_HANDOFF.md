@@ -67,7 +67,7 @@ in nhl-disasm-report.
 | 95G / 96G (Stage D) | old 94G file names fixed (A3), D2 naming under way | 96G's own naming against 95G; RAM order (D4) | [naming_recommendation_and_95g_pass.md](docs/project/naming_recommendation_and_95g_pass.md), [ram_order_and_matches.md](docs/project/ram_order_and_matches.md) |
 | 95PC (Stage F) | F3 94G renames and F4 module re-cut (198 to 195 files, one PC module each) done on `ggw7zu` | 95G names for the '95 features, body by body | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), NHL95PC `HANDOFF.md` |
 | 95PC functional track | paused 2026-11-02; 25 of 109 drafts PASS | round 7 | NHL95PC `docs/FUNCTIONAL_HANDOFF.md` |
-| **95S (Stage E)** | **in progress**: phase 0 (kit, RULES.md, scope gate) done on `ggw7zu` | phase 1: add 95S to this report and the pairing gate, then phase 2 the inventory script | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
+| **95S (Stage E)** | **in progress**: phases 0-3 done on `ggw7zu` (kit and scope gate; 95S in this report and the pairing gate; inventory `docs/routines95s.csv`; moved to `src/banks/`, `src/routines/<95G folder>/`, `src/data/`, MATCH) | phase 4: naming against 95G (then 94S), one 95G file per unit; then phase 5 RAM | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
 | **C ports** | **paused at step E2** (2026-11-03). Phases 0-1 pushed; gens94-c, E1, E4 and SNES checks all identical | E2: 1nput's oracle checks, using the vasm GitHub mirror Abdul OK'd | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
 | 94PC (Stage G) | kit only; waits for the disassembly | | |
 
