@@ -97,6 +97,17 @@ def resolve(base, rel):
         cur = nxt
     return cur if os.path.isfile(cur) else None
 
+def resolve_inc(src, rel, base=None):
+    """An include from base (default src). The team data is included as the build's copy with the real player
+    names, which is not in the repo: 93G-96G `..\\output\\obj\\teamdata94.asm` / `..\\output\\obj\\names\\teamdata95.asm`,
+    93S `../../output/retail/obj/teamdata93s.asm`, 94S `../../output/names/teamdata94s.asm`. Fall back to the
+    source copy of the same file name (placeholder names, same layout) in src/, then src/data/."""
+    q = resolve(base or src, rel)
+    if q is None and '/output/' in '/' + rel.replace('\\', '/').lower():
+        name = rel.replace('\\', '/').rsplit('/', 1)[-1]
+        q = resolve(src, name) or resolve(src, 'data/' + name)
+    return q
+
 def unit(name, names, lines, kind):
     return {'n': name, 'm': sorted(set(x.lower() for x in names)), 't': '\n'.join(lines), 'k': kind}
 
@@ -206,7 +217,7 @@ def genesis(src, top, docr):
                 if ia is None and first and first_child_addr is not None:
                     ia = first_child_addr
                 first = False
-                q = resolve(src, m.group(1))
+                q = resolve_inc(src, m.group(1))
                 if q:
                     walk(q, ia, ie, child_depth)
             return
@@ -246,7 +257,7 @@ def genesis(src, top, docr):
                 ia = first_child_addr
             first_inc = False
             flush(li, ia)
-            q = resolve(src, m.group(1))
+            q = resolve_inc(src, m.group(1))
             if q:
                 walk(q, ia, ie, child_depth)
             # Only the segment immediately after an include with a known end inherits ie+1.
@@ -337,7 +348,7 @@ def snes(src, top):
                 if mo:
                     orgs.append(int(mo.group(1), 16))
                 mm = INCSRC.match(bl)
-                q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+                q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
                 if q:
                     flush(); ids.append(file_unit(q))
                 else:
@@ -534,7 +545,7 @@ def tree_genesis(src, top):
                 inr = False  # a label after an include and before the next routine has no routine above it in the tree
                 low = m.group(1).lower().replace('\\', '/')
                 if low.endswith('.asm') and not low.startswith(('macros/', 'stubinc/')):
-                    q = resolve(src, m.group(1))
+                    q = resolve_inc(src, m.group(1))
                     if q:
                         walk(q, depth + 1)
     walk(os.path.join(src, top), 0)
@@ -613,7 +624,7 @@ def tree_snes(src, top):
             continue
         for bl in read(bp):
             mm = INCSRC.match(bl)
-            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
             if not q:
                 continue
             rp = os.path.relpath(q, src).replace('\\', '/')
@@ -655,7 +666,7 @@ def tree_snes_groups(src, top, g):
         bp = resolve(src, m.group(1))
         for bl in read(bp) if bp else []:
             mm = INCSRC.match(bl)
-            q = resolve(os.path.dirname(bp), mm.group(1)) if mm else None
+            q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
             if q and is_top_data(os.path.relpath(q, src).replace('\\', '/')):
                 nodes += snes_data_file_nodes(src, q, 1)
     return nodes
