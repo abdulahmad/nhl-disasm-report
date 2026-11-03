@@ -11,3 +11,5 @@ lineage,94S setuppausescreen,5 callers in 94S: a shared routine, not foldable in
 94S~93S,marktexthi,SNES-only text DMA queue; 94S keeps it with the DMA helpers in middle (94G DoDMA is in middle94; 93S has it under video/text)
 94S~93S,marktextlo,SNES-only text DMA queue; 94S keeps it with the DMA helpers in middle (94G DoDMA is in middle94; 93S has it under video/text)
 94S~93S,Fprint,94G's version is Fprintsmall in penalty94 (93S keeps Fprint in print)
+95S~94S,ReadPads,pads family: 95G reads the pads in control95 (setpads / burst); 95S rules place the pad routines there
+95S~94S,WaitPadsRelease,pads family: 95G reads the pads in control95 (setpads / burst); 95S rules place the pad routines there

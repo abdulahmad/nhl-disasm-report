@@ -16,7 +16,8 @@ Counts (each is a list of routines, printed with --list):
   stale94   a text file in any repo that still names a 94G file that no longer exists (checks94, input94, ...)
   95S~95G   a 95S routine file whose name is a 95G label, in a 95S folder that is not that 95G file (95S mirrors 95G:
             routines/engine/collide/ is engine/collide95.asm, routines/hockey/ is hockey95.asm)
-  95S~94S   a 95S routine with no 95G partner that is also a 94S routine, in a different top folder from 94S
+  95S~94S   a 95S routine with no 95G partner that is also a 94S routine, not in the 94S folder (read as the 95G file of
+            that name when 95G has one: 94S video/ is 95S engine/video/)
 Lines in tools/pair_exceptions.csv (count,name,reason) are left out of a count on purpose. For lineage the name is
 '<game> <old name>', for the others the routine file stem.
 
@@ -211,11 +212,16 @@ def main():
                                                       '95S~95G', '95S~94S'))
     if '95S' in dirs and '95G' in dirs:
         g95, s95 = genesis95_labels(dirs['95G']), snes_routines(dirs['95S'])
+        g95keys = sorted(set(g95.values()))
+        def map94(top):
+            # a 94S folder named like a 95G file is that 95G file (video -> engine/video, main -> main)
+            hit = [k for k in g95keys if k.split('/')[-1] == top]
+            return hit[0] if hit else top
         for n, rel in s95.items():
             f95 = lookup(g95, n)
             if f95 and f95 != snes95_key(rel):
                 items['95S~95G'].append(f'{rel} (95G {f95})')
-            elif not f95 and n in s94 and s94[n].split('/')[0] != rel.split('/')[0]:
+            elif not f95 and n in s94 and map94(s94[n].split('/')[0]) != snes95_key(rel):
                 items['95S~94S'].append(f'{rel} (94S {s94[n]})')
     for n, rel in s94.items():
         top = rel.split('/')[0]
