@@ -712,7 +712,7 @@ a_game,a_name,b_game,b_name,note
 94S,WaitFrames_Inc,95S,WaitFrames_Inc,94S routines/video/WaitFrames_Inc.asm
 94S,WaitNoButtons,95S,WaitNoButtons,94S routines/middle/WaitNoButtons.asm
 94S,WaitPadsRelease,95S,WaitPadsRelease,94S routines/middle/WaitPadsRelease.asm
-94S,waitxsr,95S,waitx,94S routines/middle/util/waitxsr.asm
+94S,waitx,95S,waitx,94S routines/middle/util/waitx.asm
 95G,wallcoll,95S,wallcoll,95G engine/collide
 94S,wallcoll,95S,wallcoll,94S routines/collide/wallcoll.asm
 95G,wallcollb,95S,wallcollb,95G engine/collide
