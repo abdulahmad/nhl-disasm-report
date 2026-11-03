@@ -16,8 +16,10 @@ and [c_ports_plan.md](docs/project/c_ports_plan.md).
 
 ## 2. Standing rules (Abdul's; they override anything older)
 
-1. **Nothing merges to `main` yet.** All work goes on the project branch (section 4). Pushing there needs **no approval**,
-   so don't wait for one, and tell every subagent the same. PRs are opened for review only; do not merge them.
+1. **Nothing merges to `main` yet**, except in nhl-disasm-report. All work goes on the project branch (section 4). Pushing
+   there needs **no approval**, so don't wait for one, and tell every subagent the same. PRs are opened for review only; do
+   not merge them. **Exception (Abdul, 2026-11-03):** nhl-disasm-report only may merge `claude/project-thread-ggw7zu` into
+   `main`, so the live page (GitHub Pages, built from `main`) shows the current report. Every other repo stays branch-only.
 2. **Alignment with the related games wins**, including over names already in a repo from earlier contributors
    (McMarkis's in 95S included). Who decides each name and folder is the authority table in each repo's `docs/RULES.md`;
    in short: a shared routine keeps the earliest game's name (92G is the root), the same-year Genesis game decides folders

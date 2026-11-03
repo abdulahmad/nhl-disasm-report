@@ -19,6 +19,6 @@ stage of the shared plan that the Now block names (https://github.com/abdulahmad
   `docs/RULES.md`, in the same commit.
 * **Handoff:** before stopping, update the Now block in `docs/HANDOFF.md` and push. Never leave uncommitted work: an unfinished
   unit is pushed and marked WIP. Nothing lives only in one tool's chat or memory.
-* **Branch:** alignment work collects on `claude/project-thread-ggw7zu` in every repo. `main` gets it when the owner merges.
+* **Branch:** alignment work collects on `claude/project-thread-ggw7zu` in every repo. `main` gets it when the owner merges. Exception (Abdul, 2026-11-03): in this repo only, agents may merge that branch into `main` once tools/gate.sh passes, so the live page is current.
 * Which model does which job is set in `.cursor/rules/main.mdc` and `.claude/agents/`, not here.
 

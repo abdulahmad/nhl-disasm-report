@@ -20,7 +20,7 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 ## This repo
 
 - The pairing gate never gets looser to make a step pass. A count in tools/baseline.json only goes down; a new exception in tools/pair_exceptions.csv needs a reason.
-- The report reads the alignment branch with --branch; main stays the published report until the owner merges.
+- The report reads the alignment branch with --branch. This repo is the one exception to branch-only (Abdul, 2026-11-03): `claude/project-thread-ggw7zu` may be merged into `main` once tools/gate.sh passes, so the live page is current. Every other repo stays branch-only.
 
 ## Learned
 
