@@ -26,6 +26,7 @@ GAMES = [
     ('96G', 'NHL96Genesis', 'genesis', 'nhl96.asm'),
     ('93S', 'NHLPA93SNES', 'snes', 'nhlpa93snes.asm'),
     ('94S', 'NHL94SNES', 'snes', 'nhl94snes.asm'),
+    ('95P', 'NHL95PC', 'pc', 'segments.txt'),
 ]
 
 def git(*a, cwd=None):
@@ -380,6 +381,53 @@ def snes(src, top):
     return {'units': units, 'groups': groups, 'banks': banks}
 
 
+PCLBL = re.compile(r'^([A-Za-z_][\w@$?]*):')
+
+def pc_comment(L, i):
+    """95PC: the ; block above a function, stepping over its CBUILD switch (%ifdef / %include / %else),
+    its `; C:` source line and its global / extern lines."""
+    out, j = [], i - 1
+    while j >= 0:
+        x = L[j].strip()
+        if x.startswith('%') or x.startswith('; C:') or x.startswith(('global ', 'extern ')):
+            if out:
+                break
+            j -= 1; continue
+        if x.startswith(';'):
+            out.insert(0, L[j]); j -= 1; continue
+        break
+    return clean_comment(out)
+
+def pc(src, top):
+    """95PC (x86, NASM): one band per code row of src/segments.txt (object 1), in link order, so the bands
+    are in EXE order with the row's start / end. A band's routines are the `global` functions of its file, in
+    source order; the non-global labels and the body up to the next function belong to the function above."""
+    files, tree = [], [[0, 0, top, '']]
+    for l in read(os.path.join(src, top)):
+        r = l.split()
+        if len(r) < 6 or r[0] != '1':
+            continue
+        p = resolve(src, r[5])
+        if not p:
+            continue
+        rp = os.path.relpath(p, src).replace('\\', '/')
+        L = read(p)
+        g = set()
+        for x in L:
+            if x.startswith('global '):
+                g.update(y.strip() for y in x[7:].split(','))
+        st = [(i, m.group(1)) for i, m in ((i, PCLBL.match(x)) for i, x in enumerate(L)) if m and m.group(1) in g]
+        us = []
+        if st and st[0][0] > 0:
+            us.append(unit('(file header)', [], L[:st[0][0]], 'pre'))
+        tree.append([1, 0, rp, ''])
+        for j, (i, n) in enumerate(st):
+            e = st[j + 1][0] if j + 1 < len(st) else len(L)
+            us.append(unit(n, [n], L[i:e], 'code'))
+            tree.append([2, 1, n, pc_comment(L, i), rp])
+        files.append({'f': rp, 'a': int(r[1], 16), 'e': int(r[2], 16) - 1, 'd': 0, 'r': 'src/segments.txt', 'u': us})
+    return {'files': files, 'tree': tree}
+
 # ---------------------------------------------------------------- include tree
 # Tree nodes (pre-order, source order): [depth, 0, path, kind] for a file (kind '' or 'data'),
 # [depth, 1, name, comment, home] for a routine. home = the file the routine is matched as living in
@@ -673,8 +721,11 @@ def main():
         d, sha = sync(repo, a.offline, a.branch)
         dirs.append((gid, d))
         src = os.path.join(d, 'src')
-        g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)
-        g['tree'] = tree_genesis(src, top) if plat == 'genesis' else tree_snes(src, top)
+        if plat == 'pc':
+            g = pc(src, top)
+        else:
+            g = genesis(src, top, doc_ranges(d)) if plat == 'genesis' else snes(src, top)
+            g['tree'] = tree_genesis(src, top) if plat == 'genesis' else tree_snes(src, top)
         if plat == 'snes':
             g['treeg'] = tree_snes_groups(src, top, g)
         data[gid] = g
@@ -696,7 +747,7 @@ def main():
     targets = collections.OrderedDict()
     for m in meta:
         g, gid = data[m['id']], m['id']
-        if m['plat'] == 'genesis':
+        if m['plat'] != 'snes':
             idx = collections.defaultdict(set)
             for f in g['files']:
                 for u in f['u']:
@@ -820,7 +871,7 @@ def main():
     all_seq = {}
     for m in meta:
         g = data[m['id']]
-        if m['plat'] == 'genesis':
+        if m['plat'] != 'snes':
             all_seq[m['id']] = seq_of(g['files'])
         else:
             all_seq[m['id'] + ':groups'] = seq_of(g['groups'])
@@ -830,7 +881,7 @@ def main():
     os.makedirs(os.path.join(DOCS, 'data'), exist_ok=True)
     for m in meta:
         gid, g = m['id'], data[m['id']]
-        if m['plat'] == 'genesis':
+        if m['plat'] != 'snes':
             units = [u for f in g['files'] for u in f['u']]
             views = {'files': []}
             k = 0

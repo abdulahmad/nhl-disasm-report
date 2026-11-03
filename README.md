@@ -11,6 +11,7 @@ Static report (GitHub Pages: https://abdulahmad.github.io/nhl-disasm-report/) th
 | 96G | NHL96Genesis | Genesis |
 | 93S | NHLPA93SNES | SNES |
 | 94S | NHL94SNES | SNES |
+| 95P | NHL95PC | PC (DOS, x86) |
 
 ## What it shows
 
@@ -18,6 +19,7 @@ Pick a **subject** game, a **view**, and a **comparison** game.
 
 - **Genesis subjects**, view *files*: the source files in include order (a pre-order walk of `include` lines from the top-level file: `hockey.asm`, `hockey93.asm`, `nhl94.asm`, `nhl95.asm`, `nhl96.asm`). The ROM address shows when the include line has a `; $XXXXXX` comment. Each label starts a routine.
 - **SNES subjects**: view *routine groups*: every folder under `src/routines` is a "file" (the areas below a module nest at depth +1; matching uses the module, see the matching rule) and every `.asm` directly in that folder is a routine named by its file stem. There is one band per folder (no repeats). The stored order is first ROM appearance (a module, then its areas); routines inside a band stay in ROM (bank-include) order, never-included ones last. The page re-sorts those modules to the **comparison** Genesis game's include order (93S and 94S, against 92G / 93G / 94G / 95G / 96G; same matching-file key as the tree: `routines/hockey/` at 92G `hockey.asm` / 94G `hockey94.asm`). A 93S groups view vs 92G is `main`, `hockey`, `logic`, `middle`, `penalty`, `video`, then SNES-only modules; 94S vs 94G follows `hockey`, `stats`, `replay`, `input`, `assign`, … A comparison that is not a Genesis game (SNES banks or groups) leaves first-ROM order. Unmatched modules keep first-ROM order, after the matched ones. Changing the comparison rebuilds the file list. The ROM interleaving of folders is shown by the *banks* view, which is the ROM-order view and is not re-sorted. View *banks*: every `src/banks/*.asm` include list is a "file" in org/ROM order; each `incsrc` of a routine `.asm` is a routine (stem), and non-`incsrc` stretches show as `(inline …)` / `(incbin …)`. Comparison matching for SNES routines is by `.asm` stem only.
+- **95P (NHL 95 PC)**, view *files*: one file per code row of `src/segments.txt` (object 1), in link order, so the files are in EXE order with the row's start and end address. Its routines are the `global` functions of each file, in source order; the numbered local labels and any non-global label belong to the function above. The data segment (`dseg02/`) is not shown yet. The include tree is `segments.txt` → each code file → its functions, with the `;` block above each function as its comment (the CBUILD switch and the `; C:` line are skipped). 95PC keeps no `name_map.csv`, so it matches by name only; it uses the 94G names wherever a body or role matches.
 - **Comparison**: any other Genesis game (matched to its files), or an SNES game as *routine groups* or *banks*.
 
 

@@ -81,7 +81,7 @@ function sortGroups(F,seq){if(!F||!F.length||!seq||!seq.length)return F;
  keyed.sort((x,y)=>{const px=x.k in pos?pos[x.k]:1e9,py=y.k in pos?pos[y.k]:1e9;return px-py||x.i-y.i});
  if(keyed.every((x,i)=>x.i===i))return F;const out=[];for(const {b} of keyed){out.push(b.mod);for(const k of b.kids)out.push(k)}return out}
 function filesFor(data,view,seq){const F=data.views[view]||[];return view==='groups'?sortGroups(F,seq):F}
-function genesisSeq(c){if(!c||String(c).includes(':'))return [];const g=M.games.find(x=>x.id===c);return g&&g.plat==='genesis'?(D.targets[c]||{}).seq||[]:[]}
+function genesisSeq(c){if(!c||String(c).includes(':'))return [];const g=M.games.find(x=>x.id===c);return g&&g.plat!=='snes'?(D.targets[c]||{}).seq||[]:[]}
 function filesForView(){return filesFor(D,bv(),genesisSeq(st.c))}
 function fileHue(key){let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;return h%360}
 function fileColor(f){const k=stemKey(f);return `hsl(${fileHue(k)} 55% 42%)`}
@@ -106,7 +106,7 @@ function pick(){opts($('ssel'),M.games.map(g=>[g.id,`${g.id}  ${g.repo}`]),st.s)
   if(st.v==='rom')st.v=defaultRomView(d);
   if(!st.v||!vs.includes(st.v))st.v=defaultRomView(d);
   opts($('vsel'),vs.map(v=>[v,viewLabel(v)]),st.v);
-  const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat==='snes'?'94G':'93G'))||ts[0];
+  const ts=Object.keys(d.targets);if(!ts.includes(st.c))st.c=ts.find(t=>t.startsWith(M.games.find(g=>g.id===st.s).plat!=='genesis'?'94G':'93G'))||ts[0];
   opts($('csel'),ts.map(t=>[t,tname(t)]),st.c);const F=filesForView();if(!(st.f<F.length))st.f=0;
   if(F.length)opts($('fsel'),F.map((f,i)=>[i,`${String(i+1).padStart(3)}  ${rng(f)}  ${ind(f)}${f.f}  (${f.u.length})`.replace(/ /g,'\u00a0')]),st.f);
   else opts($('fsel'),[['0','(n/a)']],0);
