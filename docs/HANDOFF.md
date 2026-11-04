@@ -2,14 +2,14 @@
 
 ## Now
 
-- Stage / unit: D2/D5/D6 and F3 95-feature names closed (docs). No report regen (no asm name change this unit).
+- Stage / unit: D6 96G `input96_shot` rename (SetRoles, SetTeamRoles, ClearRolesIfGoalie). Report regenerated; pairing OK.
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: docs-only; do not run `tools/gate.sh` for this unit (no pairing input changed).
+- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). 96G SHA `07141d8`. Counts unchanged.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
-- D6: 96G Unsure parked; 95G wins only when the body is the same.
+- D6: `input96_shot` closed. Other 96G Unsure rows stay for later modules. Same job + new body uses the 95G name; leftover generics are named from job/callers/SRAM/role.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: C ports may start (item 2). 94PC stays parked. 96PC later. Do not merge this unit to main.
+- Next: one more 96G module of leftover generics. Stop after this unit. No 95PC leftovers, no C ports. Do not merge to main.
 - Open PRs: #66
 
 ## Status (2026-10-20)
