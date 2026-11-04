@@ -3,14 +3,14 @@
 ## Now
 
 - Stage / unit: regenerate from `origin/main` after 93S #121 (comment layout) and 94S #386 (stub fold). `claude/project-thread-ggw7zu` is gone on this repo.
-- Branch: `cursor/regenerate-report-eb36`
+- Branch: `cursor/regenerate-report-eb36` → `main` via #69
 - Last check: `tools/gate.sh` PAIRING OK (2026-11-04). All counts 0. Known pairs 752. Determinism OK.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
 - D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: STOP. Live page current after this regen. No Studio.
-- Open PRs: (this unit; report-repo exception, merge to main allowed)
+- Next: STOP. Live page current after #69. No Studio.
+- Open PRs: [#69](https://github.com/abdulahmad/nhl-disasm-report/pull/69) (merging; report-repo exception)
 
 ## Status (2026-10-20)
 
