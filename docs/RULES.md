@@ -27,6 +27,7 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 - 2026-11-04 D6: 96G leftover `sub_` names are named from job/callers/SRAM/role; same job + new body takes the 95G name. `input96_shot` SetRoles / SetTeamRoles / ClearRolesIfGoalie. Pairing counts unchanged. (96G `07141d8`; `tools/gate.sh`)
 - 2026-11-04 D6: 96G leftover `sub_`/`loc_`/`unk_` closed (StartDpadBoost through ram96 unk_FF). Pairing counts unchanged. (96G `f170dbe`; `tools/gate.sh`)
 - 2026-11-04 D6: 96G leftover ram96 `word_FF` / `byte_FF` / `dword_FF` named from job, 94G/95G RAM, or layout. Pairing counts unchanged. (96G `2a7c295`; `tools/gate.sh`)
+- 2026-11-04 D6: 96G For-Abdul same-job 95G names: BlankMenuBox→ClearMenuBox, CupChampionsScreen→StanleyCupScreen; PauseScreenDraw, SimTeamGoals, SimScorers, SimShots, ClearSeasonData kept. Pairing counts unchanged. (96G `fb49066`)
 
 - 2026-11-04 contributing: CONTRIBUTING.md must not contradict History: lineage lives only in the name history file, never in source comments. (CONTRIBUTING rewrite vs RULES History row)
 - 2026-11-04 name_map: a `from 92 Parent` split is not a rename row. Putting Fprint→Fprintsmall or periodicevents→RestoreBenchEnergy into a source repo's name_map.csv made pairing counts rise (93S~93G, lineage, 95S~95G). The map is old→new in that repo, not "came from 92".

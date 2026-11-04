@@ -2,15 +2,15 @@
 
 ## Now
 
-- Stage / unit: D6 96G leftover `word_FF` / `byte_FF` / `dword_FF` named. Report regenerated; pairing OK.
+- Stage / unit: D6 96G For-Abdul 95G names (ClearMenuBox, StanleyCupScreen; PauseScreenDraw, SimTeamGoals, SimScorers, SimShots, ClearSeasonData kept). Report regenerated; pairing OK.
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). 96G SHA `2a7c295`. Counts unchanged.
+- Last check: pairing OK (2026-11-04). 96G SHA `fb49066`. Counts unchanged.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
-- D6: leftover prefixes and ram96 IDA names closed. For-Abdul non-generic role matches stay. Same job + new body uses the 95G name.
+- D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: no 95PC leftovers, no C ports. Do not merge to main.
-- Open PRs: #66
+- Next: STOP. No Studio, no 95PC leftovers, no C ports. Do not merge to main.
+- Open PRs: #67 (this unit); #66 still open on ggw7zu
 
 ## Status (2026-10-20)
 
