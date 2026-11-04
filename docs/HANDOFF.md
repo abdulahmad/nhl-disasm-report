@@ -2,11 +2,11 @@
 
 ## Now
 
-- Stage / unit: see the shared plan (https://github.com/abdulahmad/nhl-disasm-report/blob/main/docs/ALIGNMENT.md); alignment work for report is on `claude/project-thread-ggw7zu`.
+- Stage / unit: CONTRIBUTING.md rewrite; 95S-phase-4 and C-ports-E2 project HANDOFF lines caught up to the per-repo Now blocks.
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: (update when you stop)
-- Next: (update when you stop)
-- Open PRs: none
+- Last check: pending `tools/gate.sh`
+- Next: do not merge to main from this unit
+- Open PRs: (this unit)
 
 ## Status (2026-10-20)
 

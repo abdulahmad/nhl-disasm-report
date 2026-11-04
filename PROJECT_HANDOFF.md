@@ -4,7 +4,7 @@
 with no access to the project chat. This page is the map; the detail lives in the linked docs. The project's working
 notes are copied into [docs/project/](docs/project/) so you can read them from this repo.
 
-Last updated: 2026-11-03.
+Last updated: 2026-11-04 (CONTRIBUTING rewrite; 95S and C-ports status caught up to the per-repo Now blocks).
 
 ## 1. Goal
 
@@ -69,8 +69,8 @@ in nhl-disasm-report.
 | 95G / 96G (Stage D) | old 94G file names fixed (A3), D2 naming under way | 96G's own naming against 95G; RAM order (D4) | [naming_recommendation_and_95g_pass.md](docs/project/naming_recommendation_and_95g_pass.md), [ram_order_and_matches.md](docs/project/ram_order_and_matches.md) |
 | 95PC (Stage F) | F3 94G renames and F4 module re-cut (198 to 195 files, one PC module each) done on `ggw7zu` | 95G names for the '95 features, body by body | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), NHL95PC `HANDOFF.md` |
 | 95PC functional track | paused 2026-11-02; 25 of 109 drafts PASS | round 7 | NHL95PC `docs/FUNCTIONAL_HANDOFF.md` |
-| **95S (Stage E)** | **in progress**: phases 0-3 done on `ggw7zu` (kit and scope gate; 95S in this report and the pairing gate; inventory `docs/routines95s.csv`; moved to `src/banks/`, `src/routines/<95G folder>/`, `src/data/`, MATCH) | phase 4: naming against 95G (then 94S), one 95G file per unit; then phase 5 RAM | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
-| **C ports** | **paused at step E2** (2026-11-03). Phases 0-1 pushed; gens94-c, E1, E4 and SNES checks all identical | E2: 1nput's oracle checks, using the vasm GitHub mirror Abdul OK'd | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
+| **95S (Stage E)** | **done** on `ggw7zu`: phases 0–6; MATCH 2026-11-03; pairing baseline every 95S count is 0. Optional leftovers only (14 kept names; ~38 comments that name 94S). `waitxsr` → `waitx` already applied in 93S and 94S. | nothing in the plan | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
+| **C ports** | **past E2** (per-repo HANDOFFs on `4gad59`, 2026-11-03). E2 lockstep 18/18, `make test` 10,276/10,276, golden 20/20; E3 18/18; E5 coverage 94.6% / lockstep 93.7% after extra vectors; `VANILLA=1` done; SNES 92 renames + re-cut (names gate 844 ok / 6 parked / 5 missing). gens94-c ignored from 2026-11-03. Open PRs `#1` stay unmerged. | Genesis coverage part 3 (53 unreached lockstep routines); SNES oracle (needs INDIO tools or build S2) | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
 | 94PC (Stage G) | kit only; waits for the disassembly | | |
 
 Open PRs for review: the three C ports `#1`s on `4gad59`. Alignment PRs are views of `ggw7zu`, not merges.
