@@ -2,21 +2,21 @@
 
 ## Now
 
-- Stage / unit: D6 96G For-Abdul 95G names (ClearMenuBox, StanleyCupScreen; PauseScreenDraw, SimTeamGoals, SimScorers, SimShots, ClearSeasonData kept). Report regenerated; pairing OK.
-- Branch: `claude/project-thread-ggw7zu`
-- Last check: pairing OK (2026-11-04). 96G SHA `fb49066`. Counts unchanged.
+- Stage / unit: regenerate from `origin/main` of the game repos after the 2026-11-04 merge batch. `claude/project-thread-ggw7zu` is gone on this repo.
+- Branch: `cursor/regenerate-report-8bf2` → `main` via #68
+- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). All counts 0. Known pairs 752. Determinism OK.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
 - D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: STOP. No Studio, no 95PC leftovers, no C ports. Do not merge to main.
-- Open PRs: #67 (this unit); #66 still open on ggw7zu
+- Next: STOP. Live page current after #68. No Studio.
+- Open PRs: [#68](https://github.com/abdulahmad/nhl-disasm-report/pull/68) (merging; report-repo exception)
 
 ## Status (2026-10-20)
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources: NHL94SNES `46860a6`, NHLPA93SNES `0329ba6`, NHLPA93Genesis `c2d8bae` (RAM map order alignment and 94S RAM renames).
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `8bfc51d921`, 95G `a775087458`, 96G `915c692e0b`, 93S `632cdc824e`, 94S `a1a2ad03af`, 95S `48a73e9d6c`, 95P `ca365f1a74`.
 
 ## Pairing gate
 
