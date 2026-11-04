@@ -32,3 +32,4 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 - 2026-11-04 contributing: CONTRIBUTING.md must not contradict History: lineage lives only in the name history file, never in source comments. (CONTRIBUTING rewrite vs RULES History row)
 - 2026-11-04 name_map: a `from 92 Parent` split is not a rename row. Putting Fprint→Fprintsmall or periodicevents→RestoreBenchEnergy into a source repo's name_map.csv made pairing counts rise (93S~93G, lineage, 95S~95G). The map is old→new in that repo, not "came from 92".
 - 2026-11-04 leftovers: D2/D5/D6 and F3 95-feature names closed with no report regen; pairing input did not change. (no asm rename this unit; D2 LockScroll was already on the branch)
+- 2026-11-04 93S: comment-layout only (column 36 / wrap 110) does not change pairing counts or units; regen updates the 93S SHA. 94S #386 stub-fold also SHA-only for pairing. (93S #121 `9e442ac`; 94S #386 `e72e360`; `tools/gate.sh`)
