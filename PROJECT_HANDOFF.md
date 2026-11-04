@@ -4,7 +4,7 @@
 with no access to the project chat. This page is the map; the detail lives in the linked docs. The project's working
 notes are copied into [docs/project/](docs/project/) so you can read them from this repo.
 
-Last updated: 2026-11-03.
+Last updated: 2026-11-04 (D2/D5/D6 and F3 95-feature names closed; CONTRIBUTING rewrite still on the branch).
 
 ## 1. Goal
 
@@ -66,11 +66,11 @@ in nhl-disasm-report.
 | Kit and gates (Stage A) | done: AGENTS.md, `docs/RULES.md`, `docs/HANDOFF.md`, Cursor rule in every asm repo; pairing gate in this repo | | [HARNESS.md](docs/project/HARNESS.md) |
 | 93G / 93S / 94G (Stage B) | done on `ggw7zu`: 93G left alone, 93S passes B1-B3 | | [93s_94g_94s_alignment_plan.md](docs/project/93s_94g_94s_alignment_plan.md) |
 | 94S (Stage C) | moves and naming pass done on `ggw7zu`; Unsure names remain | regenerate report after the 94S comment pass | NHL94SNES `docs/HANDOFF.md`, [naming_review_94s.md](docs/project/naming_review_94s.md) |
-| 95G / 96G (Stage D) | old 94G file names fixed (A3), D2 naming under way | 96G's own naming against 95G; RAM order (D4) | [naming_recommendation_and_95g_pass.md](docs/project/naming_recommendation_and_95g_pass.md), [ram_order_and_matches.md](docs/project/ram_order_and_matches.md) |
-| 95PC (Stage F) | F3 94G renames and F4 module re-cut (198 to 195 files, one PC module each) done on `ggw7zu` | 95G names for the '95 features, body by body | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), NHL95PC `HANDOFF.md` |
+| 95G / 96G (Stage D) | A3/D1/D3/D4 done; D2 done (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name); D5 done (95-feature names already in 95G `name_review_95.md`); D6 parked (96G Unsure, 95G wins only on a body match) | C ports (item 2). 94PC parked. 96PC later. | [naming_recommendation_and_95g_pass.md](docs/project/naming_recommendation_and_95g_pass.md), [ram_order_and_matches.md](docs/project/ram_order_and_matches.md) |
+| 95PC (Stage F) | F0/F2/F2b/F3-94G/F4 done on `ggw7zu`. F3 95-feature names: no body pairs (`xmatch95.py` on season/trade/create/awards); DOS screens keep PC names. | C matching (`WORK_QUEUE.md`). Report parser for 95PC later. | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), NHL95PC `HANDOFF.md` |
 | 95PC functional track | paused 2026-11-02; 25 of 109 drafts PASS | round 7 | NHL95PC `docs/FUNCTIONAL_HANDOFF.md` |
-| **95S (Stage E)** | **in progress**: phases 0-3 done on `ggw7zu` (kit and scope gate; 95S in this report and the pairing gate; inventory `docs/routines95s.csv`; moved to `src/banks/`, `src/routines/<95G folder>/`, `src/data/`, MATCH) | phase 4: naming against 95G (then 94S), one 95G file per unit; then phase 5 RAM | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
-| **C ports** | **paused at step E2** (2026-11-03). Phases 0-1 pushed; gens94-c, E1, E4 and SNES checks all identical | E2: 1nput's oracle checks, using the vasm GitHub mirror Abdul OK'd | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
+| **95S (Stage E)** | **done** on `ggw7zu`: phases 0–6; MATCH 2026-11-03; pairing baseline every 95S count is 0. Optional leftovers only (14 kept names; ~38 comments that name 94S). `waitxsr` → `waitx` already applied in 93S and 94S. | nothing in the plan | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
+| **C ports** | **past E2** (per-repo HANDOFFs on `4gad59`, 2026-11-03). E2 lockstep 18/18, `make test` 10,276/10,276, golden 20/20; E3 18/18; E5 coverage 94.6% / lockstep 93.7% after extra vectors; `VANILLA=1` done; SNES 92 renames + re-cut (names gate 844 ok / 6 parked / 5 missing). gens94-c ignored from 2026-11-03. Open PRs `#1` stay unmerged. | Genesis coverage part 3 (53 unreached lockstep routines); SNES oracle (needs INDIO tools or build S2) | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
 | 94PC (Stage G) | kit only; waits for the disassembly | | |
 
 Open PRs for review: the three C ports `#1`s on `4gad59`. Alignment PRs are views of `ggw7zu`, not merges.

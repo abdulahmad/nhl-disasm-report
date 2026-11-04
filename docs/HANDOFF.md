@@ -2,11 +2,15 @@
 
 ## Now
 
-- Stage / unit: see the shared plan (https://github.com/abdulahmad/nhl-disasm-report/blob/main/docs/ALIGNMENT.md); alignment work for report is on `claude/project-thread-ggw7zu`.
+- Stage / unit: D6 96G For-Abdul 95G names (ClearMenuBox, StanleyCupScreen; PauseScreenDraw, SimTeamGoals, SimScorers, SimShots, ClearSeasonData kept). Report regenerated; pairing OK.
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: (update when you stop)
-- Next: (update when you stop)
-- Open PRs: none
+- Last check: pairing OK (2026-11-04). 96G SHA `fb49066`. Counts unchanged.
+- D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
+- D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
+- D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
+- F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
+- Next: STOP. No Studio, no 95PC leftovers, no C ports. Do not merge to main.
+- Open PRs: #67 (this unit); #66 still open on ggw7zu
 
 ## Status (2026-10-20)
 
