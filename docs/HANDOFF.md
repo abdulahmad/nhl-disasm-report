@@ -2,14 +2,14 @@
 
 ## Now
 
-- Stage / unit: D6 96G `input96_shot` rename (SetRoles, SetTeamRoles, ClearRolesIfGoalie). Report regenerated; pairing OK.
+- Stage / unit: D6 96G leftover `sub_`/`loc_`/`unk_` closed. Report regenerated; pairing OK.
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). 96G SHA `07141d8`. Counts unchanged.
+- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). 96G SHA `f170dbe`. Counts unchanged.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
-- D6: `input96_shot` closed. Other 96G Unsure rows stay for later modules. Same job + new body uses the 95G name; leftover generics are named from job/callers/SRAM/role.
+- D6: leftover `sub_`/`loc_`/`unk_` closed (input96 through ram96). For-Abdul non-generic role matches stay. Same job + new body uses the 95G name.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: one more 96G module of leftover generics. Stop after this unit. No 95PC leftovers, no C ports. Do not merge to main.
+- Next: no 95PC leftovers, no C ports. Do not merge to main.
 - Open PRs: #66
 
 ## Status (2026-10-20)

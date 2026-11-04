@@ -331,7 +331,7 @@ names, 249 are 95G names and 556 are its own. Its `docs/align95_plan.md` covers 
 | D3 | **Done 2 Nov: 580 yellow become 488 explained (tan) and 92 yellow.** Report pairing for 95G: a 95G subsystem file holds routines from several 94G files, so a 95G yellow vs 94G is expected. Mark it "explained" when `function_origins.csv` names the 94 file, so only real misplacements count | part of the report work |
 | D4 | **Checked 2 Nov: nothing to move.** 95G and 96G follow 92G with 0 out of order (`tools/ram_order.py`); only the 93G/94G `rs` layout moves differ. Extend the merged RAM order to `ram95.asm` / `ram96.asm` (the 92-94 order is done) | medium |
 | D5 | **Done 4 Nov.** 95 features that 94S/94PC/95PC will copy from (season, trade, create, awards) get their names reviewed here first, because 95PC and 95S inherit them. Names already stand in 95G `docs/name_review_95.md`; copy only when the body matches. | your review |
-| D6 | 96G: finish leftover generics against 95G (`align95_plan.md` Unsure list). Same job + new body takes the 95G name; leftover `sub_`/`loc_`/`unk_` are named from job/callers/SRAM/role. `input96_shot` closed 4 Nov (`SetRoles`, `SetTeamRoles`, `ClearRolesIfGoalie`). | medium |
+| D6 | **Done 4 Nov (leftover prefixes).** 96G leftover `sub_`/`loc_`/`unk_` named from job/callers/SRAM/role; same job + new body takes the 95G name. For-Abdul non-generic role matches stay on the Unsure list. | medium |
 
 ## 8. Stage E: 95S (later)
 
