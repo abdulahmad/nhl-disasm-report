@@ -2,11 +2,15 @@
 
 ## Now
 
-- Stage / unit: CONTRIBUTING.md rewrite; 95S-phase-4 and C-ports-E2 project HANDOFF lines caught up to the per-repo Now blocks.
+- Stage / unit: D2/D5/D6 and F3 95-feature names closed (docs). No report regen (no asm name change this unit).
 - Branch: `claude/project-thread-ggw7zu`
-- Last check: pending `tools/gate.sh`
-- Next: do not merge to main from this unit
-- Open PRs: (this unit)
+- Last check: docs-only; do not run `tools/gate.sh` for this unit (no pairing input changed).
+- D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
+- D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
+- D6: 96G Unsure parked; 95G wins only when the body is the same.
+- F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
+- Next: C ports may start (item 2). 94PC stays parked. 96PC later. Do not merge this unit to main.
+- Open PRs: #66
 
 ## Status (2026-10-20)
 

@@ -327,11 +327,11 @@ names, 249 are 95G names and 556 are its own. Its `docs/align95_plan.md` covers 
 | Step | What | Size |
 |---|---|---|
 | D1 | After A3, regenerate 95G's `FILE_ORIGINS.md` / `function_origins.csv` against the current 94G | small |
-| D2 | The 13 fingerprint-matched routines with non-94 names (`rtsskate`, `StatScrollStep`, `PeriodStatsTeam`, `SkipStatColumn`...): take the 94G name, or the 94G local name, where the body is the same | small |
+| D2 | **Done 2 Nov (close-out 4 Nov).** The 13 fingerprint-matched routines with non-94 names (`rtsskate`, `StatScrollStep`, `PeriodStatsTeam`, `SkipStatColumn`...): take the 94G name, or the 94G local name, where the body is the same. Only `LockScroll` → `freezewindow` had the same body; the rest keep the 95 name. | small |
 | D3 | Report pairing for 95G: a 95G subsystem file holds routines from several 94G files, so a 95G yellow vs 94G is expected. Mark it "explained" when `function_origins.csv` names the 94 file, so only real misplacements count | part of the report work |
 | D4 | Extend the merged RAM order to `ram95.asm` / `ram96.asm` (the 92-94 order is done) | medium |
-| D5 | 95 features that 94S/94PC/95PC will copy from (season, trade, create, awards) get their names reviewed here first, because 95PC and 95S inherit them | your review |
-| D6 | 96G: finish its naming against 95G (`align95_plan.md` Unsure list), with 95G names winning when the body is the same | medium |
+| D5 | **Done 4 Nov.** 95 features that 94S/94PC/95PC will copy from (season, trade, create, awards) get their names reviewed here first, because 95PC and 95S inherit them. Names already stand in 95G `docs/name_review_95.md`; copy only when the body matches. | your review |
+| D6 | **Parked 4 Nov.** 96G: finish its naming against 95G (`align95_plan.md` Unsure list), with 95G names winning when the body is the same. Remaining generic labels and role-only matches stay Unsure. | medium |
 
 ## 8. Stage E: 95S (later)
 
@@ -366,8 +366,8 @@ for byte, and it has RULES.md, an advisor and the functional track.
   `src/c/{engine,front,pc,lib}/<module>` with matching asm, where each module is named after the 95G file it pairs with
   (`engine/logic`, `engine/skate`, `front/trade`...), and the link order stays in `segments.txt`. Options and cost are in
   [folder_preview.md](folder_preview.md). AGENTS.md says the `NNN_*` names stay, so this is your call (decision 3).
-* **F3: renames.** Still go through `docs/pending_renames.txt` and the progress workflow, so the generated files stay right.
-  With no one else editing the C, renames can go in large batches, one 95G subsystem per unit. They wait for C5 and D5, because 95PC copies
+* **F3: renames.** **Done 4 Nov for this leftover.** 94G engine names applied (14). 95-feature DOS screens (season, trade, create, awards) have no shared bodies (`xmatch95.py`); they keep the PC names. Still go through `docs/pending_renames.txt` and the progress workflow, so the generated files stay right.
+  With no one else editing the C, later renames can go in large batches, one 95G subsystem per unit. They wait for C5 and D5, because 95PC copies
   those 94S and 95G names. Put them between C/D and E.
 * **Report:** add 95PC once the report can read its C and NASM tree (a new parser, medium). Until then, the lineage
   check runs against `name_map_94.csv`.
