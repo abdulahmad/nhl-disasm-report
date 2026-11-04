@@ -10,7 +10,7 @@
 - D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
 - Next: STOP. No Studio, no 95PC leftovers, no C ports. Do not merge to main.
-- Open PRs: #66
+- Open PRs: #67 (this unit); #66 still open on ggw7zu
 
 ## Status (2026-10-20)
 
