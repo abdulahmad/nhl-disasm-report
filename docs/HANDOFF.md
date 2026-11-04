@@ -2,15 +2,15 @@
 
 ## Now
 
-- Stage / unit: regenerate from `origin/main` of the game repos after the 2026-11-04 merge batch. `claude/project-thread-ggw7zu` is gone on this repo; work is on `cursor/regenerate-report-8bf2`.
-- Branch: `cursor/regenerate-report-8bf2`
+- Stage / unit: regenerate from `origin/main` of the game repos after the 2026-11-04 merge batch. `claude/project-thread-ggw7zu` is gone on this repo.
+- Branch: `cursor/regenerate-report-8bf2` → `main` via #68
 - Last check: `tools/gate.sh` PAIRING OK (2026-11-04). All counts 0. Known pairs 752. Determinism OK.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
 - D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: merge this regen to main (report-repo exception; gate passed).
-- Open PRs: this regen (opened after push)
+- Next: STOP. Live page current after #68. No Studio.
+- Open PRs: [#68](https://github.com/abdulahmad/nhl-disasm-report/pull/68) (merging; report-repo exception)
 
 ## Status (2026-10-20)
 
