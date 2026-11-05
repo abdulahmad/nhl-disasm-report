@@ -2,8 +2,8 @@
 
 ## Now
 
-- Stage / unit: regenerate from `origin/main` after CreditsList → CreditsPages (94G #231, 95G #60, 96G #45, 95S #5). `claude/project-thread-ggw7zu` is gone on this repo.
-- Branch: `cursor/creditspages-399a`
+- Stage / unit: regenerate from `origin/main` after 95S #6 (`CreditsList.asm` → `CreditsPages.asm`). `claude/project-thread-ggw7zu` is gone on this repo.
+- Branch: `cursor/creditspages-file-399a`
 - Last check: `tools/gate.sh main` PAIRING OK (2026-11-05). All counts 0. Known pairs 752.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
@@ -16,7 +16,7 @@
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `64b0daa48b`, 95G `6672f64487`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `e72e360f0c`, 95S `c0d446a881`, 95P `ca365f1a74`.
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `64b0daa48b`, 95G `6672f64487`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `e72e360f0c`, 95S `19eff3eff9`, 95P `ca365f1a74`.
 
 ## Pairing gate
 
