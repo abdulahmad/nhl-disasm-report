@@ -35,3 +35,4 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 - 2026-11-04 93S: comment-layout only (column 36 / wrap 110) does not change pairing counts or units; regen updates the 93S SHA. 94S #386 stub-fold also SHA-only for pairing. (93S #121 `9e442ac`; 94S #386 `e72e360`; `tools/gate.sh`)
 - 2026-11-05 names: 94G/95G/96G/95S CreditsList is 93G CreditsPages (title-screen pages after Credits). 92G has only Credits. Pairing counts unchanged. (94G #231; 95G #60; 96G #45; 95S #5; `tools/gate.sh`)
 - 2026-11-05 files: 95S CreditsList.asm → CreditsPages.asm; pairing counts unchanged. (95S #6 `19eff3e`; `tools/gate.sh`)
+- 2026-11-05 leftover split: 94G `goalie94` keeps `ManualGoalieMenu`; arena/faceoff to `arena94`; `title94` keeps TitleScreen/credits; pre-title to `songs94`, palettes/helpers to `logos94`. Pairing counts unchanged. (94G #232/#233 `27e3bfc`; `tools/gate.sh`)
