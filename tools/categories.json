@@ -205,9 +205,24 @@
       "goalie",
       "med"
     ],
+    "arena94.asm": [
+      "display",
+      "arena animation",
+      "med"
+    ],
+    "songs94.asm": [
+      "sound",
+      "song select",
+      "med"
+    ],
     "title94.asm": [
       "frontend",
       "title/credits",
+      "med"
+    ],
+    "logos94.asm": [
+      "frontend",
+      "team logos",
       "med"
     ]
   },

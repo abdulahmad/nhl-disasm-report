@@ -2,14 +2,10 @@
 
 ## Now
 
-- Stage / unit: regenerate from `origin/main` after 95S #6 (`CreditsList.asm` → `CreditsPages.asm`). `claude/project-thread-ggw7zu` is gone on this repo.
-- Branch: `cursor/creditspages-file-399a`
-- Last check: `tools/gate.sh main` PAIRING OK (2026-11-05). All counts 0. Known pairs 752.
-- D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
-- D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
-- D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
-- F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: PR and merge to main (report-repo exception).
+- Stage / unit: categories.json for 94G leftover split (`arena94`, `songs94`, `logos94`). Regen after NHL94Genesis #232 and #233 merge.
+- Branch: `cursor/94g-split-categories-8ce4`
+- Last check: `test_pairs.py --src` PAIRING OK against local 94G title-split branch (all counts 0). Do not regen from main until those PRs merge (94G main still has the old files).
+- Next: merge 94G #232 then #233, then `tools/gate.sh main` and merge this.
 - Open PRs: (this unit)
 
 ## Status (2026-10-20)
