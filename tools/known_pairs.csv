@@ -203,7 +203,7 @@ a_game,a_name,b_game,b_name,note
 95G,Create_HotCold_Table,95S,Create_HotCold_Table,95G engine/players
 94S,Create_HotCold_Table,95S,Create_HotCold_Table,94S routines/crowd/Create_HotCold_Table.asm
 95G,CreatePlayer,95S,CreatePlayer,95G front/create
-95G,CreditsList,95S,CreditsList,95G credits
+95G,CreditsPages,95S,CreditsPages,95G credits
 95G,Dallas,95S,Dallas,95G teamdata
 94S,Decompress,95S,Decompress,94S routines/decompress/Decompress.asm
 95G,defaultsprites_0,95S,defaultsprites_0,95G display
