@@ -103,7 +103,7 @@ the variable right before the mask.
 | 94S | 94G | evidence | why not applied |
 |---|---|---|---|
 | `TeamStatNames`, `TeamStatNamesNoPen` | `TeamStatTextTbl`, `TeamStatTextTblNoPen` | the same rows in the same order (Score, Shots, Shooting Pct., Power Play ...; the NoPen list drops the power play rows) | 94G keeps the stat offsets in the same table; 93S `TeamStatTextTbl` is only the offsets. Needs a naming decision |
-| `CreditNames` + `CreditTitles` | `CreditsList` | the same titles and names | 94S splits titles and names into two tables |
+| `CreditNames` + `CreditTitles` | `CreditsPages` | the same titles and names | 94S splits titles and names into two tables |
 | `jdtab8F` | `jdtab` | the same 16 bytes | 93S has a different table called `jdtab`; `jdtab8F` is the 93S name of this copy |
 | `doshot_shotsets` | `shotsets` | x / z offset per pass direction, read by `doshot`; values 15 here, 16 in 94G | `doshot_shotsets` is the 93S name |
 | `ReloadRink` | `ExitStatsScreen` / `ReloadRinkGraphics` | every pause screen handler calls it to rebuild the rink, where 94G screens leave through `ExitStatsScreen` | different steps (SNES palettes, rink map) |

@@ -2,21 +2,21 @@
 
 ## Now
 
-- Stage / unit: regenerate from `origin/main` after 93S #121 (comment layout) and 94S #386 (stub fold). `claude/project-thread-ggw7zu` is gone on this repo.
-- Branch: `cursor/regenerate-report-eb36` → `main` via #69
-- Last check: `tools/gate.sh` PAIRING OK (2026-11-04). All counts 0. Known pairs 752. Determinism OK.
+- Stage / unit: regenerate from `origin/main` after CreditsList → CreditsPages (94G #231, 95G #60, 96G #45, 95S #5). `claude/project-thread-ggw7zu` is gone on this repo.
+- Branch: `cursor/creditspages-399a`
+- Last check: `tools/gate.sh main` PAIRING OK (2026-11-05). All counts 0. Known pairs 752.
 - D2: done 2026-11-02 in 95G (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name).
 - D5: 95G season/trade/create/awards names already stand in 95G `docs/name_review_95.md`.
 - D6: leftover prefixes and ram96 IDA names closed. For-Abdul same-job 95G names closed. Remaining For-Abdul: asstab $1-$6, picture-contradiction names.
 - F3: 95PC 94G engine names already applied; 95-feature DOS screens have no body pairs, keep PC names.
-- Next: STOP. Live page current after #69. No Studio.
-- Open PRs: [#69](https://github.com/abdulahmad/nhl-disasm-report/pull/69) (merging; report-repo exception)
+- Next: PR and merge to main (report-repo exception).
+- Open PRs: (this unit)
 
 ## Status (2026-10-20)
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `8bfc51d921`, 95G `a775087458`, 96G `915c692e0b`, 93S `9e442accb8`, 94S `e72e360f0c`, 95S `48a73e9d6c`, 95P `ca365f1a74`.
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `64b0daa48b`, 95G `6672f64487`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `e72e360f0c`, 95S `c0d446a881`, 95P `ca365f1a74`.
 
 ## Pairing gate
 
