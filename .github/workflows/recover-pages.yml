@@ -1,0 +1,138 @@
+# Recover GitHub Pages when the official pages-build-deployment run fails
+# because a prior deploy is stuck in "updating_pages" / "in progress".
+# Pairing counts are not affected (no report regen).
+name: recover-pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+  deployments: write
+
+concurrency:
+  group: recover-pages
+  cancel-in-progress: true
+
+jobs:
+  wait:
+    runs-on: ubuntu-latest
+    outputs:
+      conclusion: ${{ steps.wait.outputs.conclusion }}
+    steps:
+      - name: Wait for official Pages workflow
+        id: wait
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "conclusion=force" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Waiting for pages-build-deployment on $SHA"
+          for i in $(seq 1 80); do
+            json=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow pages-build-deployment --commit "$SHA" --json databaseId,status,conclusion,url --limit 5)
+            echo "$json"
+            status=$(printf '%s' "$json" | jq -r '.[0].status // "missing"')
+            conclusion=$(printf '%s' "$json" | jq -r '.[0].conclusion // ""')
+            if [ "$status" = "completed" ]; then
+              echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+              echo "Official Pages deploy $conclusion"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Timed out waiting for pages-build-deployment"
+          echo "conclusion=timeout" >> "$GITHUB_OUTPUT"
+
+  recover:
+    needs: wait
+    if: needs.wait.outputs.conclusion != 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      reran: ${{ steps.rerun.outputs.reran }}
+    steps:
+      - name: Cancel stuck Pages deployments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eu
+          echo "Canceling recent github-pages deployments (already-finished SHAs may 404)"
+          gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=20" --jq '.[].sha' | sort -u | while read -r sha; do
+            [ -n "$sha" ] || continue
+            echo "cancel $sha"
+            gh api -X POST "repos/$GITHUB_REPOSITORY/pages/deployments/$sha/cancel" >/dev/null 2>&1 || true
+          done
+          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds/latest/cancel" >/dev/null 2>&1 || true
+          sleep 20
+
+      - name: Rerun official Pages workflow
+        id: rerun
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.sha }}
+          WAIT_CONCLUSION: ${{ needs.wait.outputs.conclusion }}
+        run: |
+          set -eu
+          echo "reran=false" >> "$GITHUB_OUTPUT"
+          if [ "$WAIT_CONCLUSION" = "force" ]; then
+            echo "workflow_dispatch: skip rerun, deploy current main"
+            exit 0
+          fi
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow pages-build-deployment --commit "$SHA" --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run_id" ]; then
+            echo "No pages-build-deployment run for $SHA"
+            exit 0
+          fi
+          if ! gh run rerun "$run_id" --failed --repo "$GITHUB_REPOSITORY"; then
+            echo "gh run rerun failed; will deploy from this workflow"
+            exit 0
+          fi
+          echo "Reran $run_id; waiting"
+          for i in $(seq 1 80); do
+            st=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json status,conclusion --jq '.status + " " + (.conclusion // "")')
+            echo "$st"
+            case "$st" in
+              "completed success")
+                echo "reran=true" >> "$GITHUB_OUTPUT"
+                echo "Rerun succeeded"
+                exit 0
+                ;;
+              completed*)
+                echo "Rerun ended: $st; will deploy from this workflow"
+                exit 0
+                ;;
+            esac
+            sleep 15
+          done
+          echo "Rerun still running; not starting a second deploy"
+          echo "reran=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: recover
+    if: needs.recover.outputs.reran != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

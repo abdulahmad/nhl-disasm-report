@@ -36,3 +36,5 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 - 2026-11-05 names: 94G/95G/96G/95S CreditsList is 93G CreditsPages (title-screen pages after Credits). 92G has only Credits. Pairing counts unchanged. (94G #231; 95G #60; 96G #45; 95S #5; `tools/gate.sh`)
 - 2026-11-05 files: 95S CreditsList.asm → CreditsPages.asm; pairing counts unchanged. (95S #6 `19eff3e`; `tools/gate.sh`)
 - 2026-11-05 leftover split: 94G `goalie94` keeps `ManualGoalieMenu`; arena/faceoff to `arena94`; `title94` keeps TitleScreen/credits; pre-title to `songs94`, palettes/helpers to `logos94`. Pairing counts unchanged. (94G #232/#233 `27e3bfc`; `tools/gate.sh`)
+- 2026-11-05 pages: two main merges close together left GitHub Pages stuck on `updating_pages` (`0a19ba9`, run 42088771885), so `1a8b663` failed with "in progress deployment" (run 42093498456). Content was fine; cancel the stuck SHA then redeploy. Pairing counts unchanged.
+

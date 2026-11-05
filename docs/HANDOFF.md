@@ -2,10 +2,10 @@
 
 ## Now
 
-- Stage / unit: leftover split categories landed; regenerated from 94G `main` after NHL94Genesis #232 and #233.
-- Branch: `cursor/94g-split-categories-8ce4`
-- Last check: `tools/gate.sh main` PAIRING OK, all counts 0 (2026-11-05). 94G `27e3bfcdaf`, files 37 (`arena94` / `songs94` / `logos94`).
-- Next: none for this unit.
+- Stage / unit: recover GitHub Pages after #72 deploy failed (stuck prior Pages deployment `0a19ba9`).
+- Branch: `cursor/pages-unstick-6de6`
+- Last check: pairing input unchanged (docs + recover-pages workflow only). Prior `tools/gate.sh main` PAIRING OK, all counts 0 (2026-11-05).
+- Next: confirm Pages is green on main after merge.
 - Open PRs: (this unit)
 
 ## Status (2026-10-20)
