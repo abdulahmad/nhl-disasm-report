@@ -8,7 +8,7 @@ Branch `claude/project-thread-ggw7zu`. Every change builds MATCH and passes the 
 |---|---|---|---|
 | 94S | `PauseTimeout` | `TimeoutMenu` | pause menu "Timeout" item for team a2: frame, "Timeout", team name, rest the players, wait |
 | 94S | `PauseGoalie` | `Pausemode_go` | pause menu goalie item: pick team a2's goalie or pull him, then `setpersonel` (94S cycles, 94G shows a list) |
-| 94S | `PauseGoalieMode` | `ManualGoalieMenu` | pause menu "Manual Goalie" toggle. New folder `goalie/` (94G `goalie94`) |
+| 94S | `PauseGoalieMode` | `ManualGoalieMenu` | pause menu "Manual Goalie" toggle. Folder `period/` (94G `period94`) |
 | 94S | `ReloadRink` | `ExitStatsScreen` | every pause screen leaves through it: screen off, then the rink again (94G: forceblack, then `ReloadRinkGraphics`) |
 | 94S | `GetPlayerRecord` | `GetPlayerNamePointer` | a0 = roster record of player d0 of team a2; same callers (`getname`, `FormatPlayerNumInitial`) |
 | 93S | `GetRosterEntry89` | `GetPlayerNamePointer` | the same routine in 93S; 93G has both `GetRosterEntry` and `GetPlayerNamePointer`, and this is the one `getname` calls |

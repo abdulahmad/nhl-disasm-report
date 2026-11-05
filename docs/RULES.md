@@ -37,4 +37,4 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 - 2026-11-05 files: 95S CreditsList.asm → CreditsPages.asm; pairing counts unchanged. (95S #6 `19eff3e`; `tools/gate.sh`)
 - 2026-11-05 leftover split: 94G `goalie94` keeps `ManualGoalieMenu`; arena/faceoff to `arena94`; `title94` keeps TitleScreen/credits; pre-title to `songs94`, palettes/helpers to `logos94`. Pairing counts unchanged. (94G #232/#233 `27e3bfc`; `tools/gate.sh`)
 - 2026-11-05 pages: two main merges close together left GitHub Pages stuck on `updating_pages` (`0a19ba9`, run 42088771885), so `1a8b663` failed with "in progress deployment" (run 42093498456). Content was fine; cancel the stuck SHA then redeploy. Pairing counts unchanged.
-
+- 2026-11-05 leftover recut: 94G leftover files are period94 / arena94 / shootoutpath94 / ui94 / helpers94 / title94 / logos94 / chgplayer94. The leftover path slice is not `shootout94` (that file is the $FC320 UI). 94S `ManualGoalieMenu` lives in `period/`. (Abdul 2026-11-05)

@@ -200,30 +200,40 @@
       "game/period stats",
       "high"
     ],
-    "goalie94.asm": [
-      "ai",
-      "goalie",
-      "med"
-    ],
     "arena94.asm": [
       "display",
       "arena animation",
       "med"
     ],
-    "songs94.asm": [
-      "sound",
-      "song select",
+    "shootoutpath94.asm": [
+      "rules",
+      "shootout",
+      "high"
+    ],
+    "ui94.asm": [
+      "frontend",
+      "title/credits",
+      "med"
+    ],
+    "helpers94.asm": [
+      "players",
+      "one-timers",
       "med"
     ],
     "title94.asm": [
       "frontend",
       "title/credits",
-      "med"
+      "high"
     ],
     "logos94.asm": [
       "frontend",
       "team logos",
       "med"
+    ],
+    "chgplayer94.asm": [
+      "input",
+      "player control",
+      "high"
     ]
   },
   "placement": {

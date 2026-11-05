@@ -2,11 +2,11 @@
 
 ## Now
 
-- Stage / unit: recover GitHub Pages after #72 deploy failed (stuck prior Pages deployment `0a19ba9`).
-- Branch: `cursor/pages-unstick-6de6`
-- Last check: pairing input unchanged (docs + recover-pages workflow only). Prior `tools/gate.sh main` PAIRING OK, all counts 0 (2026-11-05).
-- Next: confirm Pages is green on main after merge.
-- Open PRs: (this unit)
+- Stage / unit: leftover recut — classify period94 / arena94 / shootoutpath94 / ui94 / helpers94 / title94 / logos94 / chgplayer94; 94S ManualGoalieMenu in period/.
+- Branch: `cursor/leftover-recut-f6fc`
+- Last check: `tools/gate.sh cursor/leftover-recut-f6fc` PAIRING OK, all counts 0. 94G `d3c2599f` files 39; 94S groups 48 (goalie/ gone).
+- Next: merge
+- Open PRs: this unit
 
 ## Status (2026-10-20)
 

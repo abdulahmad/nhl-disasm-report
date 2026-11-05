@@ -258,8 +258,40 @@ function classifyByFileContext(n, file, comment, body) {
   }
   if (file === "period94.asm") {
     if (/Shootout/i.test(n)) return { category: "rules", subcategory: "shootout", confidence: "high", why: "shootout end" };
+    if (/Goalie/i.test(n)) return { category: "frontend", subcategory: "pause menu", confidence: "high", why: "manual goalie" };
     if (/Arena|Camera/i.test(n)) return { category: "display", subcategory: "crowd/arena", confidence: "med", why: "arena in period" };
     return { category: "stats", subcategory: "game/period stats", confidence: "high", why: "period file" };
+  }
+  if (file === "arena94.asm") {
+    if (/Song/i.test(n)) return { category: "sound", subcategory: "music", confidence: "high", why: "organ songs" };
+    return { category: "display", subcategory: "crowd/arena", confidence: "high", why: "arena file" };
+  }
+  if (file === "shootoutpath94.asm") {
+    if (/LineData|WinRecord/i.test(n)) return { category: "stats", subcategory: "records/name entry", confidence: "high", why: "saved lines" };
+    return { category: "rules", subcategory: "shootout", confidence: "high", why: "shootout path file" };
+  }
+  if (file === "ui94.asm") {
+    if (/PrintPlayer|Paren/i.test(n)) return { category: "stats", subcategory: "game/period stats", confidence: "med", why: "stat print" };
+    if (/PlaceBoard|Fall/i.test(n)) return { category: "display", subcategory: "overlays/highlights", confidence: "med", why: "board fall" };
+    if (/Faceoff/i.test(n)) return { category: "gameloop", subcategory: "faceoffs", confidence: "med", why: "faceoff anim" };
+    if (/Fgt|CrowdRecord|ScoreLeader/i.test(n)) return { category: "stats", subcategory: "records/name entry", confidence: "med", why: "records helpers" };
+    return { category: "frontend", subcategory: "title/credits", confidence: "med", why: "ui file" };
+  }
+  if (file === "helpers94.asm") {
+    if (/OneTimer/i.test(n)) return { category: "players", subcategory: "one-timers", confidence: "high", why: "ot helper" };
+    if (/Goalie/i.test(n)) return { category: "ai", subcategory: "goalie", confidence: "high", why: "goalie pulled" };
+    if (/Attrib/i.test(n)) return { category: "stats", subcategory: "player cards", confidence: "med", why: "attrib" };
+    if (/PuckComing/i.test(n)) return { category: "puck", subcategory: "puck physics", confidence: "med", why: "puck coming" };
+    return { category: "system", subcategory: "flags", confidence: "med", why: "helpers file" };
+  }
+  if (file === "logos94.asm") {
+    if (/Song/i.test(n)) return { category: "sound", subcategory: "music", confidence: "high", why: "lead song" };
+    if (/Penalt|clrTmPdst/i.test(n)) return { category: "rules", subcategory: "penalties", confidence: "high", why: "penalties in logos" };
+    if (/HotCold/i.test(n)) return { category: "stats", subcategory: "player cards", confidence: "med", why: "hot/cold" };
+    return { category: "frontend", subcategory: "team logos", confidence: "high", why: "logos file" };
+  }
+  if (file === "chgplayer94.asm") {
+    return { category: "input", subcategory: "player control", confidence: "high", why: "chgplayer file" };
   }
   if (file === "shootout94.asm") {
     if (/Txt$|BigTxt$/i.test(n)) return { category: "data", subcategory: "strings", confidence: "high", why: "shootout text" };
@@ -490,24 +522,9 @@ function classifyByFileContext(n, file, comment, body) {
     return { category: "display", subcategory: "crowd/arena", confidence: "med", why: "crowd file" };
   }
 
-  // goalie94 - mix of goalie menu and arena anim
-  if (file === "goalie94.asm") {
-    if (/Goalie|goalie/i.test(n)) return { category: "ai", subcategory: "goalie", confidence: "high", why: "goalie" };
-    if (/Arena|Camera|FaceoffAnim/i.test(n)) return { category: "display", subcategory: "crowd/arena", confidence: "med", why: "arena anim" };
-    return { category: "ai", subcategory: "goalie", confidence: "low", why: "goalie file" };
-  }
-
-  // title94 - grab bag
+  // title94 - title screen and credits
   if (file === "title94.asm") {
-    if (/Song|song/i.test(n)) return { category: "sound", subcategory: "music", confidence: "high", why: "songs" };
-    if (/Shootout|Path|SkatePath|ShootoutShoot/i.test(n)) return { category: "rules", subcategory: "shootout", confidence: "high", why: "shootout path" };
-    if (/Title|Credit|HiScore|UnpackPicture|LoadHomeTeam|TeamGfx|DrawPlayoff|boardFall|PlaceBoard/i.test(n))
-      return { category: "frontend", subcategory: "title/credits", confidence: "med", why: "title" };
-    if (/Record|Name|Log|CrowdRecord|Fgt|ScoreLeader|LineData|ClearWin/i.test(n))
-      return { category: "stats", subcategory: "records/name entry", confidence: "med", why: "records helpers" };
-    if (/FaceoffAnim|RandomFaceoff/i.test(n)) return { category: "gameloop", subcategory: "faceoffs", confidence: "med", why: "faceoff anim" };
-    if (/PrintPlayer|Assists|Goals|Paren/i.test(n)) return { category: "stats", subcategory: "game/period stats", confidence: "med", why: "stat print" };
-    return { category: "frontend", subcategory: "title/credits", confidence: "low", why: "title file" };
+    return { category: "frontend", subcategory: "title/credits", confidence: "high", why: "title file" };
   }
 
   // cards94

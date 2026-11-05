@@ -40,7 +40,7 @@ src/
 ```
 src/
   nhl94.asm (top), main94, hockey94, setup94, collide94, logic94, penalty94, period94, stats94, cards94,
-  scout94, shootout94, onetimer94, goalie94, fourway94, crowd94, replay94, records94, title94, menu94,
+  scout94, shootout94, onetimer94, arena94, shootoutpath94, ui94, helpers94, fourway94, crowd94, replay94, records94, title94, logos94, chgplayer94, menu94,
   optsetup94, middle94, video94, print94, decompress94, sram94, checksum94, tables94, teamdata94,
   frames94, graphics94, ram94
   sega/   segacd/   sound/   macros/
