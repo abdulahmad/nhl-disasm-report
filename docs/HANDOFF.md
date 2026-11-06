@@ -2,8 +2,8 @@
 
 ## Now
 
-- Stage / unit: regen after asstab slot `$00` named `anull` (93S #123, 94S #389, 94G #236).
-- Branch: `cursor/asstab-anull-report-063b`
+- Stage / unit: regen after 95PC leftover functional work (SHA only; 93S/94S/94G asstab already on #78).
+- Branch: `cursor/regen-95pc-e79b`
 - Last check: `tools/gate.sh` PAIRING OK, all counts 0, known pairs 752 (2026-11-06).
 - Next: none for this unit.
 - Open PRs: this unit
@@ -12,7 +12,7 @@
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `c57bad143d`, 95G `edc9f7e255`, 96G `105ce1f1a3`, 93S `d7f287545f`, 94S `e6833cb48b`, 95S `19eff3eff9`, 95P `dfb5364a54`.
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `c57bad143d`, 95G `edc9f7e255`, 96G `105ce1f1a3`, 93S `d7f287545f`, 94S `e6833cb48b`, 95S `19eff3eff9`, 95P `2339fb69d6`.
 
 ## Pairing gate
 
