@@ -572,10 +572,16 @@ def snes_routine_nodes(src, q, depth):
                 nodes.append(label_node(depth + 1, lm.group(1), lm.group(2)))
     return nodes
 
-def snes_data_file_nodes(src, q, depth):
-    """A src/data/<x>.asm (teamdata, frames) as a file node with its labels as routines (as a Genesis file),
-    local labels under each routine. Matches the Genesis teamdata / frames files by the matching-file rule."""
+def snes_data_file_nodes(src, q, depth, seen=None):
+    """A src/data .asm (teamdata, frames, gfx / sound / text / tables) as a file node with its labels as
+    routines, local labels under each, and nested .asm incsrc walked like a Genesis include.
+    Also used for root equate files (RAM, inc/snes_regs.asm). Matches Genesis teamdata / frames by file key."""
     rp = os.path.relpath(q, src).replace('\\', '/')
+    if seen is None:
+        seen = set()
+    if rp.lower() in seen:
+        return []
+    seen.add(rp.lower())
     L = read(q)
     labels = dict(label_starts(L, TREE_NOEMIT))
     nodes = [[depth, 0, rp, '']]
@@ -588,11 +594,27 @@ def snes_data_file_nodes(src, q, depth):
         lm = LOCAL.match(l)
         if lm and inr:
             nodes.append(label_node(depth + 2, lm.group(1), lm.group(2)))
+            continue
+        m = INCSRC.match(l)
+        if not m:
+            continue
+        inr = False
+        low = m.group(1).lower().replace('\\', '/')
+        if not low.endswith('.asm') or low.startswith('macros/'):
+            continue
+        nq = resolve_inc(src, m.group(1), os.path.dirname(q))
+        if not nq:
+            continue
+        nrp = os.path.relpath(nq, src).replace('\\', '/')
+        if nrp.startswith('routines/'):
+            nodes += snes_routine_nodes(src, nq, depth + 1)
+        else:
+            nodes += snes_data_file_nodes(src, nq, depth + 1, seen)
     return nodes
 
-def is_top_data(rp):
-    """src/data/<x>.asm directly in data/ (teamdata, frames); the gfx / sound / text / tables files stay leaves."""
-    return rp.startswith('data/') and rp.count('/') == 1
+def is_data(rp):
+    """Any src/data/*.asm: teamdata / frames and the gfx / sound / text / tables files."""
+    return rp.replace('\\', '/').startswith('data/')
 
 def is_root_equ(rp):
     """An equate file the SNES root includes: the RAM file next to the root, or a src/inc/ file (snes_regs.asm,
@@ -601,8 +623,9 @@ def is_root_equ(rp):
 
 def tree_snes(src, top):
     """Banks view. Root file -> its incsrc'd .asm files (macros/ skipped) -> for banks/*.asm, each
-    incsrc in order: a src/routines .asm is a routine (stem); any other .asm is a leaf data file.
-    Root-level equate files (the RAM file, inc/snes_regs.asm) are files with their equates as rows."""
+    incsrc in order: a src/routines .asm is a routine (stem); a src/data .asm is a file with its
+    labels (as a Genesis included data file). Root-level equate files (the RAM file, inc/snes_regs.asm)
+    and root-included data files are files with their equates / labels as rows."""
     nodes = []
     nodes.append([0, 0, top, ''])
     for l in read(os.path.join(src, top)):
@@ -616,8 +639,8 @@ def tree_snes(src, top):
         if not bp:
             continue
         brp = os.path.relpath(bp, src).replace('\\', '/')
-        if is_root_equ(brp):
-            nodes += snes_data_file_nodes(src, bp, 1)  # ram93s.asm, inc/snes_regs.asm: equates as rows, as the Genesis RAM files
+        if is_root_equ(brp) or is_data(brp):
+            nodes += snes_data_file_nodes(src, bp, 1)  # ram93s.asm, inc/snes_regs.asm, data/sound/spcaddr.asm
             continue
         nodes.append([1, 0, brp, '' if low.startswith('banks/') else 'data'])
         if not low.startswith('banks/'):
@@ -630,7 +653,7 @@ def tree_snes(src, top):
             rp = os.path.relpath(q, src).replace('\\', '/')
             if rp.startswith('routines/'):
                 nodes += snes_routine_nodes(src, q, 2)
-            elif is_top_data(rp):
+            elif is_data(rp):
                 nodes += snes_data_file_nodes(src, q, 2)
             else:
                 nodes.append([2, 0, rp, 'data'])
@@ -641,11 +664,17 @@ def tree_snes_groups(src, top, g):
     one node per folder as in the report's groups view) -> its routines (stem) and their labels.
     Records g['gb'] = [[start, end, module key]] per module block so the page can re-sort modules by the other pane."""
     nodes = [[0, 0, top, '']]
-    for l in read(os.path.join(src, top)):  # root-level equate files (inc/snes_regs.asm, ram93s.asm) first, as in the banks tree
+    seen = set()
+    def emit_data(q, depth):
+        nodes.extend(snes_data_file_nodes(src, q, depth, seen))
+    for l in read(os.path.join(src, top)):  # root-level equate files and data (inc/snes_regs.asm, ram93s.asm, data/sound/spcaddr.asm)
         m = INCSRC.match(l)
         bp = resolve(src, m.group(1)) if m else None
-        if bp and m.group(1).lower().endswith('.asm') and is_root_equ(os.path.relpath(bp, src).replace('\\', '/')):
-            nodes += snes_data_file_nodes(src, bp, 1)
+        if not bp or not m.group(1).lower().endswith('.asm'):
+            continue
+        rp = os.path.relpath(bp, src).replace('\\', '/')
+        if is_root_equ(rp) or is_data(rp):
+            emit_data(bp, 1)
     blocks = []
     for grp in g['groups']:
         if grp['d'] == 0:
@@ -658,7 +687,7 @@ def tree_snes_groups(src, top, g):
     if blocks:
         blocks[-1][1] = len(nodes)
     g['gb'] = blocks
-    # the data files directly in src/data (teamdata, frames), in bank-include order, after the groups
+    # src/data files (teamdata, frames, gfx / sound / text / tables), in bank-include order, after the groups
     for l in read(os.path.join(src, top)):
         m = INCSRC.match(l)
         if not m or not m.group(1).replace('\\', '/').startswith('banks/'):
@@ -667,8 +696,11 @@ def tree_snes_groups(src, top, g):
         for bl in read(bp) if bp else []:
             mm = INCSRC.match(bl)
             q = resolve_inc(src, mm.group(1), os.path.dirname(bp)) if mm else None
-            if q and is_top_data(os.path.relpath(q, src).replace('\\', '/')):
-                nodes += snes_data_file_nodes(src, q, 1)
+            if not q:
+                continue
+            rp = os.path.relpath(q, src).replace('\\', '/')
+            if is_data(rp) and rp.lower() not in seen:
+                emit_data(q, 1)
     return nodes
 
 def file_key(f):

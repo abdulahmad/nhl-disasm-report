@@ -2,8 +2,8 @@
 
 ## Now
 
-- Stage / unit: leftover recut regen — 94G `d3c2599f` files 39, 94S groups 48, 95G leftover remap `edc9f7e2`. CreditsPages / 95S CreditsPages.asm / 96G already current.
-- Branch: `cursor/regen-leftover-recut-cdb3`
+- Stage / unit: SNES `data/` include-tree — 93S 35 files (546 labels), 94S 561 (2030), 95S 1399 (2835); groups tree lists them after routines, same as Genesis included data.
+- Branch: `cursor/snes-data-report-25c3`
 - Last check: `tools/gate.sh` PAIRING OK, all counts 0, known pairs 752 (2026-11-06).
 - Next: none for this unit.
 - Open PRs: this unit
@@ -12,7 +12,7 @@
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `d3c2599f64`, 95G `edc9f7e255`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `2bef62cd19`, 95S `19eff3eff9`, 95P `f2dbcc030b`.
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `d3c2599f64`, 95G `edc9f7e255`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `2bef62cd19`, 95S `19eff3eff9`, 95P `391390aa89`.
 
 ## Pairing gate
 

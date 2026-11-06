@@ -24,6 +24,8 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 
 ## Learned
 
+- 2026-11-06 report: SNES `src/data/` gfx/sound/text/tables files expand in the include tree (both banks and groups) the same as Genesis included data files; they are not empty `[data]` leaves. Pairing counts unchanged. (`tools/generate.py` `is_data`; `tools/gate.sh`)
+
 - 2026-11-04 D6: 96G leftover `sub_` names are named from job/callers/SRAM/role; same job + new body takes the 95G name. `input96_shot` SetRoles / SetTeamRoles / ClearRolesIfGoalie. Pairing counts unchanged. (96G `07141d8`; `tools/gate.sh`)
 - 2026-11-04 D6: 96G leftover `sub_`/`loc_`/`unk_` closed (StartDpadBoost through ram96 unk_FF). Pairing counts unchanged. (96G `f170dbe`; `tools/gate.sh`)
 - 2026-11-04 D6: 96G leftover ram96 `word_FF` / `byte_FF` / `dword_FF` named from job, 94G/95G RAM, or layout. Pairing counts unchanged. (96G `2a7c295`; `tools/gate.sh`)
