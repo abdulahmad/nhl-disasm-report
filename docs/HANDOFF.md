@@ -2,17 +2,17 @@
 
 ## Now
 
-- Stage / unit: leftover recut — classify period94 / arena94 / shootoutpath94 / ui94 / helpers94 / title94 / logos94 / chgplayer94; 94S ManualGoalieMenu in period/.
-- Branch: `cursor/leftover-recut-f6fc`
-- Last check: `tools/gate.sh cursor/leftover-recut-f6fc` PAIRING OK, all counts 0. 94G `d3c2599f` files 39; 94S groups 48 (goalie/ gone).
-- Next: merge
+- Stage / unit: leftover recut regen — 94G `d3c2599f` files 39, 94S groups 48, 95G leftover remap `edc9f7e2`. CreditsPages / 95S CreditsPages.asm / 96G already current.
+- Branch: `cursor/regen-leftover-recut-cdb3`
+- Last check: `tools/gate.sh` PAIRING OK, all counts 0, known pairs 752 (2026-11-06).
+- Next: none for this unit.
 - Open PRs: this unit
 
 ## Status (2026-10-20)
 
 - The report is regenerated from the latest `main` of all seven source repos (92G, 93G, 94G, 95G, 96G, 93S, 94S). The generated files are `docs/index.html` and `docs/data/<game>.js`; the same source SHAs give byte-identical output.
 - Regenerate with `python3 tools/generate.py` (fetches each source repo at `origin/main` into `.cache/src`, read-only; `--offline` reuses the cache). Open a PR and merge it each time a source repo changes layout or names. Agents may merge `claude/project-thread-ggw7zu` into `main` here (this repo only, Abdul 2026-11-03) once `tools/gate.sh` passes.
-- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `27e3bfcdaf`, 95G `6672f64487`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `e72e360f0c`, 95S `19eff3eff9`, 95P `ca365f1a74`.
+- Last sources (origin/main): 92G `9eeb1a1134`, 93G `c7b3ca2956`, 94G `d3c2599f64`, 95G `edc9f7e255`, 96G `105ce1f1a3`, 93S `9e442accb8`, 94S `2bef62cd19`, 95S `19eff3eff9`, 95P `f2dbcc030b`.
 
 ## Pairing gate
 
