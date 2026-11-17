@@ -151,6 +151,46 @@ def do_apply(root, lp, L, edits):
     return n
 
 
+def nest_check(root, write):
+    """Nested includes: a fragment that includes another fragment in its middle. The root list must say so in a
+    comment on the parent's include line ("nests CHILD between A and B"), so the include tree can be read from the
+    root file alone. --nest checks the comments (exit 1 when one is missing or wrong); --nest-write fixes them."""
+    root = os.path.abspath(root)
+    rootlist = os.path.join(root, 'src', 'segacd', 'hockey.asm')
+    L = open(rootlist, encoding='latin-1').read().split('\n')
+    bad = 0
+    for k, line in enumerate(L):
+        m = re.match(r'^(\s*include\s+)(\S+)(\s*;.*)?$', line)
+        if not m:
+            continue
+        rel = m.group(2).replace('\\', '/')
+        parent = os.path.join(root, 'src', rel)
+        if not rel.startswith('segacd/hockey/') or not os.path.isfile(parent):
+            continue
+        P = open(parent, encoding='latin-1').read().split('\n')
+        parts = []
+        for i, pl in enumerate(P):
+            im = INC.match(pl)
+            if im:
+                before = next((re.match(r'^([A-Za-z_]\w*)', P[j]).group(1) for j in range(i - 1, -1, -1)
+                               if re.match(r'^[A-Za-z_]\w*', P[j]) and not P[j].startswith((' ', '\t', ';'))), None)
+                after = next((re.match(r'^([A-Za-z_]\w*)', P[j]).group(1) for j in range(i + 1, len(P))
+                              if re.match(r'^[A-Za-z_]\w*', P[j]) and not P[j].startswith((' ', '\t', ';'))), None)
+                child = os.path.basename(norm(im.group(1)))
+                parts.append(f'{child} ' + (f'between {before} and {after}' if before and after else f'after {before}' if before else 'at the start'))
+        want = ('; nests ' + ', '.join(parts)) if parts else ''
+        have = (m.group(3) or '').strip()
+        if have != want:
+            bad += 1
+            print(f'   {rel}: comment is {have or "missing"!r}, should be {want or "none"!r}')
+            if write:
+                L[k] = m.group(1) + m.group(2) + ('\t\t\t' + want if want else '')
+    if write and bad:
+        open(rootlist, 'w', encoding='latin-1').write('\n'.join(L))
+    print(f'{bad} nest comment(s) ' + ('fixed' if write else 'wrong') if bad else 'nest comments OK')
+    return 1 if bad and not write else 0
+
+
 def label_check(root):
     """For every numbered/base fragment, list the labels whose cartridge file (src/*.asm) is not the fragment's name.
     A fragment under the wrong cartridge name shows up here; a clean result means the pairing is right and the
@@ -184,9 +224,13 @@ if __name__ == '__main__':
     ap.add_argument('repos', nargs='+')
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--fold', type=int, default=100)
+    ap.add_argument('--nest', action='store_true', help='check the nested-include comments in the Sega CD root list')
+    ap.add_argument('--nest-write', action='store_true', help='write those comments')
     ap.add_argument('--labels', action='store_true', help='check fragment names against cartridge labels (Sega CD)')
     ap.add_argument('--disc-only', action='append', default=list(DISC_ONLY))
     a = ap.parse_args()
+    if a.nest or a.nest_write:
+        sys.exit(max(nest_check(r, a.nest_write) for r in a.repos))
     if a.labels:
         for r in a.repos:
             label_check(r)
