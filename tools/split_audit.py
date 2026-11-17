@@ -151,13 +151,46 @@ def do_apply(root, lp, L, edits):
     return n
 
 
+def label_check(root):
+    """For every numbered/base fragment, list the labels whose cartridge file (src/*.asm) is not the fragment's name.
+    A fragment under the wrong cartridge name shows up here; a clean result means the pairing is right and the
+    split is a real reordering in the binary."""
+    root = os.path.abspath(root)
+    cart = {}
+    for f in sorted(os.listdir(os.path.join(root, 'src'))):
+        if f.endswith('.asm') and not f.startswith(('ram', 'frames')):
+            for l in open(os.path.join(root, 'src', f), encoding='latin-1'):
+                m = re.match(r'^([A-Za-z_]\w*)', l)
+                if m and not l.startswith((' ', '\t', ';')):
+                    cart.setdefault(m.group(1), f[:-4])
+    bad = 0
+    for dp, dn, fn in os.walk(os.path.join(root, 'src', 'segacd', 'hockey')):
+        for f in sorted(fn):
+            if not f.endswith('.asm'):
+                continue
+            want = re.sub(r'_\d+$', '', f[:-4])
+            if want not in cart.values():
+                continue  # disc-only fragment (cdhockey, teamdata)
+            for i, l in enumerate(open(os.path.join(dp, f), encoding='latin-1'), 1):
+                m = re.match(r'^([A-Za-z_]\w*)', l)
+                if m and not l.startswith((' ', '\t', ';')) and m.group(1) in cart and cart[m.group(1)] != want:
+                    print(f'   {f}:{i} {m.group(1)} is in cartridge {cart[m.group(1)]}.asm')
+                    bad += 1
+    print(f'{bad} label(s) filed under another cartridge file' if bad else 'pairing OK: every cartridge label sits in its own fragment')
+
+
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('repos', nargs='+')
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--fold', type=int, default=100)
+    ap.add_argument('--labels', action='store_true', help='check fragment names against cartridge labels (Sega CD)')
     ap.add_argument('--disc-only', action='append', default=list(DISC_ONLY))
     a = ap.parse_args()
+    if a.labels:
+        for r in a.repos:
+            label_check(r)
+        sys.exit(0)
     total = sum(audit(r, a.apply, a.fold, set(a.disc_only)) for r in a.repos)
     if a.apply:
         print(f'{total} merges applied: run the repo check (tools/verify_all.sh -q) before committing')
