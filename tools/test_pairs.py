@@ -48,8 +48,9 @@ def year_key(name):
 def genesis_labels(d):
     """lowercase label -> top-level source file (sega/, sound/, segacd/, macros/ and ram files skipped)."""
     out = {}
-    for p in sorted(glob.glob(os.path.join(d, 'src', '*.asm'))):
-        if os.path.basename(p).lower().startswith('ram'):
+    for p in sorted(glob.glob(os.path.join(d, 'src', '**', '*.asm'), recursive=True)):
+        rel = os.path.relpath(p, os.path.join(d, 'src')).replace('\\', '/')
+        if os.path.basename(p).lower().startswith('ram') or rel.split('/')[0] in ('sega', 'sound', 'segacd', 'macros', 'inc'):
             continue
         for line in open(p, encoding='latin-1'):
             m = re.match(r'^([A-Za-z_]\w*)\b(.*)', line)
