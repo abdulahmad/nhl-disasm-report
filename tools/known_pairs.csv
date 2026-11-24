@@ -501,7 +501,7 @@ a_game,a_name,b_game,b_name,note
 95G,RecordTeamResult,95S,RecordTeamResult,95G front/season
 95G,reenergizeteam,95S,reenergizeteam,95G engine/middle
 94S,reenergizeteam,95S,reenergizeteam,94S routines/penalty/energy/reenergizeteam.asm
-95G,RefTiles,95S,RefTiles,95G graphics
+95G,RefsMap,95S,RefsMap,95G graphics (95G RefTiles took its 94G name RefsMap)
 95G,releasepl,95S,releasepl,95G engine/penalty
 94S,releasepl,95S,releasepl,94S routines/penalty/penalties/releasepl.asm
 95G,ReleasePlayers,95S,ReleasePlayers,95G front/create
