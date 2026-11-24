@@ -208,7 +208,7 @@ def label_check(root):
         for f in sorted(fn):
             if not f.endswith('.asm'):
                 continue
-            want = re.sub(r'_\d+$', '', f[:-4])
+            want = re.sub(r'cd$', '', re.sub(r'_\d+$', '', f[:-4]))
             if want not in cart.values():
                 continue  # disc-only fragment (cdhockey, teamdata)
             for i, l in enumerate(open(os.path.join(dp, f), encoding='latin-1'), 1):
