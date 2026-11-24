@@ -284,7 +284,7 @@ Afterwards the report's crosswalk is exact, and 94S can take the 93S area as its
 **B3. Tables folder.** 93S keeps 7 small tables in `routines/tables/` (`Penaltylist`, `linelist`, `asstab`...), while 94S
 keeps the same kind of table in `data/tables/`. Move the 93S ones to `data/tables/`, so both SNES repos have the same shape.
 
-The resulting trees and before/after examples are in [ALIGNMENT_folders.md](ALIGNMENT_folders.md).
+The resulting trees and before/after examples are in [project/folder_preview.md](project/folder_preview.md).
 
 ### 5.3 Names: 4 real conflicts
 
@@ -365,7 +365,7 @@ for byte, and it has RULES.md, an advisor and the functional track.
 * **F2b: file split and repo shape.** Today the code is in `src/cseg01/` and `src/c/`, in folders named `NNN_ADDR_topic`. I propose
   `src/c/{engine,front,pc,lib}/<module>` with matching asm, where each module is named after the 95G file it pairs with
   (`engine/logic`, `engine/skate`, `front/trade`...), and the link order stays in `segments.txt`. Options and cost are in
-  [ALIGNMENT_folders.md](ALIGNMENT_folders.md). AGENTS.md says the `NNN_*` names stay, so this is your call (decision 3).
+  [project/folder_preview.md](project/folder_preview.md). AGENTS.md says the `NNN_*` names stay, so this is your call (decision 3).
 * **F3: renames.** **Done 4 Nov for this leftover.** 94G engine names applied (14). 95-feature DOS screens (season, trade, create, awards) have no shared bodies (`xmatch95.py`); they keep the PC names. Still go through `docs/pending_renames.txt` and the progress workflow, so the generated files stay right.
   With no one else editing the C, later renames can go in large batches, one 95G subsystem per unit. They wait for C5 and D5, because 95PC copies
   those 94S and 95G names. Put them between C/D and E.
@@ -465,7 +465,7 @@ hand-edited, and PR titles.
 unmatched against 95G once 95PC is added.
 
 **F2b (file split) changes:** the 95PC folders are named by subsystem and module instead of segment number and address,
-so its tree looks like 95G's `engine/` and `front/`. See [ALIGNMENT_folders.md](ALIGNMENT_folders.md) for option A (rename and group)
+so its tree looks like 95G's `engine/` and `front/`. See [project/folder_preview.md](project/folder_preview.md) for option A (rename and group)
 and option B (keep as is).
 
 **My recommendation:** yes to F0 and F2, and option A for F2b, done after F0 while no one else has open work in the tree.

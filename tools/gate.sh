@@ -1,11 +1,11 @@
 #!/bin/sh
-# Pairing gate: regenerate the report for main (docs/) and for the alignment branch (docs/branch/, the branch
-# where a repo has it, else main), then run the pairing checks on the branch. Exit 1 if a known pair breaks or
+# Pairing gate: regenerate the report for main (docs/) and for a branch view (docs/branch/, the given branch
+# where a repo has it, else main), then run the pairing checks on that view. Exit 1 if a known pair breaks or
 # a count rises above tools/baseline.json. The page's Source picker switches between the two.
-#   tools/gate.sh [branch]        default branch: claude/project-thread-ggw7zu
+#   tools/gate.sh [branch]        default branch: main
 set -e
 cd "$(dirname "$0")/.."
-branch="${1:-claude/project-thread-ggw7zu}"
+branch="${1:-main}"
 python3 tools/generate.py
 python3 tools/generate.py --branch "$branch" --docs docs/branch
 # repos the report does not show yet, but the pairing checks read (stale 94G file names, known pairs)
