@@ -4,22 +4,22 @@
 with no access to the project chat. This page is the map; the detail lives in the linked docs. The project's working
 notes are copied into [docs/project/](docs/project/) so you can read them from this repo.
 
-Last updated: 2026-11-04 (D2/D5/D6 and F3 95-feature names closed; CONTRIBUTING rewrite still on the branch).
+Last updated: 2026-11-24. The project branches (`claude/project-thread-ggw7zu`, `claude/project-thread-4gad59`, `sdl2-port`)
+are merged and deleted; every repo now works on `main` through small pull requests. The workstream table in section 5 is the
+2026-11-04 state; each repo's `docs/HANDOFF.md` Now block is current.
 
 ## 1. Goal
 
 Bring Abdul's EA NHL disassemblies (Genesis, SNES, DOS) and the NHL '94 C ports into one shape: the same names and the
 same folder layout for the same code across games, with every change proven by a program (byte-for-byte MATCH, the
 report's pairing gate, frame hashes), never by "looks right". The C ports also need to be shown to play like the original
-game and stay as vanilla as the SDL2 ports. Full reasoning: [alignment_plan_all_games.md](docs/project/alignment_plan_all_games.md)
+game and stay as vanilla as the SDL2 ports. Full reasoning: [docs/ALIGNMENT.md](docs/ALIGNMENT.md)
 and [c_ports_plan.md](docs/project/c_ports_plan.md).
 
 ## 2. Standing rules (Abdul's; they override anything older)
 
-1. **Nothing merges to `main` yet**, except in nhl-disasm-report. All work goes on the project branch (section 4). Pushing
-   there needs **no approval**, so don't wait for one, and tell every subagent the same. PRs are opened for review only; do
-   not merge them. **Exception (Abdul, 2026-11-03):** nhl-disasm-report only may merge `claude/project-thread-ggw7zu` into
-   `main`, so the live page (GitHub Pages, built from `main`) shows the current report. Every other repo stays branch-only.
+1. **Work goes to `main` through small pull requests.** Each unit is a short branch off the current `main` and one PR,
+   merged with a normal merge commit. Never squash, rebase or force-push.
 2. **Alignment with the related games wins**, including over names already in a repo from earlier contributors
    (McMarkis's in 95S included). Who decides each name and folder is the authority table in each repo's `docs/RULES.md`;
    in short: a shared routine keeps the earliest game's name (92G is the root), the same-year Genesis game decides folders
@@ -27,7 +27,7 @@ and [c_ports_plan.md](docs/project/c_ports_plan.md).
 3. **`main` stays byte-exact** in the asm repos, and **NHL92Genesis is never edited**.
 4. **ROMs and EXEs never go into a repo that doesn't already hold them.** They are in
    [EA-NHL-Disassembly-Project](https://github.com/abdulahmad/EA-NHL-Disassembly-Project) (`NHL94-Genesis/nhl94retail.bin`,
-   `NHL94-SNES/NHL '94 (USA).sfc`, `NHL93-*`, `NHL95-Genesis/`, ...); copy them out before use. NHL95PC commits its own `HOCKEY.EXE`.
+   `NHL94-SNES/NHL '94 (USA).sfc`, `NHL93-*`, `NHL95-Genesis/`, ...); copy them out before use. No repo commits a retail EXE; NHL95PC reads your own `retail/HOCKEY.EXE`.
 5. **Credit first.** Every asm repo's `AGENTS.md` has a "derivative work and credit" section; any port, mod or fork carries it.
 6. **History lives in `docs/name_map.csv`**, never in source comments. No other game's names in comments.
 7. **Never guess a name.** No evidence means it stays on the Unsure list. Every correction Abdul makes becomes one line in
@@ -40,24 +40,16 @@ and [c_ports_plan.md](docs/project/c_ports_plan.md).
 | Group | Repos | Role |
 |---|---|---|
 | Byte-matching asm | NHL92Genesis (92G), NHLPA93Genesis (93G), NHL94Genesis (94G), NHL95Genesis (95G), NHL96Genesis (96G), NHLPA93SNES (93S), NHL94SNES (94S), NHL95SNES (95S) | rebuild the retail ROM byte for byte; names and layout aligned across them |
-| DOS | NHL94PC, NHL94PCDemo, NHL95PC (95P), NHL96PC | EXE rebuilds. NHL95PC also has C matching (Watcom 10.0) and a functional-equivalence track. Branch `sdl2-port` in NHL94PC/NHL95PC is the SDL2 port (the "vanilla" reference) |
+| DOS | NHL94PC, NHL94PCDemo, NHL95PC (95P), NHL96PC | EXE rebuilds. NHL95PC also has C matching (Watcom 10.0) and a functional-equivalence track. The SDL2 ports (`port/`, on `main` in NHL94PC/NHL95PC/NHL96PC/NHL97PC) are (the "vanilla" reference) |
 | C ports | NHL94Genesis-C-Port (1nput's ninety-four, the Genesis base), gens94-c (INDIO, cross-check), NHL94SNES-C-Port (INDIO) | NHL '94 in C, checked by per-frame hashes |
 | Report | nhl-disasm-report (this repo) | cross-game comparison site and the pairing gate |
 | Tools, reference | EA-NHL-Tools, EA-NHL-Disassembly-Project (holds the ROMs), vscode-nhl-asm | |
 
-## 4. Branches: which one, per repo (checked 2026-11-03)
+## 4. Branches
 
-There are two project branches, one per workstream. Both are right; they hold different work.
-
-| Branch | Workstream | Repos that have it |
-|---|---|---|
-| `claude/project-thread-ggw7zu` | asm alignment (names, folders, 95PC module layout, the pairing gate) | nhl-disasm-report, NHLPA93Genesis, NHL94Genesis, NHL95Genesis, NHL96Genesis, NHLPA93SNES, NHL94SNES, NHL95SNES, NHL94PC, NHL95PC |
-| `claude/project-thread-4gad59` | C ports | NHL94Genesis-C-Port, gens94-c, NHL94SNES-C-Port |
-| `sdl2-port` | SDL2 ports | NHL94PC, NHL95PC |
-
-So: continue alignment work on `ggw7zu`, C ports work on `4gad59`. A repo without the branch is read at `main` by the
-report's gate. Other `claude/project-thread-*` branches are older or single-task threads. This page lives on `ggw7zu`
-in nhl-disasm-report.
+Every repo works on `main` (checked 2026-11-24). The old project branches (`claude/project-thread-ggw7zu` for the asm
+alignment, `claude/project-thread-4gad59` for the C ports, `sdl2-port` for the SDL2 ports) are merged and deleted. Where
+the docs below say "on `ggw7zu`", the work is now on `main`.
 
 ## 5. Workstreams and status
 
@@ -68,19 +60,19 @@ in nhl-disasm-report.
 | 94S (Stage C) | moves and naming pass done on `ggw7zu`; Unsure names remain | regenerate report after the 94S comment pass | NHL94SNES `docs/HANDOFF.md`, [naming_review_94s.md](docs/project/naming_review_94s.md) |
 | 95G / 96G (Stage D) | A3/D1/D3/D4 done; D2 done (`LockScroll` → `freezewindow`; other fingerprint mismatches keep the 95 name); D5 done (95-feature names already in 95G `name_review_95.md`); D6 parked (96G Unsure, 95G wins only on a body match) | C ports (item 2). 94PC parked. 96PC later. | [naming_recommendation_and_95g_pass.md](docs/project/naming_recommendation_and_95g_pass.md), [ram_order_and_matches.md](docs/project/ram_order_and_matches.md) |
 | 95PC (Stage F) | F0/F2/F2b/F3-94G/F4 done on `ggw7zu`. F3 95-feature names: no body pairs (`xmatch95.py` on season/trade/create/awards); DOS screens keep PC names. | C matching (`WORK_QUEUE.md`). Report parser for 95PC later. | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), NHL95PC `HANDOFF.md` |
-| 95PC functional track | paused 2026-11-02; 25 of 109 drafts PASS | round 7 | NHL95PC `docs/FUNCTIONAL_HANDOFF.md` |
+| 95PC functional track | paused 2026-11-02; 25 of 109 drafts PASS | round 7 | NHL95PC `docs/FUNCTIONAL_PLAN.md` (Handoff) |
 | **95S (Stage E)** | **done** on `ggw7zu`: phases 0–6; MATCH 2026-11-03; pairing baseline every 95S count is 0. Optional leftovers only (14 kept names; ~38 comments that name 94S). `waitxsr` → `waitx` already applied in 93S and 94S. | nothing in the plan | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), NHL95SNES `docs/HANDOFF.md` |
 | **C ports** | **past E2** (per-repo HANDOFFs on `4gad59`, 2026-11-03). E2 lockstep 18/18, `make test` 10,276/10,276, golden 20/20; E3 18/18; E5 coverage 94.6% / lockstep 93.7% after extra vectors; `VANILLA=1` done; SNES 92 renames + re-cut (names gate 844 ok / 6 parked / 5 missing). gens94-c ignored from 2026-11-03. Open PRs `#1` stay unmerged. | Genesis coverage part 3 (53 unreached lockstep routines); SNES oracle (needs INDIO tools or build S2) | [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md) (read this first for C ports) |
 | 94PC (Stage G) | kit only; waits for the disassembly | | |
 
-Open PRs for review: the three C ports `#1`s on `4gad59`. Alignment PRs are views of `ggw7zu`, not merges.
+The project branches are merged; open PRs are listed in each repo.
 
 ## 6. Gates (a change passes only on these)
 
 | Gate | Command | Fails when |
 |---|---|---|
 | MATCH | `tools/verify_all.sh` in each asm repo; `make` / `make fullcheck` in NHL95PC | a byte differs from retail |
-| Pairing | `tools/gate.sh` in this repo (on `ggw7zu`): regenerates and runs `tools/test_pairs.py` against `known_pairs.csv`, `baseline.json`, `pair_exceptions.csv` | a known pair stops pairing, or a count rises above the baseline |
+| Pairing | `tools/gate.sh` in this repo: regenerates and runs `tools/test_pairs.py` against `known_pairs.csv`, `baseline.json`, `pair_exceptions.csv` | a known pair stops pairing, or a count rises above the baseline |
 | Scope | `tools/check_scope.py` (SNES repos); else `git diff --stat` against the unit's file list | the diff leaves the unit |
 | Equivalence (95PC) | `tools/equiv/check.py` | any case differs |
 | Frames (C ports) | `test/check.sh ROM` (INDIO repos), `make golden-check` / `make lockstep` (base) | any frame hash differs |
@@ -106,18 +98,16 @@ widen scope. Subagents run only when Abdul, an AGENTS.md or a skill asks for the
 
 1. This page, then [HARNESS.md](docs/project/HARNESS.md) (how the project is run).
 2. The handoff for your workstream: [c_ports_HANDOFF.md](docs/project/c_ports_HANDOFF.md), [95s_alignment_plan.md](docs/project/95s_alignment_plan.md), or the repo's `docs/HANDOFF.md` (NHL95PC: `HANDOFF.md`).
-3. In the repo you touch, on its project branch: `AGENTS.md`, then `docs/RULES.md` (read before every unit).
+3. In the repo you touch: `AGENTS.md`, then `docs/RULES.md` (read before every unit).
 4. For this report: [README.md](README.md), [docs/HANDOFF.md](docs/HANDOFF.md) and [docs/ALIGNMENT.md](docs/ALIGNMENT.md) (the approved all-games plan).
 
-Known trap: several repos' `HANDOFF.md` link to `docs/ALIGNMENT.md` on this repo's `main`; it only exists on `ggw7zu`
-(and as [docs/project/alignment_plan_all_games.md](docs/project/alignment_plan_all_games.md)).
+`docs/ALIGNMENT.md` is on this repo's `main`; the repos' `AGENTS.md` link there.
 
 ## 9. Index of docs/project/
 
 | File | What it is |
 |---|---|
 | [HARNESS.md](docs/project/HARNESS.md) | repos, rules, branches, kit, gates, tiers, night shift |
-| [alignment_plan_all_games.md](docs/project/alignment_plan_all_games.md) | the approved plan, stages A to G |
 | [93s_94g_94s_alignment_plan.md](docs/project/93s_94g_94s_alignment_plan.md) | first plan and the reasoning behind the harness (section 7) |
 | [95s_alignment_plan.md](docs/project/95s_alignment_plan.md) | 95S plan, phases 0 to 5 |
 | [95pc_module_layout.md](docs/project/95pc_module_layout.md), [95pc_file_names.md](docs/project/95pc_file_names.md), [95pc_engine_files.csv](docs/project/95pc_engine_files.csv), [95pc_95g_comment_samples.md](docs/project/95pc_95g_comment_samples.md) | 95PC module re-cut evidence and names |

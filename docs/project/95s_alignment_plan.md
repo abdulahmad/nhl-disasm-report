@@ -1,7 +1,7 @@
 # NHL95 SNES (95S) alignment plan
 
 Plan only: no repo changes until Abdul approves. Written 2026-11-03. Runs on the harness in [HARNESS.md](HARNESS.md);
-supersedes Stage E in [alignment_plan_all_games.md](alignment_plan_all_games.md) §8.
+supersedes Stage E in [docs/ALIGNMENT.md](../ALIGNMENT.md) §8.
 
 ## TL;DR
 
@@ -106,7 +106,7 @@ paired with a 95G or 94S routine whose names differ.
 **Phase 5, RAM (Sonnet; wide lane).** Rename `ram95s.asm` equates by the same rules, then reorder to the merged order. Two PRs.
 
 **Phase 6, done (Opus advisor review).** Report regenerated on both views, pairing baseline tightened, HANDOFF and RULES
-current, `alignment_plan_all_games.md` §8 marked done.
+current, `docs/ALIGNMENT.md` §8 marked done.
 
 ## 9. Model tiers and checkpoints
 
